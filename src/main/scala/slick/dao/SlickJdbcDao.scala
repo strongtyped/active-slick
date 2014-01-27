@@ -3,7 +3,12 @@ package slick.dao
 import scala.languageFeature.implicitConversions
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.JdbcProfile
+import scala.slick.lifted.Column
 
+
+trait IdentifiableTable[I] {
+  def id: Column[I]
+}
 
 abstract class SlickJdbcDao[R, I: JdbcProfile#BaseColumnType] {
 
@@ -13,11 +18,8 @@ abstract class SlickJdbcDao[R, I: JdbcProfile#BaseColumnType] {
 
   import profile.simple._
 
-  def query: TableQuery[_ <: BaseTable]
+  def query: TableQuery[_ <: Table[R] with IdentifiableTable[I]]
 
-  abstract class BaseTable(tag: Tag, tableName: String) extends Table[R](tag, tableName) {
-    def id: Column[I]
-  }
 
   def extractId(row: R): Option[I]
   def withId(row:R, id:I) : R
