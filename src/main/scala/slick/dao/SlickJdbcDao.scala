@@ -4,21 +4,20 @@ import scala.languageFeature.implicitConversions
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.JdbcProfile
 import scala.slick.lifted.Column
+import scala.slick.lifted
 
 
 trait IdentifiableTable[I] {
   def id: Column[I]
 }
 
-abstract class SlickJdbcDao[R, I: JdbcProfile#BaseColumnType] {
-
-  val profile: JdbcProfile
+abstract class SlickJdbcDao[R, I: JdbcProfile#BaseColumnType](val profile: JdbcProfile) {
 
   type Session = JdbcBackend#Session
 
   import profile.simple._
 
-  def query: TableQuery[_ <: Table[R] with IdentifiableTable[I]]
+  def query: lifted.TableQuery[_ <: Table[R] with IdentifiableTable[I]]
 
 
   def extractId(row: R): Option[I]
