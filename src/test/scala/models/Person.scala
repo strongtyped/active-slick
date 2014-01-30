@@ -1,7 +1,8 @@
 package models
 
-import slick.dao.{IdentifiableTable, SlickJdbcDao}
+import slick.dao.{BaseDaoComponent, IdentifiableTable}
 import scala.slick.driver.JdbcProfile
+import scala.slick.lifted
 
 case class Person(firstName: String, lastName: String, id: Option[Int] = None)
 
@@ -10,15 +11,13 @@ case class Person(firstName: String, lastName: String, id: Option[Int] = None)
  *
  * We only need to implement two methods. SlickJdbcDao.extractId and SlickJdbcDao.withId.
  */
-trait PersonComponent {
-
-  val profile: JdbcProfile
+trait PersonComponent extends BaseDaoComponent {
 
   import profile.simple._
 
-  object PersonDao extends SlickJdbcDao[Person, Int](profile) {
+  object PersonDao extends SlickJdbcDao[Person, Int] {
 
-    def query = TableQuery[Persons]
+    def query = lifted.TableQuery[Persons]
 
     class Persons(tag: Tag) extends profile.simple.Table[Person](tag, "person") with IdentifiableTable[Int] {
       def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
