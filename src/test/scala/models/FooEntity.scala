@@ -1,6 +1,5 @@
 package models
 
-import scala.slick.driver.JdbcProfile
 import slick.dao.IdentifiableTable
 
 case class FooEntity(name:String, id:Option[Int] = None) extends Entity[FooEntity, Int] {

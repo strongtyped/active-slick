@@ -17,7 +17,7 @@ trait PersonComponent extends BaseDaoComponent {
 
   object PersonDao extends SlickJdbcDao[Person, Int] {
 
-    def query = lifted.TableQuery[Persons]
+    def query = TableQuery[Persons]
 
     class Persons(tag: Tag) extends profile.simple.Table[Person](tag, "person") with IdentifiableTable[Int] {
       def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -33,5 +33,7 @@ trait PersonComponent extends BaseDaoComponent {
     def withId(row: Person, id: Int): Person =
       row.copy(id = Option(id))
   }
+
+  implicit class PersonExtensions(val person:Person) extends PersonDao.ActiveRecord(person)
 }
 

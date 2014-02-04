@@ -56,6 +56,19 @@ trait BaseDaoComponent {
     def pages(pageIndex: Int, limit: Int)(implicit session: Session): Seq[R] =
       query.drop(pageIndex).take(limit).run.toList
 
+    abstract class ActiveRecord(val row: R) {
+      def save(implicit s: Session): R = SlickJdbcDao.this.save(row)
+
+      def remove(implicit s: Session): Boolean = {
+        extractId(row) match {
+          case Some(id) => SlickJdbcDao.this.deleteById(id)
+          case None => false
+        }
+
+      }
+    }
+
   }
+
 
 }
