@@ -1,8 +1,11 @@
 package models
 
-import slick.dao.{BaseDaoComponent, IdentifiableTable}
-import scala.slick.driver.JdbcProfile
-import scala.slick.lifted
+import slick.dao.{ActiveRecord, SlickJdbcDao, IdentifiableTable}
+import scala.slick.driver.H2Driver
+import scala.slick.jdbc.JdbcBackend
+import scala.slick.driver.H2Driver.simple._
+import models.PersonDao
+
 
 case class Person(firstName: String, lastName: String, id: Option[Int] = None)
 
@@ -11,29 +14,28 @@ case class Person(firstName: String, lastName: String, id: Option[Int] = None)
  *
  * We only need to implement two methods. SlickJdbcDao.extractId and SlickJdbcDao.withId.
  */
-trait PersonComponent extends BaseDaoComponent {
+class PersonDao(implicit val session: JdbcBackend#Session) extends SlickJdbcDao[Person, Int] {
 
-  import profile.simple._
+  val profile = H2Driver
 
-  object PersonDao extends SlickJdbcDao[Person, Int] {
+  class Persons(tag: Tag) extends Table[Person](tag, "person") with IdentifiableTable[Int] {
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
-    def query = TableQuery[Persons]
+    def firstName = column[String]("first_name")
 
-    class Persons(tag: Tag) extends profile.simple.Table[Person](tag, "person") with IdentifiableTable[Int] {
-      def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-      def firstName = column[String]("first_name")
-      def lastName = column[String]("last_name")
-      def * = (firstName, lastName, id.?) <> (Person.tupled, Person.unapply)
-    }
+    def lastName = column[String]("last_name")
 
-
-    def extractId(row: Person): Option[Int] =
-      row.id
-
-    def withId(row: Person, id: Int): Person =
-      row.copy(id = Option(id))
+    def * = (firstName, lastName, id.?) <>(Person.tupled, Person.unapply)
   }
 
-  implicit class PersonExtensions(val person:Person) extends PersonDao.ActiveRecord(person)
-}
+  def query = TableQuery[Persons]
 
+  def extractId(row: Person): Option[Int] =
+    row.id
+
+  def withId(row: Person, id: Int): Person =
+    row.copy(id = Option(id))
+
+  implicit class PersonExtension(person:Person) extends ActiveRecord(person, PersonDao.this)
+
+}

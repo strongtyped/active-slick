@@ -1,7 +1,7 @@
 package models
 
+import slick.dao.SlickJdbcDao
 import scala.slick.driver.JdbcProfile
-import slick.dao.BaseDaoComponent
 
 
 trait Entity[E <: Entity[E, I], I] {
@@ -9,15 +9,15 @@ trait Entity[E <: Entity[E, I], I] {
   self: E =>
 
   def id: Option[I]
+
   def withId(id: I): E
 }
 
-trait EntityComponent extends BaseDaoComponent {
 
-  abstract class EntityDao[E <: Entity[E, I], I:JdbcProfile#BaseColumnType] extends SlickJdbcDao[E, I] {
+abstract class EntityDao[E <: Entity[E, I], I: JdbcProfile#BaseColumnType] extends SlickJdbcDao[E, I] {
 
-    def extractId(entity: E): Option[I] = entity.id
+  def extractId(entity: E): Option[I] = entity.id
 
-    def withId(entity: E, id: I): E = entity.withId(id)
-  }
+  def withId(entity: E, id: I): E = entity.withId(id)
+
 }
