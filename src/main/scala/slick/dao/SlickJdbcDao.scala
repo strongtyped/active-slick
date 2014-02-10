@@ -4,7 +4,7 @@ import scala.languageFeature.implicitConversions
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.JdbcProfile
 import scala.slick.lifted.Column
-import scala.slick.{profile, lifted}
+import scala.slick.lifted
 
 
 trait IdentifiableTable[I] {
@@ -31,6 +31,9 @@ trait SlickDao[R, I] {
 
   def findOptionById(id: I): Option[R]
   def findById(id: I): R = findOptionById(id).get
+
+  def list : List[R]
+  def pagedList(pageIndex: Int, limit: Int): List[R]
 }
 
 abstract class SlickJdbcDao[R, I:JdbcProfile#BaseColumnType]  extends SlickDao[R, I] {
@@ -63,7 +66,10 @@ abstract class SlickJdbcDao[R, I:JdbcProfile#BaseColumnType]  extends SlickDao[R
 
   def findOptionById(id: I): Option[R] = queryById(id).firstOption
 
-  def pages(pageIndex: Int, limit: Int): Seq[R] =
+
+  def list: List[R] = query.list
+
+  def pagedList(pageIndex: Int, limit: Int): List[R] =
     query.drop(pageIndex).take(limit).run.toList
 
 }

@@ -4,8 +4,6 @@ import slick.dao.{ActiveRecord, SlickJdbcDao, IdentifiableTable}
 import scala.slick.driver.H2Driver
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.H2Driver.simple._
-import models.PersonDao
-
 
 case class Person(firstName: String, lastName: String, id: Option[Int] = None)
 
