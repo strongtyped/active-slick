@@ -1,4 +1,4 @@
-package models
+package models.simple
 
 import slick.dao.{ActiveRecord, SlickJdbcDao, IdentifiableTable}
 import scala.slick.driver.H2Driver
@@ -33,7 +33,5 @@ class PersonDao(implicit val session: JdbcBackend#Session) extends SlickJdbcDao[
 
   def withId(row: Person, id: Int): Person =
     row.copy(id = Option(id))
-
-  implicit class PersonExtension(person:Person) extends ActiveRecord(person, PersonDao.this)
 
 }

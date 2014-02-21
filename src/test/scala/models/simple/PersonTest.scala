@@ -1,4 +1,4 @@
-package models
+package models.simple
 
 import org.scalatest.{Matchers, FunSpec}
 import models.TestDb.testDb
