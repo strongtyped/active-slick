@@ -11,65 +11,78 @@ trait IdentifiableTable[I] {
   def id: Column[I]
 }
 
-trait SlickDao[R, I] {
-
-
-  def extractId(row: R): Option[I]
-  def withId(row: R, id: I): R
+trait SlickDao[M, I] {
 
   def count: Int
-  def save(row: R): R
+  def save(model: M): M
 
-  def delete(row: R): Boolean = {
-    extractId(row) match {
-      case Some(id) => deleteById(id)
-      case None => false
-    }
-  }
+  def delete(model: M): Boolean
 
   def deleteById(id: I): Boolean
 
-  def findOptionById(id: I): Option[R]
-  def findById(id: I): R = findOptionById(id).get
+  def findOptionById(id: I): Option[M]
+  def findById(id: I): M = findOptionById(id).get
 
-  def list : List[R]
-  def pagedList(pageIndex: Int, limit: Int): List[R]
+  def list : List[M]
+  def pagedList(pageIndex: Int, limit: Int): List[M]
 }
 
-abstract class SlickJdbcDao[R, I:JdbcProfile#BaseColumnType]  extends SlickDao[R, I] {
+abstract class SlickJdbcDao[M, I:JdbcProfile#BaseColumnType]  extends SlickDao[M, I] {
 
   val profile:JdbcProfile
   implicit val session:JdbcBackend#Session
 
   import profile.simple._
 
-  def query: lifted.TableQuery[_ <: Table[R] with IdentifiableTable[I]]
 
-  def queryById(id: I): Query[Table[R], R] =
+  /**
+   * Extracts the model Id of a arbitrary database model.
+   * @param model a mapped model
+   * @return an Some[I] if Id is filled, None otherwise
+   */
+  def extractId(model: M): Option[I]
+
+  /**
+   *
+   * @param model a mapped model (usually without an assigned id).
+   * @param id an id, usually generate by the database
+   * @return a model M with an assigned Id.
+   */
+  def withId(model: M, id: I): M
+
+
+  def query: lifted.TableQuery[_ <: Table[M] with IdentifiableTable[I]]
+
+  def queryById(id: I): Query[Table[M], M] =
     query.filter(_.id === id)
 
   def count: Int = query.length.run
 
-  def add(row: R): I =
-    query.returning(query.map(_.id)).insert(row)
+  def add(model: M): I =
+    query.returning(query.map(_.id)).insert(model)
 
 
-  def save(row: R): R =
-    extractId(row) match {
-      case Some(id) => queryById(id).update(row); row
-      case None => withId(row, add(row))
+  def save(model: M): M =
+    extractId(model) match {
+      case Some(id) => queryById(id).update(model); model
+      case None => withId(model, add(model))
     }
 
+  def delete(model:M) : Boolean =
+    extractId(model) match {
+      case Some(id) => deleteById(id)
+      case None => false
+    }
 
 
   def deleteById(id: I): Boolean = queryById(id).delete == 1
 
-  def findOptionById(id: I): Option[R] = queryById(id).firstOption
+  def findOptionById(id: I): Option[M] = queryById(id).firstOption
 
 
-  def list: List[R] = query.list
+  def list: List[M] = query.list
 
-  def pagedList(pageIndex: Int, limit: Int): List[R] =
+  def pagedList(pageIndex: Int, limit: Int): List[M] =
     query.drop(pageIndex).take(limit).run.toList
 
 }

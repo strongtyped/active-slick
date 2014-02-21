@@ -4,9 +4,9 @@ In this example, we have a very simple usage of the generic slick-dao.
 
 A case class Person is mapped to a DB column. The jdbc driver is hardcoded and all necessary slick implicit conversions are imported directly from the hardcoded driver.
 
-[Person.scala](Person.scala)
+See [Person.scala](Person.scala)
 
-Inside the PersonDao we define the Table mapping, the TableQuery and the methods extractId(row:Person) and withId(row:Person, id:Long) : Person.
+Inside the PersonDao we define the Table mapping, the TableQuery and the methods extractId(person:Person) and withId(person:Person, id:Long) : Person.
 
 [PersonTest.scala](PersonTest.scala) demonstrate the usage.
 

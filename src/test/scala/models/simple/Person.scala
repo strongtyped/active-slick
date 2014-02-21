@@ -28,10 +28,8 @@ class PersonDao(implicit val session: JdbcBackend#Session) extends SlickJdbcDao[
 
   def query = TableQuery[Persons]
 
-  def extractId(row: Person): Option[Int] =
-    row.id
+  def extractId(person: Person): Option[Int] = person.id
 
-  def withId(row: Person, id: Int): Person =
-    row.copy(id = Option(id))
+  def withId(person: Person, id: Int): Person = person.copy(id = Option(id))
 
 }

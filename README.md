@@ -31,11 +31,11 @@ trait PersonComponent extends BaseDaoComponent {
     }
 
 
-    def extractId(row: Person): Option[Int] =
-      row.id
+    def extractId(model: Person): Option[Int] =
+      model.id
 
-    def withId(row: Person, id: Int): Person =
-      row.copy(id = Option(id))
+    def withId(model: Person, id: Int): Person =
+      model.copy(id = Option(id))
   }
 
   implicit class PersonExtensions(val person:Person) extends PersonDao.ActiveRecord(person)
