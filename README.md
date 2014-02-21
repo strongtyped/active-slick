@@ -62,6 +62,6 @@ person.copy(name = "John").save // save method provided by ActiveRecord implicit
 - testing, some examples and docs
 - remove Cake Pattern. Although very nice and my prefered way of doing it, it should be optional. 
 - a Versionable trait to reinforce versioning
-- investigate how we can have DAO for rows with compoung keys instead of PKs. Should be possible by defined key as a tuple and mapping it as such
+- investigate how we can have DAO for rows with compoung keys instead of PKs. Should be possible by defining key as a tuple and mapping it as such
 - error handling strategy - what if entity or record doesn’t exist. Exception? Either? ScalaUtils.Or? 
 - macro to generate some helper methods like: findByName, findByBirthday, etc. 
