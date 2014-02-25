@@ -1,4 +1,4 @@
-package models
+package models.component
 
 import slick.dao.SlickJdbcDao
 import scala.slick.driver.JdbcProfile

@@ -1,4 +1,4 @@
-package models
+package models.component
 
 import slick.dao.IdentifiableTable
 import scala.slick.driver.JdbcProfile
