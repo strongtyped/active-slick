@@ -4,7 +4,7 @@ import org.scalatest.{Matchers, FunSpec}
 import models.TestDb.testDb
 import scala.slick.driver.H2Driver.simple._
 
-class PersonTest extends FunSpec with Matchers {
+class PersonDaoTest extends FunSpec with Matchers {
 
   describe("A Person") {
     it("should be persisted in DB") {
