@@ -20,30 +20,11 @@ import scala.languageFeature.implicitConversions
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.JdbcProfile
 import scala.slick.lifted.Column
-import scala.slick.{profile, lifted}
+import scala.slick.lifted
 
 
-trait IdentifiableTable[I] {
-  def id: Column[I]
-}
 
-trait SlickDao[M, I] {
-
-  def count: Int
-  def save(model: M): M
-
-  def delete(model: M): Boolean
-
-  def deleteById(id: I): Boolean
-
-  def findOptionById(id: I): Option[M]
-  def findById(id: I): M = findOptionById(id).get
-
-  def list : List[M]
-  def pagedList(pageIndex: Int, limit: Int): List[M]
-}
-
-trait SlickJdbcDao[M, I]  extends SlickDao[M, I] {
+trait SlickJdbcDao[M, I] extends SlickDao[M, I] {
 
   val profile:JdbcProfile
 

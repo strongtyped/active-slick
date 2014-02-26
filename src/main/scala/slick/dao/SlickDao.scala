@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package models.component
+package slick.dao
 
-import scala.slick.driver.JdbcProfile
 
-trait BaseComponent {
+trait SlickDao[M, I] {
 
-  val profile:JdbcProfile
-  import profile.simple._
+  def count: Int
+  def save(model: M): M
+
+  def delete(model: M): Boolean
+
+  def deleteById(id: I): Boolean
+
+  def findOptionById(id: I): Option[M]
+  def findById(id: I): M = findOptionById(id).get
+
+  def list : List[M]
+  def pagedList(pageIndex: Int, limit: Int): List[M]
 
 }
