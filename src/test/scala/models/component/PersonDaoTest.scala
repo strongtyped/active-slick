@@ -1,9 +1,10 @@
-package models.simple
+package models.component
+
 
 import org.scalatest.{Matchers, FunSpec}
 import models.TestDb.testDb
-import scala.slick.driver.H2Driver.simple._
 import models.Person
+import Components.instance._
 
 class PersonDaoTest extends FunSpec with Matchers {
 
@@ -12,14 +13,15 @@ class PersonDaoTest extends FunSpec with Matchers {
 
       testDb.withSession { implicit sess =>
         val personDao = new PersonDao
-        personDao.query.ddl.create
+        personDao.create()
 
         val initialCount = personDao.count
 
         val person = Person("John", "Smith")
         person.id should not be 'defined
 
-        val persistedPerson = personDao.save(person)
+        val persistedPerson = person.save
+
         persistedPerson.id should be('defined)
 
         personDao.count should equal(initialCount + 1)

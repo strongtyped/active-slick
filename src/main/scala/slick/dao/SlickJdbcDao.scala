@@ -4,7 +4,7 @@ import scala.languageFeature.implicitConversions
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.JdbcProfile
 import scala.slick.lifted.Column
-import scala.slick.lifted
+import scala.slick.{profile, lifted}
 
 
 trait IdentifiableTable[I] {
@@ -27,12 +27,15 @@ trait SlickDao[M, I] {
   def pagedList(pageIndex: Int, limit: Int): List[M]
 }
 
-abstract class SlickJdbcDao[M, I:JdbcProfile#BaseColumnType]  extends SlickDao[M, I] {
+trait SlickJdbcDao[M, I]  extends SlickDao[M, I] {
 
   val profile:JdbcProfile
-  implicit val session:JdbcBackend#Session
 
   import profile.simple._
+
+  implicit val session:JdbcBackend#Session
+
+  def query: TableQuery[_ <: Table[M] with IdentifiableTable[I]]
 
 
   /**
@@ -51,10 +54,13 @@ abstract class SlickJdbcDao[M, I:JdbcProfile#BaseColumnType]  extends SlickDao[M
   def withId(model: M, id: I): M
 
 
-  def query: lifted.TableQuery[_ <: Table[M] with IdentifiableTable[I]]
-
-  def queryById(id: I): Query[Table[M], M] =
-    query.filter(_.id === id)
+  /**
+   * Defined the base query to find object by id.
+   *
+   * @param id
+   * @return
+   */
+  def queryById(id: I): Query[Table[M], M]
 
   def count: Int = query.length.run
 
