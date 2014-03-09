@@ -36,13 +36,6 @@ trait SlickJdbcDao[M, I] extends SlickDao[M, I] {
 
 
   /**
-   * Extracts the model Id of a arbitrary database model.
-   * @param model a mapped model
-   * @return an Some[I] if Id is filled, None otherwise
-   */
-  def extractId(model: M): Option[I]
-
-  /**
    *
    * @param model a mapped model (usually without an assigned id).
    * @param id an id, usually generate by the database
