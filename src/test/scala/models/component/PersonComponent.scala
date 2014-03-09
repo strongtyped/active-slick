@@ -16,7 +16,7 @@
 
 package models.component
 
-import slick.dao.{ActiveRecord, SlickJdbcDao, IdentifiableTable}
+import slick.dao.{ActiveRecord, IdentifiableJdbcDao, IdentifiableTable}
 import models.Person
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.lifted
@@ -26,7 +26,7 @@ trait PersonComponent {
 
   val profile:JdbcProfile
 
-  class PersonDao(implicit val session:JdbcBackend#Session) extends SlickJdbcDao[Person, Int] {
+  class PersonDao(implicit val session:JdbcBackend#Session) extends IdentifiableJdbcDao[Person, Int] {
 
     val profile = PersonComponent.this.profile
     import profile.simple._
@@ -50,8 +50,6 @@ trait PersonComponent {
 
     def queryById(id: Int) = query.filter(_.id === id)
     
-    def add(person: Person) = query.returning(query.map(_.id)).insert(person)
-
     def create() =  query.ddl.create
   }
 
