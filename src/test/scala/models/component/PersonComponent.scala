@@ -49,6 +49,8 @@ trait PersonComponent {
     def withId(person: Person, id: Int): Person = person.copy(id = Option(id))
 
     def queryById(id: Int) = query.filter(_.id === id)
+    
+    def add(person: Person) = query.returning(query.map(_.id)).insert(person)
 
     def create() =  query.ddl.create
   }
