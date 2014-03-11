@@ -19,6 +19,13 @@ package slick.dao
 
 trait SlickDao[M, I] {
 
+  /**
+   * Extracts the model Id of a arbitrary model.
+   * @param model a mapped model
+   * @return an Some[I] if Id is filled, None otherwise
+   */
+  def extractId(model: M): Option[I]
+
   def count: Int
   def save(model: M): M
 
