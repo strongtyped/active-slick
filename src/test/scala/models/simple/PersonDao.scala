@@ -16,7 +16,7 @@
 
 package models.simple
 
-import slick.dao.{SlickJdbcDao, IdentifiableTable}
+import slick.dao.{IdentifiableJdbcDao, IdentifiableTable}
 import scala.slick.driver.H2Driver
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.H2Driver.simple._
@@ -30,7 +30,7 @@ import models.Person
  *   SlickJdbcDao.extractId, SlickJdbcDao.withId and SlickJdbcDao.queryById
  * }}}
  */
-class PersonDao(implicit val session: JdbcBackend#Session) extends SlickJdbcDao[Person, Int] {
+class PersonDao(implicit val session: JdbcBackend#Session) extends IdentifiableJdbcDao[Person, Int] {
 
   val profile = H2Driver
 

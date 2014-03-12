@@ -32,7 +32,7 @@ trait SlickJdbcDao[M, I] extends SlickDao[M, I] {
 
   implicit val session:JdbcBackend#Session
 
-  def query: TableQuery[_ <: Table[M] with IdentifiableTable[I]]
+  def query: TableQuery[_ <: Table[M]]
 
 
   /**
@@ -52,11 +52,15 @@ trait SlickJdbcDao[M, I] extends SlickDao[M, I] {
    */
   def queryById(id: I): Query[Table[M], M]
 
+  /**
+   * Define an insert query that returns the database generated identifier.
+   * @param model a mapped model
+   * @return the database generated identifier.
+   */
+  def add(model: M): I
+
+
   def count: Int = query.length.run
-
-  def add(model: M): I =
-    query.returning(query.map(_.id)).insert(model)
-
 
   def save(model: M): M =
     extractId(model) match {
