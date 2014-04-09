@@ -22,13 +22,13 @@ import models.TestDb.testDb
 import models.Person
 import Components.instance._
 
-class PersonDaoTest extends FunSpec with Matchers {
+class PersonDaoInComponentTest extends FunSpec with Matchers {
 
   describe("A Person") {
     it("should be persisted in DB") {
 
       testDb.withSession { implicit sess =>
-        val personDao = new PersonDao
+        val personDao = new PersonDaoInComponent
         personDao.create()
 
         val initialCount = personDao.count

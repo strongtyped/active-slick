@@ -26,6 +26,14 @@ trait SlickDao[M, I] {
    */
   def extractId(model: M): Option[I]
 
+  /**
+   *
+   * @param model a mapped model (usually without an assigned id).
+   * @param id an id, usually generate by the database
+   * @return a model M with an assigned Id.
+   */
+  def withId(model: M, id: I): M
+
   def count: Int
   def save(model: M): M
 

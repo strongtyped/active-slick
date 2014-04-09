@@ -6,9 +6,9 @@ A case class Person is mapped to a DB column. The jdbc driver is hardcoded and a
 
 See [Person.scala](Person.scala)
 
-Inside the PersonDao we define the Table mapping, the TableQuery and the methods extractId(person:Person) and withId(person:Person, id:Long) : Person.
+Inside the PersonDao we define the Table mapping, the TableQuery and the methods extractId(person:Person),  withId(person:Person, id:Long) : Person and queryById(id: I): Query[Table[M], M].
 
-[PersonTest.scala](PersonTest.scala) demonstrate the usage.
+[PersonDaoTest.scala](PersonDaoTest.scala) demonstrate the usage.
 
 The DAO is initialized inside a withSession block. All DB operations are managed by the DAO.
 

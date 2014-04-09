@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package models.component
+package models.entity
 
-import slick.dao.SlickJdbcDao
-import scala.slick.driver.JdbcProfile
+import slick.dao.IdentifiableJdbcDao
 
 
-trait Entity[E <: Entity[E, I], I] {
+trait Entity[E <: Entity[E]] {
   // self-typing to E to force withId to return this type
   self: E =>
 
-  def id: Option[I]
+  def id: Option[Int]
 
-  def withId(id: I): E
+  def withId(id: Int): E
 }
 
+abstract class EntityDao[E <: Entity[E], Long] extends IdentifiableJdbcDao[E, Int] {
 
-abstract class EntityDao[E <: Entity[E, I], I: JdbcProfile#BaseColumnType] extends SlickJdbcDao[E, I] {
+  import profile.simple._
 
-  def extractId(entity: E): Option[I] = entity.id
+  def extractId(entity: E): Option[Int] = entity.id
 
-  def withId(entity: E, id: I): E = entity.withId(id)
+  def withId(entity: E, id: Int): E = entity.withId(id)
+
+  def queryById(id: Int) = query.filter(_.id === id)
 
 }

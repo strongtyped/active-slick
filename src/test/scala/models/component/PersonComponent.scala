@@ -26,7 +26,7 @@ trait PersonComponent {
 
   val profile:JdbcProfile
 
-  class PersonDao(implicit val session:JdbcBackend#Session) extends IdentifiableJdbcDao[Person, Int] {
+  class PersonDaoInComponent(implicit val session:JdbcBackend#Session) extends IdentifiableJdbcDao[Person, Int] {
 
     val profile = PersonComponent.this.profile
     import profile.simple._
@@ -51,11 +51,12 @@ trait PersonComponent {
     def queryById(id: Int) = query.filter(_.id === id)
     
     def create() =  query.ddl.create
+
   }
 
 
   implicit class PersonExtensions(person:Person) extends ActiveRecord[Person, Int](person) {
-    def daoProvider(session:JdbcBackend#Session) = new PersonDao()(session)
+    def daoProvider(session:JdbcBackend#Session) = new PersonDaoInComponent()(session)
   }
 }
 

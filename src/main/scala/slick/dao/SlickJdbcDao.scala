@@ -19,9 +19,6 @@ package slick.dao
 import scala.languageFeature.implicitConversions
 import scala.slick.jdbc.JdbcBackend
 import scala.slick.driver.JdbcProfile
-import scala.slick.lifted.Column
-import scala.slick.lifted
-
 
 
 trait SlickJdbcDao[M, I] extends SlickDao[M, I] {
@@ -33,15 +30,6 @@ trait SlickJdbcDao[M, I] extends SlickDao[M, I] {
   implicit val session:JdbcBackend#Session
 
   def query: TableQuery[_ <: Table[M]]
-
-
-  /**
-   *
-   * @param model a mapped model (usually without an assigned id).
-   * @param id an id, usually generate by the database
-   * @return a model M with an assigned Id.
-   */
-  def withId(model: M, id: I): M
 
 
   /**
@@ -61,6 +49,7 @@ trait SlickJdbcDao[M, I] extends SlickDao[M, I] {
 
 
   def count: Int = query.length.run
+
 
   def save(model: M): M =
     extractId(model) match {
