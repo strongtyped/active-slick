@@ -14,28 +14,13 @@
  * limitations under the License.
  */
 
-package models.entity
+package io.strongtyped.active.slick.models
 
-import slick.dao.IdentifiableJdbcDao
-
-
-trait Entity[E <: Entity[E]] {
-  // self-typing to E to force withId to return this type
-  self: E =>
-
-  def id: Option[Int]
-
-  def withId(id: Int): E
+case class Coffee(name: String,
+                  supID: Int,
+                  price: Double,
+                  id: Option[Int] = None) extends Entity[Coffee] {
+  type Id = Int
+  override def withId(id: Id): Coffee = copy(id = Option(id))
 }
 
-abstract class EntityDao[E <: Entity[E], Long] extends IdentifiableJdbcDao[E, Int] {
-
-  import profile.simple._
-
-  def extractId(entity: E): Option[Int] = entity.id
-
-  def withId(entity: E, id: Int): E = entity.withId(id)
-
-  def queryById(id: Int) = query.filter(_.id === id)
-
-}

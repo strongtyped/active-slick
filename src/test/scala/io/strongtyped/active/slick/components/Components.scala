@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package models.component
+package io.strongtyped.active.slick.components
 
-import scala.slick.driver.{H2Driver, JdbcProfile}
+import scala.slick.driver.{JdbcDriver, H2Driver, JdbcProfile}
+import io.strongtyped.active.slick.ActiveSlick
 
-class Components(override val profile: JdbcProfile)
-  extends PersonComponent
+class Components(override val jdbcDriver: JdbcDriver)
+  extends ActiveSlick with ModelExtensions
 
 object Components {
   val instance = new Components(H2Driver)
