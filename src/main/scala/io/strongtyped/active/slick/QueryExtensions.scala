@@ -43,7 +43,7 @@ trait QueryExtensions { this:Profile with Tables =>
     /**
      * Extracts the model Id of a arbitrary model.
      * @param model a mapped model
-     * @return an Some[I] if Id is filled, None otherwise
+     * @return a Some[I] if Id is filled, None otherwise
      */
     def extractId(model: M)(implicit sess:Session): Option[I]
 
@@ -52,7 +52,7 @@ trait QueryExtensions { this:Profile with Tables =>
      *
      * @param model a mapped model (usually without an assigned id).
      * @param id an id, usually generate by the database
-     * @return a model M with an assigned Id.
+     * @return a model M with an assigned id.
      */
     def withId(model: M, id: I)(implicit sess:Session): M
 
