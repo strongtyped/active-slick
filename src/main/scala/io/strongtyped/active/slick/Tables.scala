@@ -1,7 +1,5 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.models.Entity
-
 trait Tables {  this:Profile =>
 
   import jdbcDriver.simple._

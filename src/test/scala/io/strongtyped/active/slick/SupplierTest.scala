@@ -16,7 +16,7 @@
 
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.models.{Coffee, Supplier}
+import io.strongtyped.active.slick.models.{Beer, Supplier}
 import io.strongtyped.active.slick.components.Components.instance._
 
 class SupplierTest extends DbTest {
@@ -54,7 +54,7 @@ class SupplierTest extends DbTest {
          supplier.id shouldBe defined
 
          supplier.id.map { supId =>
-           val coffee = Coffee("Abc", supId, 3.2).save
+           val coffee = Beer("Abc", supId, 3.2).save
            coffee.supplier.value shouldBe supplier
          }
        }
