@@ -18,8 +18,8 @@ trait SupplierExtensions {
     def withId(supplier: Supplier, id: Int)(implicit sess: Session) =
       supplier.copy(id = Some(id))
 
-    protected[components] def queryMostExpensiveBeer(supplierId: Option[Int]) =
-      Beers.queryMostExpensiveBeer.filter(_.supID === LiteralColumn(supplierId))
+    protected [components] def queryMostExpensiveBeer(supplierId: Option[Int]) =
+      Beers.queryMostExpensiveBeerBySupplier.filter(_.supID === LiteralColumn(supplierId))
 
   }
 

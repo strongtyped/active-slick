@@ -20,7 +20,7 @@ trait BeerExtensions  {
         case (id, b) => id -> b.map(_.price).max
       }
 
-    protected [components] def queryMostExpensiveBeer = {
+    protected [components] def queryMostExpensiveBeerBySupplier = {
         for {
           beer <- Beers
           (supId, maxPrice) <- queryMaxPriceBySupplier
@@ -29,7 +29,7 @@ trait BeerExtensions  {
     }
 
     def mostExpensiveBeer(implicit session: JdbcBackend#Session) : Option[Beer] =
-      queryMostExpensiveBeer.firstOption
+      queryMostExpensiveBeerBySupplier.firstOption
 
   }
 

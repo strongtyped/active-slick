@@ -14,20 +14,30 @@ object Example2  {
       val supplier1 = createSuppliersWithBeer("Foo")
       val supplier2 = createSuppliersWithBeer("Bar", 1.23)
 
-      val supplier = Suppliers.findById(supplier1)
-
-      println(supplier.mostExpensiveBeer)
-
+      showMostExpensiveBeer(supplier1)
+      showMostExpensiveBeer(supplier2)
 
       println()
     }
   }
 
-  def createSuppliersWithBeer(name:String, factor: Double = 1)(implicit sess: JdbcBackend#Session) = {
-    val supId = Supplier(name).add
-    (1 to 5).foreach { i =>
-      Beer("Beer-" + i, supId, i * factor).save
+  def showMostExpensiveBeer(supplier:Supplier)(implicit sess: JdbcBackend#Session) {
+    val priceString =
+    supplier.mostExpensiveBeer.fold {
+      "not prices available"
+    } { beer =>
+      beer.name + " - " + beer.price
     }
-    supId
+    println(s"Supp: ${supplier.name} - most expensive beer: $priceString" )
+  }
+
+  def createSuppliersWithBeer(name:String, factor: Double = 1)(implicit sess: JdbcBackend#Session) = {
+    val sup = Supplier(name).save
+      sup.id.map { supId =>
+      (1 to 5).foreach { i =>
+        Beer("Beer-" + i, supId, i * factor).save
+      }
+    }
+    sup
   }
 }
