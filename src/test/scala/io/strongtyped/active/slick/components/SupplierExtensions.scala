@@ -10,7 +10,15 @@ trait SupplierExtensions {
   import jdbcDriver.simple._
 
   implicit class SupplierQueryExt(supplierQuery:TableQuery[SuppliersTable])
-    extends EntityTableExt[Supplier](supplierQuery)
+    extends IdentifiableTableExt[Supplier, Int](supplierQuery) {
+
+    def extractId(supplier: Supplier)(implicit sess:Session): Option[Int] =
+      supplier.id
+
+    def withId(supplier: Supplier, id: Int)(implicit sess:Session) =
+      supplier.copy(id = Some(id))
+
+  }
 
   implicit class SupplierExtensions(supplier:Supplier) {
     def save(implicit session: JdbcBackend#Session): Supplier = Suppliers.save(supplier)

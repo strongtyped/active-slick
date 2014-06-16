@@ -18,31 +18,28 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.models.Supplier
+import InMemoryDb._
 
-class SupplierTest extends DbTest {
+object Example1 {
 
+  def main(args:Array[String]) : Unit = {
+     DB { implicit sess =>
+       println("###################################")
+       println(s"total suppliers = ${Suppliers.count}")
+       val supplier = Supplier("Acme, Inc.")
 
-   describe("A Supplier") {
-     it("should be persisted in DB") {
+       val persistedSupp = supplier.save
+       println(s"Supplier is saved with ${persistedSupp.id}")
 
-       DB { implicit sess =>
+       println()
+       println(s"total suppliers = ${Suppliers.count}")
 
-         val initialCount = Suppliers.count
+       persistedSupp.delete
+       println("Supplier deleted")
+       println(s"total suppliers = ${Suppliers.count}")
 
-         val supplier = Supplier("Acme, Inc.")
-         supplier.id should not be defined
-
-         val persistedSupp = supplier.save
-         persistedSupp.id shouldBe defined
-
-         Suppliers.count shouldBe(initialCount + 1)
-
-         persistedSupp.delete
-
-         Suppliers.count shouldBe initialCount
-
-       }
+       println()
      }
-   }
+  }
 
  }
