@@ -1,7 +1,6 @@
 package io.strongtyped.active.slick.models
 
-
-trait Entity[E <: Entity[E]] {
+trait Identifiable[E <: Identifiable[E]] {
   // self-typing to E to force withId to return this type
   self: E =>
 
@@ -10,3 +9,4 @@ trait Entity[E <: Entity[E]] {
 
   def withId(id: E#Id): E
 }
+

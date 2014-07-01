@@ -11,7 +11,7 @@ trait BeerExtensions  {
   import jdbcDriver.simple._
 
   implicit class CoffeeQueryExt(coffeeQuery:TableQuery[BeersTable])
-    extends EntityTableExt[Beer](coffeeQuery)
+    extends IdTableExt[Beer](coffeeQuery)
 
 
   implicit class CoffeeExtensions(coffee:Beer) {

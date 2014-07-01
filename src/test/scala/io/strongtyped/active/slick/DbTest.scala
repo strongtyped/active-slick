@@ -1,21 +1,24 @@
 package io.strongtyped.active.slick
 
-import scala.slick.driver.H2Driver.simple._
-import org.scalatest.{OptionValues, Matchers, FunSpec}
 import io.strongtyped.active.slick.components.Components
 
-trait DbTest extends FunSpec with Matchers with OptionValues {
+import scala.slick.driver.H2Driver.simple._
 
-  import Components.instance._
-  val db = Database.forURL("jdbc:h2:mem:hello", driver = "org.h2.Driver")
+trait DbTest  {
+
+  import io.strongtyped.active.slick.components.Components.instance._
 
   def DB = new {
+
     def apply[T](block: Session => T) : T = {
+      val db = Database.forURL("jdbc:h2:mem:hello", driver = "org.h2.Driver")
       db.withTransaction { implicit session =>
         createSchema
-        block(session)
+        val result = block(session)
+        dropSchema
+        result
       }
-
     }
+
   }
 }

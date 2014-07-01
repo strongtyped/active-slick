@@ -19,7 +19,7 @@ package io.strongtyped.active.slick.models
 case class Beer(name: String,
                   supID: Int,
                   price: Double,
-                  id: Option[Int] = None) extends Entity[Beer] {
+                  id: Option[Int] = None) extends Identifiable[Beer] {
   type Id = Int
   override def withId(id: Id): Beer = copy(id = Option(id))
 }

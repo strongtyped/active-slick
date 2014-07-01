@@ -18,31 +18,27 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.models.Supplier
+import org.scalatest.{OptionValues, Matchers, FunSuite}
 
-class SupplierTest extends DbTest {
+class SupplierTest extends FunSuite with DbTest  with Matchers with OptionValues {
 
+  test("A Supplier should be persisted in DB") {
 
-   describe("A Supplier") {
-     it("should be persisted in DB") {
+    DB { implicit sess =>
+      val initialCount = Suppliers.count
 
-       DB { implicit sess =>
+      val supplier = Supplier("Acme, Inc.")
+      supplier.id should not be defined
 
-         val initialCount = Suppliers.count
+      val persistedSupp = supplier.save
+      persistedSupp.id shouldBe defined
 
-         val supplier = Supplier("Acme, Inc.")
-         supplier.id should not be defined
+      Suppliers.count shouldBe (initialCount + 1)
 
-         val persistedSupp = supplier.save
-         persistedSupp.id shouldBe defined
+      persistedSupp.delete
 
-         Suppliers.count shouldBe(initialCount + 1)
+      Suppliers.count shouldBe initialCount
 
-         persistedSupp.delete
-
-         Suppliers.count shouldBe initialCount
-
-       }
-     }
-   }
-
- }
+    }
+  }
+}

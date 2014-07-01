@@ -7,18 +7,20 @@ trait Schema { this:Tables with Profile =>
 
   import jdbcDriver.simple._
 
-  class SuppliersTable(tag: Tag) extends IdentifiableTable[Supplier, Int](tag, "SUPPLIERS") {
+  class SuppliersTable(tag: Tag) extends IdVersionTable[Supplier, Int](tag, "SUPPLIERS")  {
 
+    def version = column[Long]("VERSION")
     def name = column[String]("SUPPLIER_NAME")
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
-    def * = (name, id.?) <> (Supplier.tupled, Supplier.unapply)
+    def * = (name, version, id.?) <> (Supplier.tupled, Supplier.unapply)
+
   }
 
   val Suppliers = TableQuery[SuppliersTable]
 
 
-  class BeersTable(tag: Tag) extends IdentifiableTable[Beer, Int](tag, "BEERS") {
+  class BeersTable(tag: Tag) extends IdTable[Beer, Int](tag, "BEERS") {
 
     def name = column[String]("BEER_NAME")
     def supID = column[Int]("SUP_ID")
@@ -34,5 +36,9 @@ trait Schema { this:Tables with Profile =>
 
   def createSchema(implicit sess:Session) = {
     (Suppliers.ddl ++ Beers.ddl).create
+  }
+
+  def dropSchema(implicit sess:Session) = {
+    (Suppliers.ddl ++ Beers.ddl).drop
   }
 }
