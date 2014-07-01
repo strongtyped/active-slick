@@ -64,21 +64,23 @@ trait QueryExtensions { this:Profile with Tables =>
      * @param model a mapped model
      * @return the database generated identifier.
      */
-    def add(model: M)(implicit sess:Session): I = query.returning(query.map(_.id)).insert(model)
+    def add(model: M)(implicit sess:Session): I =
+      query.returning(query.map(_.id)).insert(model)
 
 
-    override def save(model: M)(implicit sess:Session): M =
-      extractId(model).fold
-      { withId(model, add(model)) }
-      { id =>
+    override def save(model: M)(implicit sess:Session): M = {
+      extractId(model)
+      .map { id =>
         filterById(id).update(model)
         model
       }
+      .getOrElse {
+        withId(model, add(model))
+      }
+    }
 
     override def delete(model:M)(implicit sess:Session) : Boolean =
-      extractId(model).fold
-      { false }
-      { id => deleteById(id) }
+      extractId(model).exists(id => deleteById(id))
 
     def deleteById(id: I)(implicit sess:Session): Boolean = filterById(id).delete == 1
 
