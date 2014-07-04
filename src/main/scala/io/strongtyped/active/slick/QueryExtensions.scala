@@ -103,15 +103,15 @@ trait QueryExtensions { this:Profile with Tables =>
 
   abstract class VersionableTableExt[T <: Versionable[T] with Identifiable[T]](query:TableQuery[_ <:  Table[T] with TableWithId[T#Id]  with TableWithVersion ])
                                                                               (implicit ev1: BaseColumnType[T#Id]) extends IdTableExt(query) {
-    override def save(identifiable: T)(implicit sess:Session): T = {
-      val currentVersion = identifiable.version
-      val modelNewVersion = identifiable.withVersion(System.currentTimeMillis())
+    override def save(versionable: T)(implicit sess:Session): T = {
+      val currentVersion = versionable.version
+      val modelNewVersion = versionable.withVersion(System.currentTimeMillis())
       extractId(modelNewVersion)
       .map { id =>
         val q = query.filter(_.version === currentVersion).filter(_.id === id)
 
         if (q.length.run != 1)
-          throw sys.error(s"Optimistic locking error!")
+          throw new StaleObjectStateException(versionable)
 
         q.update(modelNewVersion)
         modelNewVersion
@@ -123,4 +123,6 @@ trait QueryExtensions { this:Profile with Tables =>
 
   }
 
+  class StaleObjectStateException[T <: Versionable[T]](versionable:T)
+    extends RuntimeException(s"Optimistic locking error - object in stale state: $versionable" )
 }

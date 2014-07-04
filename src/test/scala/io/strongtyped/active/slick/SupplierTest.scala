@@ -41,4 +41,26 @@ class SupplierTest extends FunSuite  with Matchers with OptionValues {
 
     }
   }
+
+  test("A Supplier is versionable") {
+    DB { implicit sess =>
+      val supplier = Supplier("abc")
+      // not version yet
+      supplier.version shouldBe 0
+
+      val persistedSupp = supplier.save
+      persistedSupp.version should not be 0
+
+      // modify two versions and try to persist them
+      val suppWithNewVersion = persistedSupp.copy(name = "abc1").save
+
+      intercept[StaleObjectStateException[Supplier]] {
+        // supplier was persisted in the mean time, so version must be different by now
+        persistedSupp.copy(name = "abc2").save
+      }
+
+      // supplier with new version can be persisted again
+      suppWithNewVersion.copy(name = "abc").save
+    }
+  }
 }
