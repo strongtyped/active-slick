@@ -4,7 +4,7 @@ import io.strongtyped.active.slick.models.{Beer, Supplier}
 import io.strongtyped.active.slick.components.Components.instance._
 import org.scalatest.{OptionValues, Matchers, FunSuite}
 
-class BeerTest extends FunSuite with DbTest  with Matchers with OptionValues {
+class BeerTest extends FunSuite with Matchers with OptionValues {
   test("A Beer should be persistable") {
 
     DB { implicit sess =>

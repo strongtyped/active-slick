@@ -3,7 +3,9 @@ package io.strongtyped.active.slick.components
 import io.strongtyped.active.slick.{Tables, Profile}
 import io.strongtyped.active.slick.models.{Beer, Supplier}
 
-trait Schema { this:Tables with Profile =>
+import scala.slick.util.Logging
+
+trait Schema extends Logging { this:Tables with Profile =>
 
   import jdbcDriver.simple._
 
@@ -35,10 +37,8 @@ trait Schema { this:Tables with Profile =>
 
 
   def createSchema(implicit sess:Session) = {
+    logger.info("Creating schema ... ")
     (Suppliers.ddl ++ Beers.ddl).create
   }
 
-  def dropSchema(implicit sess:Session) = {
-    (Suppliers.ddl ++ Beers.ddl).drop
-  }
 }

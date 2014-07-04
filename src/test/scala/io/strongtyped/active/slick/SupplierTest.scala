@@ -20,9 +20,9 @@ import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.models.Supplier
 import org.scalatest.{OptionValues, Matchers, FunSuite}
 
-class SupplierTest extends FunSuite with DbTest  with Matchers with OptionValues {
+class SupplierTest extends FunSuite  with Matchers with OptionValues {
 
-  test("A Supplier should be persisted in DB") {
+  test("A Supplier should be persistable") {
 
     DB { implicit sess =>
       val initialCount = Suppliers.count
