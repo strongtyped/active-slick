@@ -3,7 +3,7 @@
 ActiveSlick is a tiny library that offers CRUD operations for Slick 2.0 mapped classes through TableQuery extensions.
 
 NOTE: this project was originally named slick-dao and use to provide DAOs instead of query extensions.
-Old (incomplete) version can be found here: [todo: add link]
+Old (incomplete) version can be found here: [dao version](https://github.com/strongtyped/active-slick/tree/dao-active-record)
 
 ### Main features
 - Basic CRUD and auxiliary methods - add/update/save, delete, pages (paged result), findById and count.
