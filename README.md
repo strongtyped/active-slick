@@ -131,10 +131,10 @@ trait MappingActiveSlickIdentifiable {
 
 ```
 Note that the `Identifiable` trait is parameterized on the type that will extend it, in this case `Foo`. As such we can have a self-type refenrece and guarantee that `withId` will return the same type. 
-(see [Identifiable](Identifiable.scala) implementation)
+(see [Identifiable](https://github.com/strongtyped/active-slick/blob/develop/src/main/scala/io/strongtyped/active/slick/models/Identifiable.scala) implementation)
 
 Moreover, it defines a type alias `Id` instead of a type parameter. This type alias will be used in a type projection by `IdTableExt`. We can now let the compiler check that the id of the model matches the type paramter of the table's id column. 
-(see [IdTableExt](QueryExtensions.scala) implementation)
+(see [IdTableExt](https://github.com/strongtyped/active-slick/blob/develop/src/main/scala/io/strongtyped/active/slick/QueryExtensions.scala#L94) implementation)
 
 ### TODO
 - more testing, examples and docs
