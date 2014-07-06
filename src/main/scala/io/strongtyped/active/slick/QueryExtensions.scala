@@ -17,7 +17,7 @@
 package io.strongtyped.active.slick
 
 import scala.slick.jdbc.JdbcBackend
-import io.strongtyped.active.slick.models.Entity
+import io.strongtyped.active.slick.models.{Versionable, Identifiable}
 import scala.language.implicitConversions
 
 trait QueryExtensions { this:Profile with Tables =>
@@ -37,7 +37,7 @@ trait QueryExtensions { this:Profile with Tables =>
     def delete(model:M)(implicit sess:Session) : Boolean
   }
 
-  abstract class IdentifiableTableExt[M, I:BaseColumnType](query:TableQuery[_ <: IdentifiableTable[M, I]])
+  abstract class BaseIdTableExt[T, I:BaseColumnType](query:TableQuery[_ <: Table[T] with TableWithId[I]])
     extends BaseTableExt(query) {
 
     /**
@@ -45,16 +45,16 @@ trait QueryExtensions { this:Profile with Tables =>
      * @param model a mapped model
      * @return a Some[I] if Id is filled, None otherwise
      */
-    def extractId(model: M)(implicit sess:Session): Option[I]
+    def extractId(model: T)(implicit sess:Session): Option[I]
 
 
     /**
      *
      * @param model a mapped model (usually without an assigned id).
      * @param id an id, usually generate by the database
-     * @return a model M with an assigned id.
+     * @return a model T with an assigned id.
      */
-    def withId(model: M, id: I)(implicit sess:Session): M
+    def withId(model: T, id: I)(implicit sess:Session): T
 
 
     def filterById(id: I)(implicit sess:Session) = query.filter(_.id === id)
@@ -64,11 +64,11 @@ trait QueryExtensions { this:Profile with Tables =>
      * @param model a mapped model
      * @return the database generated identifier.
      */
-    def add(model: M)(implicit sess:Session): I =
+    def add(model: T)(implicit sess:Session): I =
       query.returning(query.map(_.id)).insert(model)
 
 
-    override def save(model: M)(implicit sess:Session): M = {
+    override def save(model: T)(implicit sess:Session): T = {
       extractId(model)
       .map { id =>
         filterById(id).update(model)
@@ -79,26 +79,50 @@ trait QueryExtensions { this:Profile with Tables =>
       }
     }
 
-    override def delete(model:M)(implicit sess:Session) : Boolean =
+    override def delete(model:T)(implicit sess:Session) : Boolean =
       extractId(model).exists(id => deleteById(id))
 
     def deleteById(id: I)(implicit sess:Session): Boolean = filterById(id).delete == 1
 
 
-    def findById(id: I)(implicit sess:Session): M = findOptionById(id).get
+    def findById(id: I)(implicit sess:Session): T = findOptionById(id).get
 
-    def findOptionById(id: I)(implicit sess:Session): Option[M] = filterById(id).firstOption
+    def findOptionById(id: I)(implicit sess:Session): Option[T] = filterById(id).firstOption
   }
 
-  abstract class EntityTableExt[E <: Entity[E]](query:TableQuery[_ <: IdentifiableTable[E, E#Id]])
-                                               (implicit ev1: BaseColumnType[E#Id]) extends IdentifiableTableExt(query) {
 
-    def extractId(entity: E)
-                 (implicit sess: JdbcBackend#Session) = entity.id
+  abstract class IdTableExt[T <: Identifiable[T]](query:TableQuery[_ <: Table[T] with TableWithId[T#Id] ])
+                                                 (implicit ev1: BaseColumnType[T#Id]) extends BaseIdTableExt(query) {
 
-    def withId(entity: E, id: E#Id)
+    def extractId(identifiable: T)
+                 (implicit sess: JdbcBackend#Session) = identifiable.id
+
+    def withId(entity: T, id: T#Id)
               (implicit sess: JdbcBackend#Session) = entity.withId(id)
   }
 
+  abstract class VersionableTableExt[T <: Versionable[T] with Identifiable[T]](query:TableQuery[_ <:  Table[T] with TableWithId[T#Id]  with TableWithVersion ])
+                                                                              (implicit ev1: BaseColumnType[T#Id]) extends IdTableExt(query) {
+    override def save(versionable: T)(implicit sess:Session): T = {
+      val currentVersion = versionable.version
+      val modelNewVersion = versionable.withVersion(System.currentTimeMillis())
+      extractId(modelNewVersion)
+      .map { id =>
+        val q = query.filter(_.version === currentVersion).filter(_.id === id)
 
+        if (q.length.run != 1)
+          throw new StaleObjectStateException(versionable)
+
+        q.update(modelNewVersion)
+        modelNewVersion
+      }
+      .getOrElse {
+        withId(modelNewVersion, add(modelNewVersion))
+      }
+    }
+
+  }
+
+  class StaleObjectStateException[T <: Versionable[T]](versionable:T)
+    extends RuntimeException(s"Optimistic locking error - object in stale state: $versionable" )
 }

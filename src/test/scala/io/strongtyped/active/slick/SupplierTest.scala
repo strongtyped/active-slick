@@ -18,31 +18,49 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.models.Supplier
+import org.scalatest.{OptionValues, Matchers, FunSuite}
 
-class SupplierTest extends DbTest {
+class SupplierTest extends FunSuite  with Matchers with OptionValues {
 
+  test("A Supplier should be persistable") {
 
-   describe("A Supplier") {
-     it("should be persisted in DB") {
+    DB { implicit sess =>
+      val initialCount = Suppliers.count
 
-       DB { implicit sess =>
+      val supplier = Supplier("Acme, Inc.")
+      supplier.id should not be defined
 
-         val initialCount = Suppliers.count
+      val persistedSupp = supplier.save
+      persistedSupp.id shouldBe defined
 
-         val supplier = Supplier("Acme, Inc.")
-         supplier.id should not be defined
+      Suppliers.count shouldBe (initialCount + 1)
 
-         val persistedSupp = supplier.save
-         persistedSupp.id shouldBe defined
+      persistedSupp.delete
 
-         Suppliers.count shouldBe(initialCount + 1)
+      Suppliers.count shouldBe initialCount
 
-         persistedSupp.delete
+    }
+  }
 
-         Suppliers.count shouldBe initialCount
+  test("A Supplier is versionable") {
+    DB { implicit sess =>
+      val supplier = Supplier("abc")
+      // not version yet
+      supplier.version shouldBe 0
 
-       }
-     }
-   }
+      val persistedSupp = supplier.save
+      persistedSupp.version should not be 0
 
- }
+      // modify two versions and try to persist them
+      val suppWithNewVersion = persistedSupp.copy(name = "abc1").save
+
+      intercept[StaleObjectStateException[Supplier]] {
+        // supplier was persisted in the mean time, so version must be different by now
+        persistedSupp.copy(name = "abc2").save
+      }
+
+      // supplier with new version can be persisted again
+      suppWithNewVersion.copy(name = "abc").save
+    }
+  }
+}
