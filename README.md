@@ -1,6 +1,8 @@
 # ActiveSlick
 
-ActiveSlick is a tiny library that offers CRUD operations for Slick 2.0 mapped classes through TableQuery extensions.
+ActiveSlick is a tiny library that offers CRUD operations for Slick 2.0 projects. The main goal is to provide some basic operations to manage the life cycle of persisted objects (new/persisted/deleted/stale).
+
+All operations are provided as method extensions for `TableQueries`. 
 
 NOTE: this project was originally named slick-dao and use to provide DAOs instead of query extensions.
 Old (incomplete) version can be found here: [dao version](https://github.com/strongtyped/active-slick/tree/dao-active-record)
@@ -8,18 +10,15 @@ Old (incomplete) version can be found here: [dao version](https://github.com/str
 [![Build Status](https://travis-ci.org/strongtyped/active-slick.svg?branch=develop)](https://travis-ci.org/strongtyped/active-slick)
 
 ### Main features
-- Basic CRUD and auxiliary methods - add/update/save, delete, pages (paged result), findById and count.
+- Basic CRUD and auxiliary methods - add/update/save, delete, list, pagedList, (paged result), findById and count.
 - Model classes don't need to implement any specific class or trait,
-  although for convenience you can extend Identifiable or Versionable traits.  
+  although for convenience you can extend `Identifiable` or `Versionable` traits.  
 - Generic Id type. 
 - `Identifiable` trait and respective `IdTableExt` to manage Entities.
 - `Versionable` trait and respective `VersionableTableExt` for optimistic locking (based on timestmap).
 
 
 ### Motivation
-
-The main goal of this library is to provide some basic operations to manage the life cycle of persisted objects (new/persisted/deleted/stale).
-
 
 Slick is able to map result sets to case classes or Tuples because of its isomorphism. This is done thanks to built-in Scala features. However, there is no direct link between case class fields and database columns. Everything is done based on isomorphic projections.
 
@@ -69,7 +68,7 @@ trait MappingWithActiveSlick { this: ActiveSlick =>
 
 The mapping is almost the same. The only difference being that that `FooTable` extends `IdTable` which requires an extra type parameter for the primary key. `IdTable` will also require us to define the method `def id:Column[I]` (`I` being the type of our ID, obviously). 
 
-> Note the usage of the Cake Pattern. The Cake Pattern is used here to provide a `JdbcDriver` so we can have access to all implicit type classes and conversions needed to build the CRUD queries. This is required by ActiveSlick as all tables and table query extensions depends on `JdbcDriver`.
+> Note the usage of the Cake Pattern. The Cake Pattern is used here to provide a `JdbcDriver` so we can have access to all implicit type classes and conversions needed to build the CRUD queries. This is required by ActiveSlick as all tables and table query extensions needs a `JdbcDriver`.
 
 We have now a well known column for our primary key. The next step is to define the method to extract the id from our model and to add a generated id back into the model. This is done through the `FooQueryExtension`. 
 
@@ -106,7 +105,7 @@ The `save` method is an extension added by the `BaseIdTableExt`. It'll take care
 
 ### Mapping using ActiveSlick's Identifiable trait
 
-The previous example can be further improved if our model extends the trait `Identifiable`. When using the `Identifiable` trait we only have to implement the `withId` method on the model class. And the `FooQueryExtension` should extend `IdTableExt` instead.  
+The previous example can be further improved if our model extends the `Identifiable` trait. When using the `Identifiable` trait we only have to implement the `withId` method on the model class. And the `FooQueryExtension` should extend `IdTableExt` instead.  
 
 ```scala
 
