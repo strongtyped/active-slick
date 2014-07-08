@@ -66,7 +66,7 @@ trait MappingWithActiveSlick { this: ActiveSlick =>
 }
 ```
 
-The mapping is almost the same. The only difference being that that `FooTable` extends `IdTable` which requires an extra type parameter for the primary key. `IdTable` will also require us to define the method `def id:Column[I]` (`I` being the type of our ID, obviously). 
+The mapping is almost the same. The only difference being that `FooTable` extends `IdTable` which requires an extra type parameter for the primary key. `IdTable` will also require us to define the method `def id:Column[I]` (`I` being the type of our ID, obviously). 
 
 > Note the usage of the Cake Pattern. The Cake Pattern is used here to provide a `JdbcDriver` so we can have access to all implicit type classes and conversions needed to build the CRUD queries. This is required by ActiveSlick as all tables and table query extensions needs a `JdbcDriver`.
 
