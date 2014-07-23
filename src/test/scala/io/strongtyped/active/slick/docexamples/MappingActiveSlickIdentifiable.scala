@@ -1,7 +1,7 @@
 package io.strongtyped.active.slick.docexamples
 
 import io.strongtyped.active.slick.ActiveSlick
-import io.strongtyped.active.slick.models.Identifiable
+import io.strongtyped.active.slick.models.{Beer, Identifiable}
 
 import scala.slick.driver.{H2Driver, JdbcDriver}
 
@@ -21,13 +21,12 @@ trait MappingActiveSlickIdentifiable {
     def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
   }
 
-  val Foos = TableQuery[FooTable]
+  val Foos = new TableWithIdQuery[Foo, Int, FooTable](tag => new FooTable(tag)){
+    override def extractId(model: Foo)(implicit sess: Session) = model.id
+    override def withId(model: Foo, id: Int)(implicit sess: Session) = model.copy(id = Some(id))
+  }
 
-  /**
-   * Class Extension for {{{TableQuery[FooTable]}}}. Will provide basic CRUD operations
-   * @param fooQuery
-   */
-  implicit class FooQueryExtension(fooQuery: TableQuery[FooTable]) extends IdTableExt[Foo](fooQuery)
+
 }
 
 
