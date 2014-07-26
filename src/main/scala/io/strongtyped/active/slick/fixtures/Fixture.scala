@@ -9,9 +9,7 @@ trait Fixtures { this: ActiveSlick =>
   /**
    * Basic trait for database fixtures
    */
-  abstract class Fixture[U : Model](val objects: Seq[U]) {
-    val model = implicitly[Model[U]]
-
-    def install()(implicit session: Session) = model.query.insertAll(objects : _*)
+  abstract class Fixture[U](val objects: Seq[U])(implicit val table: TableQuery[_ <: Table[U]]) {
+    def install()(implicit session: Session) = table.insertAll(objects : _*)
   }
 }
