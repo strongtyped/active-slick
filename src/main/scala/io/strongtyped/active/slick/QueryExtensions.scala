@@ -37,7 +37,7 @@ trait QueryExtensions { this:Profile with Tables =>
     def delete(model:M)(implicit sess:Session) : Boolean
   }
 
-  abstract class BaseIdTableExt[T, I:BaseColumnType](query:TableQuery[_ <: Table[T] with TableWithId[I]])
+  abstract class BaseIdTableExt[T, I:BaseColumnType](val query:TableQuery[_ <: Table[T] with TableWithId[I]])
     extends BaseTableExt(query) {
 
     /**
