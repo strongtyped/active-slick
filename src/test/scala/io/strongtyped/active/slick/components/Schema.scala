@@ -19,7 +19,7 @@ trait Schema extends Logging { this: Tables with TableQueries with Profile =>
 
   }
 
-  val Suppliers = new VersionableTableQuery[Supplier, SuppliersTable](tag => new SuppliersTable(tag)) {}
+  val Suppliers = VersionableTableQuery[Supplier, SuppliersTable](tag => new SuppliersTable(tag))
 
 
   class BeersTable(tag: Tag) extends IdTable[Beer, Int](tag, "BEERS") {
@@ -33,8 +33,8 @@ trait Schema extends Logging { this: Tables with TableQueries with Profile =>
 
     def supplier = foreignKey("SUP_FK", supID, Suppliers)(_.id)
   }
-  val Beers = new IdentifiableTableQuery[Beer, BeersTable](tag => new BeersTable(tag)) {}
 
+  val Beers = IdentifiableTableQuery[Beer, BeersTable] (tag => new BeersTable(tag))
 
 
   def createSchema(implicit sess:Session) = {

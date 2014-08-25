@@ -21,11 +21,7 @@ trait MappingActiveSlickIdentifiable {
     def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
   }
 
-  val Foos = new TableWithIdQuery[Foo, Int, FooTable](tag => new FooTable(tag)){
-    override def extractId(model: Foo)(implicit sess: Session) = model.id
-    override def withId(model: Foo, id: Int)(implicit sess: Session) = model.copy(id = Some(id))
-  }
-
+  val Foos = new IdentifiableTableQuery[Foo, FooTable](tag => new FooTable(tag))
 
 }
 
@@ -43,7 +39,7 @@ object MappingActiveSlickIdentifiableApp {
     db.withTransaction { implicit sess =>
       val foo = Foo("foo")
       val fooWithId : Foo = Foos.save(foo)
-      assert(fooWithId.id.isDefined, "Foo's ID should defined")
+      assert(fooWithId.id.isDefined, "Foo's ID should be defined")
     }
   }
 }

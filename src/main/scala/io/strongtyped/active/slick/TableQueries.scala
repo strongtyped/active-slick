@@ -16,9 +16,11 @@
 
 package io.strongtyped.active.slick
 
-import scala.slick.jdbc.JdbcBackend
-import io.strongtyped.active.slick.models.{Versionable, Identifiable}
+import io.strongtyped.active.slick.models.{Identifiable, Versionable}
+
+import scala.language.experimental.macros
 import scala.language.implicitConversions
+import scala.slick.jdbc.JdbcBackend
 
 trait TableQueries { this:Profile with Tables =>
 
@@ -35,17 +37,19 @@ trait TableQueries { this:Profile with Tables =>
 
     def save(model: M)(implicit sess:Session): M
     def delete(model:M)(implicit sess:Session) : Boolean
+
+
   }
 
   abstract class TableWithIdQuery[M, I:BaseColumnType, T <: IdTable[M, I]](cons: Tag => T)
-    extends ActiveTableQuery[M, T](cons)  {
+    extends ActiveTableQuery[M, T](cons) {
 
     /**
      * Extracts the model Id of a arbitrary model.
      * @param model a mapped model
      * @return a Some[I] if Id is filled, None otherwise
      */
-    def extractId(model: M)(implicit sess:Session): Option[I]
+    def extractId(model: M)(implicit sess: Session): Option[I]
 
 
     /**
@@ -54,21 +58,21 @@ trait TableQueries { this:Profile with Tables =>
      * @param id an id, usually generate by the database
      * @return a model M with an assigned id.
      */
-    def withId(model: M, id: I)(implicit sess:Session): M
+    def withId(model: M, id: I)(implicit sess: Session): M
 
 
-    def filterById(id: I)(implicit sess:Session) = filter(_.id === id)
+    def filterById(id: I)(implicit sess: Session) = filter(_.id === id)
 
     /**
      * Define an insert query that returns the database generated identifier.
      * @param model a mapped model
      * @return the database generated identifier.
      */
-    def add(model: M)(implicit sess:Session): I =
+    def add(model: M)(implicit sess: Session): I =
       this.returning(this.map(_.id)).insert(model)
 
 
-    override def save(model: M)(implicit sess:Session): M = {
+    override def save(model: M)(implicit sess: Session): M = {
       extractId(model)
       .map { id =>
         filterById(id).update(model)
@@ -79,18 +83,18 @@ trait TableQueries { this:Profile with Tables =>
       }
     }
 
-    override def delete(model:M)(implicit sess:Session) : Boolean =
+    override def delete(model: M)(implicit sess: Session): Boolean =
       extractId(model).exists(id => deleteById(id))
 
-    def deleteById(id: I)(implicit sess:Session): Boolean = filterById(id).delete == 1
+    def deleteById(id: I)(implicit sess: Session): Boolean = filterById(id).delete == 1
 
 
-    def findById(id: I)(implicit sess:Session): M = findOptionById(id).get
+    def findById(id: I)(implicit sess: Session): M = findOptionById(id).get
 
-    def findOptionById(id: I)(implicit sess:Session): Option[M] = filterById(id).firstOption
+    def findOptionById(id: I)(implicit sess: Session): Option[M] = filterById(id).firstOption
   }
 
-  abstract class IdentifiableTableQuery[M <: Identifiable[M],  T <: IdTable[M, M#Id]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
+  class IdentifiableTableQuery[M <: Identifiable[M],  T <: IdTable[M, M#Id]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
     extends TableWithIdQuery[M, M#Id, T](cons) {
 
     def extractId(identifiable: M)
@@ -100,7 +104,7 @@ trait TableQueries { this:Profile with Tables =>
               (implicit sess: JdbcBackend#Session) = entity.withId(id)
   }
 
-  abstract class VersionableTableQuery[M <: Versionable[M] with Identifiable[M], T <: IdVersionTable[M, M#Id]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
+  class VersionableTableQuery[M <: Versionable[M] with Identifiable[M], T <: IdVersionTable[M, M#Id]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
     extends IdentifiableTableQuery[M, T](cons) {
 
     override def save(versionable: M)(implicit sess:Session): M = {
@@ -121,6 +125,16 @@ trait TableQueries { this:Profile with Tables =>
       }
     }
 
+  }
+
+  object IdentifiableTableQuery {
+    def apply[M <: Identifiable[M], T <: IdTable[M, M#Id]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id]) =
+      new IdentifiableTableQuery[M, T](cons)
+  }
+
+  object VersionableTableQuery {
+    def apply[M <: Versionable[M] with Identifiable[M], T <: IdVersionTable[M, M#Id]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id]) =
+      new VersionableTableQuery[M, T](cons)
   }
 
   class StaleObjectStateException[T <: Versionable[T]](versionable:T)
