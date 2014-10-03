@@ -8,12 +8,8 @@ import scala.util.Try
 trait SupplierExtensions {
   this: ActiveSlick with ModelExtensions =>
 
-  implicit class SupplierExtensions(supplier:Supplier) {
-    def save(implicit session: JdbcBackend#Session): Supplier = Suppliers.save(supplier)
-    def trySave(implicit session: JdbcBackend#Session): Try[Supplier] = Suppliers.trySave(supplier)
-
-    def delete(implicit session: JdbcBackend#Session): Boolean = Suppliers.delete(supplier)
-    def tryDelete(implicit session: JdbcBackend#Session): Try[Boolean] = Suppliers.tryDelete(supplier)
+  implicit class SupplierExtensions(val model:Supplier) extends ActiveRecord[Supplier, SuppliersTable]{
+    override def table = Suppliers
   }
 
 }

@@ -30,6 +30,8 @@ trait TableQueries { this:Profile with Tables =>
 
   abstract class ActiveTableQuery[M, T <: Table[M]](cons: Tag => T) extends TableQuery(cons) {
 
+    type Model = M
+
     def count(implicit sess:Session): Int = length.run
 
     def list(implicit sess:Session): List[M] = this.list

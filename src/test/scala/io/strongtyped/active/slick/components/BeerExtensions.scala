@@ -9,16 +9,12 @@ import scala.util.Try
 trait BeerExtensions  {
   this: ActiveSlick with ModelExtensions =>
 
-  implicit class BeerExtensions(coffee:Beer) {
+  implicit class BeerExtensions(val model:Beer) extends ActiveRecord[Beer, BeersTable] {
 
-    def save(implicit session: JdbcBackend#Session): Beer = Beers.save(coffee)
-    def trySave(implicit session: JdbcBackend#Session): Try[Beer] = Beers.trySave(coffee)
-
-    def delete(implicit session: JdbcBackend#Session): Boolean = Beers.delete(coffee)
-    def tryDelete(implicit session: JdbcBackend#Session): Try[Boolean] = Beers.tryDelete(coffee)
+    override val table = Beers
 
     def supplier(implicit session: JdbcBackend#Session) : Option[Supplier] =
-      Suppliers.findOptionById(coffee.supID)
+      Suppliers.findOptionById(model.supID)
   }
 
 }
