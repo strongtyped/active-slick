@@ -16,12 +16,13 @@
 
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.exceptions.{RowNotFoundException, StaleObjectStateException}
+import io.strongtyped.active.slick.exceptions.{EntityNotFoundException, RowNotFoundException, StaleObjectStateException}
 import io.strongtyped.active.slick.models.{Identifiable, Versionable}
 
 import scala.language.experimental.macros
 import scala.language.implicitConversions
 import scala.slick.jdbc.JdbcBackend
+import scala.util.Try
 
 trait TableQueries { this:Profile with Tables =>
 
@@ -37,7 +38,9 @@ trait TableQueries { this:Profile with Tables =>
       drop(pageIndex).take(limit).run.toList
 
     def save(model: M)(implicit sess:Session): M
+    def trySave(model: M)(implicit sess:Session): Try[M] = Try(save(model))
     def delete(model:M)(implicit sess:Session) : Boolean
+    def tryDelete(model:M)(implicit sess:Session) : Try[Boolean] = Try(delete(model))
 
 
   }
@@ -76,8 +79,9 @@ trait TableQueries { this:Profile with Tables =>
     override def save(model: M)(implicit sess: Session): M = {
       extractId(model)
       .map { id =>
-        filterById(id).update(model)
-        model
+        val affectedRows = filterById(id).update(model)
+        if (affectedRows == 0) throw new EntityNotFoundException(model)
+        else model
       }
       .getOrElse {
         withId(model, add(model))
@@ -89,11 +93,12 @@ trait TableQueries { this:Profile with Tables =>
 
     def deleteById(id: I)(implicit sess: Session): Boolean = filterById(id).delete == 1
 
-
     def findById(id: I)(implicit sess: Session): M = findOptionById(id).get
 
     def findOptionById(id: I)(implicit sess: Session): Option[M] = filterById(id).firstOption
   }
+
+
 
   class IdentifiableTableQuery[M <: Identifiable[M],  T <: IdTable[M, M#Id]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
     extends TableWithIdQuery[M, M#Id, T](cons) {
@@ -104,6 +109,8 @@ trait TableQueries { this:Profile with Tables =>
     def withId(entity: M, id: M#Id)
               (implicit sess: JdbcBackend#Session) = entity.withId(id)
   }
+
+
 
   class VersionableTableQuery[M <: Versionable[M] with Identifiable[M], T <: IdVersionTable[M, M#Id]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
     extends IdentifiableTableQuery[M, T](cons) {

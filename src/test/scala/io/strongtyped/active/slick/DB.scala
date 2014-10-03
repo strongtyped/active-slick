@@ -6,7 +6,7 @@ import scala.slick.driver.H2Driver.simple._
 
 object DB {
 
-  val db = {
+  lazy val db = {
     val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")
     val keepAliveSession = db.createSession()
     keepAliveSession.force() // keep the database in memory with an extra connection
