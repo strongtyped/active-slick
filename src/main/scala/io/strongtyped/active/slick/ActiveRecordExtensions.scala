@@ -4,14 +4,14 @@ import scala.slick.jdbc.JdbcBackend
 import scala.util.Try
 
 
-trait ActiveRecordExtensions { this:Profile with TableQueries with Tables =>
+trait ActiveRecordExtensions { this:TableQueries =>
 
-  import jdbcDriver.simple._
+  trait ActiveRecord[M] {
 
-  trait ActiveRecord[M, T <: Table[M]] {
+    type TableQuery = ActiveTableQuery[M, _]
 
-    def table: ActiveTableQuery[M, T]
-    def model:M
+    def table: TableQuery
+    def model: M
 
     def save(implicit session: JdbcBackend#Session): M = table.save(model)
     def trySave(implicit session: JdbcBackend#Session): Try[M] = table.trySave(model)

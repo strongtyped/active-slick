@@ -8,7 +8,7 @@ import scala.util.Try
 trait SupplierExtensions {
   this: ActiveSlick with ModelExtensions =>
 
-  implicit class SupplierExtensions(val model:Supplier) extends ActiveRecord[Supplier, SuppliersTable]{
+  implicit class SupplierExtensions(val model:Supplier) extends ActiveRecord[Supplier] {
     override def table = Suppliers
   }
 

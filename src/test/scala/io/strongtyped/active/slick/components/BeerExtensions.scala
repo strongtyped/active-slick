@@ -9,7 +9,7 @@ import scala.util.Try
 trait BeerExtensions  {
   this: ActiveSlick with ModelExtensions =>
 
-  implicit class BeerExtensions(val model:Beer) extends ActiveRecord[Beer, BeersTable] {
+  implicit class BeerExtensions(val model:Beer) extends ActiveRecord[Beer] {
 
     override val table = Beers
 

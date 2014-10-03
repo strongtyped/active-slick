@@ -18,8 +18,6 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.exceptions.{EntityNotFoundException, RowNotFoundException, StaleObjectStateException}
 import io.strongtyped.active.slick.models.{Identifiable, Versionable}
-
-import scala.language.experimental.macros
 import scala.language.implicitConversions
 import scala.slick.jdbc.JdbcBackend
 import scala.util.Try
@@ -29,8 +27,6 @@ trait TableQueries { this:Profile with Tables =>
   import jdbcDriver.simple._
 
   abstract class ActiveTableQuery[M, T <: Table[M]](cons: Tag => T) extends TableQuery(cons) {
-
-    type Model = M
 
     def count(implicit sess:Session): Int = length.run
 
