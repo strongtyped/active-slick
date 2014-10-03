@@ -6,9 +6,10 @@ import io.strongtyped.active.slick.models.{Beer, Supplier}
 import org.scalatest.{FunSuite, Matchers, OptionValues, TryValues}
 
 class BeerTest extends FunSuite with Matchers with OptionValues with TryValues {
-  test("A Beer should be persistable") {
 
-    DB { implicit sess =>
+
+  test("A Beer should be persistable") {
+    DB.rollback { implicit sess =>
       val supplier = Supplier("Acme, Inc.").save
 
       supplier.id shouldBe defined
@@ -21,7 +22,7 @@ class BeerTest extends FunSuite with Matchers with OptionValues with TryValues {
   }
 
   test("Entity ID can't be chosen by user") {
-    DB { implicit sess =>
+    DB.rollback { implicit sess =>
       val supplier = Supplier("Acme, Inc.").save
 
       supplier.id shouldBe defined

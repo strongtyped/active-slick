@@ -38,10 +38,26 @@ trait TableQueries { this:Profile with Tables =>
       drop(pageIndex).take(limit).run.toList
 
     def save(model: M)(implicit sess:Session): M
-    def trySave(model: M)(implicit sess:Session): Try[M] = Try(save(model))
     def delete(model:M)(implicit sess:Session) : Boolean
-    def tryDelete(model:M)(implicit sess:Session) : Try[Boolean] = Try(delete(model))
 
+    def trySave(model: M)(implicit sess:Session): Try[M] = {
+      val tried = Try(save(model))
+
+      if (tried.isFailure) {
+        sess.rollback()
+      }
+
+      tried
+    }
+    def tryDelete(model:M)(implicit sess:Session) : Try[Boolean] = {
+      val tried = Try(delete(model))
+
+      if (tried.isFailure) {
+        sess.rollback()
+      }
+
+      tried
+    }
 
   }
 

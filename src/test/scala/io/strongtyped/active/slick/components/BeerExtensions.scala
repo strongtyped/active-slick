@@ -13,6 +13,7 @@ trait BeerExtensions  {
 
     def save(implicit session: JdbcBackend#Session): Beer = Beers.save(coffee)
     def trySave(implicit session: JdbcBackend#Session): Try[Beer] = Beers.trySave(coffee)
+
     def delete(implicit session: JdbcBackend#Session): Boolean = Beers.delete(coffee)
     def tryDelete(implicit session: JdbcBackend#Session): Try[Boolean] = Beers.tryDelete(coffee)
 

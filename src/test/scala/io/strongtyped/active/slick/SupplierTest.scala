@@ -27,7 +27,7 @@ class SupplierTest extends FunSuite  with Matchers with OptionValues with TryVal
 
   test("A Supplier should be persistable") {
 
-    DB { implicit sess =>
+    DB.rollback { implicit sess =>
       val initialCount = Suppliers.count
 
       val supplier = Supplier("Acme, Inc.")
@@ -47,7 +47,7 @@ class SupplierTest extends FunSuite  with Matchers with OptionValues with TryVal
 
 
   test("A Supplier is versionable") {
-    DB { implicit sess =>
+    DB.rollback { implicit sess =>
       val supplier = Supplier("abc")
       // no version yet
       supplier.version shouldBe 0
@@ -71,7 +71,7 @@ class SupplierTest extends FunSuite  with Matchers with OptionValues with TryVal
 
   test("A Supplier can't be deleted if it has Beers linked to it") {
 
-    DB { implicit sess =>
+    DB.rollback { implicit sess =>
       val supplier = Supplier("Acme, Inc.").save
 
       supplier.id shouldBe defined

@@ -2,7 +2,20 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
 
+import scala.slick.driver.H2Driver
 import scala.slick.driver.H2Driver.simple._
+
+sealed trait TxOps {
+  def complete(sess:Session) : Unit
+}
+
+object Rollback extends TxOps {
+  override def complete(sess: Session): Unit = sess.rollback()
+}
+
+object Commit extends TxOps {
+  override def complete(sess: Session): Unit = ()
+}
 
 object DB {
 
@@ -16,11 +29,17 @@ object DB {
     db
   }
 
-  def apply[T](block: Session => T): T = {
+  def commit[T](block: Session => T) : T = apply(Commit)(block)
+  def rollback[T](block: Session => T) : T = apply(Rollback)(block)
+
+  private def apply[T](block: Session => T) : T = apply(Rollback)(block)
+
+  def apply[T](txOps: TxOps)(block: Session => T) : T = {
     db.withTransaction { implicit session =>
       val result = block(session)
-      session.rollback()
+      txOps.complete(session)
       result
     }
   }
+
 }
