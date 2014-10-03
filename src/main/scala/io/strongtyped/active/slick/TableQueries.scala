@@ -16,6 +16,7 @@
 
 package io.strongtyped.active.slick
 
+import io.strongtyped.active.slick.exceptions.{RowNotFoundException, StaleObjectStateException}
 import io.strongtyped.active.slick.models.{Identifiable, Versionable}
 
 import scala.language.experimental.macros
@@ -108,20 +109,28 @@ trait TableQueries { this:Profile with Tables =>
     extends IdentifiableTableQuery[M, T](cons) {
 
     override def save(versionable: M)(implicit sess:Session): M = {
-      val currentVersion = versionable.version
-      val modelNewVersion = versionable.withVersion(System.currentTimeMillis())
-      extractId(modelNewVersion)
-      .map { id =>
-        val q = filter(_.version === currentVersion).filter(_.id === id)
 
-        if (q.length.run != 1)
-          throw new StaleObjectStateException(versionable)
+      extractId(versionable).map { id =>
 
-        q.update(modelNewVersion)
-        modelNewVersion
-      }
-      .getOrElse {
-        withId(modelNewVersion, add(modelNewVersion))
+        val queryById = filter(_.id === id)
+        val queryByIdAndVersion = queryById.filter(_.version === versionable.version)
+
+        val modelWithNewVersion = versionable.withVersion(versionable.version + 1)
+
+        val affectedRows = queryByIdAndVersion.update(modelWithNewVersion)
+
+        if (affectedRows != 1) {
+          val currentObjOpt = queryById.firstOption
+          currentObjOpt match {
+            case Some(current) => throw new StaleObjectStateException(versionable, current)
+            case None => throw new RowNotFoundException(versionable)
+          }
+        }
+
+        modelWithNewVersion
+      } getOrElse {
+        val modelWithVersion = versionable.withVersion(1)
+        withId(modelWithVersion, add(modelWithVersion))
       }
     }
 
@@ -137,6 +146,4 @@ trait TableQueries { this:Profile with Tables =>
       new VersionableTableQuery[M, T](cons)
   }
 
-  class StaleObjectStateException[T <: Versionable[T]](versionable:T)
-    extends RuntimeException(s"Optimistic locking error - object in stale state: $versionable" )
 }

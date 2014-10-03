@@ -17,6 +17,7 @@
 package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
+import io.strongtyped.active.slick.exceptions.StaleObjectStateException
 import io.strongtyped.active.slick.models.Supplier
 import org.scalatest.{OptionValues, Matchers, FunSuite}
 
