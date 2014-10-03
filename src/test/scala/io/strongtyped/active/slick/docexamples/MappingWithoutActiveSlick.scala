@@ -20,6 +20,7 @@ object MappingWithoutActiveSlick {
   val Foos = TableQuery[FooTable]
 
   db.withTransaction { implicit sess =>
+    Foos.ddl.create
     val foo = Foo("foo")
     val id = Foos.returning(Foos.map(_.id)).insert(foo)
     foo.copy(id = Some(id))

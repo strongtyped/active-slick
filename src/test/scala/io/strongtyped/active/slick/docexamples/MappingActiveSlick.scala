@@ -10,11 +10,7 @@ trait MappingWithActiveSlick {
 
   import jdbcDriver.simple._
 
-  case class Foo(name: String, id: Option[Int] = None) extends Identifiable[Foo] {
-    override type Id = Int
-
-    override def withId(id: Id): Foo = copy(id = Option(id))
-  }
+  case class Foo(name: String, id: Option[Int] = None)
 
   class FooTable(tag: Tag) extends IdTable[Foo, Int](tag, "FOOS") {
     def name = column[String]("NAME")
@@ -35,12 +31,14 @@ object MappingWithActiveSlickApp {
   class Components(override val jdbcDriver: JdbcDriver) extends ActiveSlick with MappingWithActiveSlick {
     import jdbcDriver.simple._
     val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")
+    def createSchema(implicit sess:Session) = Foos.ddl.create
   }
   object Components { val instance = new Components(H2Driver) }
   import Components.instance._
 
   def main(args:Array[String]) : Unit = {
     db.withTransaction { implicit sess =>
+      createSchema
       val foo = Foo("foo")
       val fooWithId : Foo = Foos.save(foo)
       assert(fooWithId.id.isDefined, "Foo's ID should be defined")
