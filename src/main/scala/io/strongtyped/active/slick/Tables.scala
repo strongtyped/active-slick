@@ -21,15 +21,9 @@ trait Tables {  this:Profile =>
   trait TableWithVersion  {
     def version: Column[Long]
   }
-//
-//  abstract class VersionTable[M](tag: Tag, schemaName: Option[String], tableName: String)
-//    extends Table[M](tag, schemaName, tableName) with TableWithVersion {
-//
-//    def this(tag: Tag, tableName: String) = this(tag, None, tableName)
-//  }
 
-  abstract class IdVersionTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(implicit val colType: BaseColumnType[I])
-    extends Table[M](tag, schemaName, tableName) with TableWithId[I] with TableWithVersion {
+  abstract class IdVersionTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(override implicit val colType: BaseColumnType[I])
+    extends IdTable[M, I](tag, schemaName, tableName)(colType) with TableWithVersion {
 
     def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[I]) = this(tag, None, tableName)
   }

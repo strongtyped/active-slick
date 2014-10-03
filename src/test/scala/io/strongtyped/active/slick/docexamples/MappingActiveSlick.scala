@@ -1,6 +1,7 @@
 package io.strongtyped.active.slick.docexamples
 
 import io.strongtyped.active.slick.ActiveSlick
+import io.strongtyped.active.slick.models.Identifiable
 
 import scala.slick.driver.{H2Driver, JdbcDriver}
 
@@ -9,7 +10,11 @@ trait MappingWithActiveSlick {
 
   import jdbcDriver.simple._
 
-  case class Foo(name: String, id: Option[Int] = None)
+  case class Foo(name: String, id: Option[Int] = None) extends Identifiable[Foo] {
+    override type Id = Int
+
+    override def withId(id: Id): Foo = copy(id = Option(id))
+  }
 
   class FooTable(tag: Tag) extends IdTable[Foo, Int](tag, "FOOS") {
     def name = column[String]("NAME")
@@ -17,16 +22,11 @@ trait MappingWithActiveSlick {
     def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
   }
 
-  val Foos = TableQuery[FooTable]
-
-  /**
-   * Class Extension for {{{TableQuery[FooTable]}}}. Will provide basic CRUD operations
-   * @param fooQuery
-   */
-  implicit class FooQueryExtension(fooQuery: TableQuery[FooTable]) extends BaseIdTableExt[Foo, Int](fooQuery) {
+  val Foos = new TableWithIdQuery[Foo, Int, FooTable](tag => new FooTable(tag)) {
     override def extractId(model: Foo)(implicit sess: Session) = model.id
     override def withId(model: Foo, id: Int)(implicit sess: Session) = model.copy(id = Some(id))
   }
+
 }
 
 
@@ -43,7 +43,7 @@ object MappingWithActiveSlickApp {
     db.withTransaction { implicit sess =>
       val foo = Foo("foo")
       val fooWithId : Foo = Foos.save(foo)
-      assert(fooWithId.id.isDefined, "Foo's ID should defined")
+      assert(fooWithId.id.isDefined, "Foo's ID should be defined")
     }
   }
 }

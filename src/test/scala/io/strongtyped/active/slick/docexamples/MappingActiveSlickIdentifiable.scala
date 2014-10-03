@@ -1,7 +1,7 @@
 package io.strongtyped.active.slick.docexamples
 
 import io.strongtyped.active.slick.ActiveSlick
-import io.strongtyped.active.slick.models.Identifiable
+import io.strongtyped.active.slick.models.{Beer, Identifiable}
 
 import scala.slick.driver.{H2Driver, JdbcDriver}
 
@@ -21,13 +21,8 @@ trait MappingActiveSlickIdentifiable {
     def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
   }
 
-  val Foos = TableQuery[FooTable]
+  val Foos = new IdentifiableTableQuery[Foo, FooTable](tag => new FooTable(tag))
 
-  /**
-   * Class Extension for {{{TableQuery[FooTable]}}}. Will provide basic CRUD operations
-   * @param fooQuery
-   */
-  implicit class FooQueryExtension(fooQuery: TableQuery[FooTable]) extends IdTableExt[Foo](fooQuery)
 }
 
 
@@ -44,7 +39,7 @@ object MappingActiveSlickIdentifiableApp {
     db.withTransaction { implicit sess =>
       val foo = Foo("foo")
       val fooWithId : Foo = Foos.save(foo)
-      assert(fooWithId.id.isDefined, "Foo's ID should defined")
+      assert(fooWithId.id.isDefined, "Foo's ID should be defined")
     }
   }
 }

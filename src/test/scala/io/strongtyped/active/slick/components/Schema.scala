@@ -1,11 +1,11 @@
 package io.strongtyped.active.slick.components
 
-import io.strongtyped.active.slick.{Tables, Profile}
+import io.strongtyped.active.slick.{TableQueries, Tables, Profile}
 import io.strongtyped.active.slick.models.{Beer, Supplier}
 
 import scala.slick.util.Logging
 
-trait Schema extends Logging { this:Tables with Profile =>
+trait Schema extends Logging { this: Tables with TableQueries with Profile =>
 
   import jdbcDriver.simple._
 
@@ -19,7 +19,7 @@ trait Schema extends Logging { this:Tables with Profile =>
 
   }
 
-  val Suppliers = TableQuery[SuppliersTable]
+  val Suppliers = VersionableTableQuery[Supplier, SuppliersTable](tag => new SuppliersTable(tag))
 
 
   class BeersTable(tag: Tag) extends IdTable[Beer, Int](tag, "BEERS") {
@@ -33,7 +33,8 @@ trait Schema extends Logging { this:Tables with Profile =>
 
     def supplier = foreignKey("SUP_FK", supID, Suppliers)(_.id)
   }
-  val Beers = TableQuery[BeersTable]
+
+  val Beers = IdentifiableTableQuery[Beer, BeersTable] (tag => new BeersTable(tag))
 
 
   def createSchema(implicit sess:Session) = {
