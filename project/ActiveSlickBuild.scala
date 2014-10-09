@@ -5,14 +5,12 @@ import com.typesafe.sbt.SbtScalariform
 object ActiveSlickBuild extends Build with Dependencies {
 
   val buildName         = "ActiveSlick"
-  val appVersion        = "0.0.1-SNAPSHOT"
   val scalaBuildOptions = Seq("-unchecked", "-deprecation", "-feature", "-Xlint")
 
 
   val buildSettings = Seq(
     scalaVersion := "2.11.2",
-    scalacOptions := scalaBuildOptions,
-    version := appVersion
+    scalacOptions := scalaBuildOptions
   ) ++ SbtScalariform.scalariformSettings
 
   
