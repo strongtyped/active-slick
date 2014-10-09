@@ -6,7 +6,7 @@ import scala.slick.driver.H2Driver
 import scala.slick.driver.H2Driver.simple._
 
 sealed trait TxOps {
-  def complete(sess:Session) : Unit
+  def complete(sess: Session): Unit
 }
 
 object Rollback extends TxOps {
@@ -29,12 +29,12 @@ object DB {
     db
   }
 
-  def commit[T](block: Session => T) : T = apply(Commit)(block)
-  def rollback[T](block: Session => T) : T = apply(Rollback)(block)
+  def commit[T](block: Session => T): T = apply(Commit)(block)
+  def rollback[T](block: Session => T): T = apply(Rollback)(block)
 
-  private def apply[T](block: Session => T) : T = apply(Rollback)(block)
+  private def apply[T](block: Session => T): T = apply(Rollback)(block)
 
-  def apply[T](txOps: TxOps)(block: Session => T) : T = {
+  def apply[T](txOps: TxOps)(block: Session => T): T = {
     db.withTransaction { implicit session =>
       val result = block(session)
       txOps.complete(session)

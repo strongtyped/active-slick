@@ -3,7 +3,7 @@ package io.strongtyped.active.slick
 import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.exceptions.StaleObjectStateException
 import io.strongtyped.active.slick.models.Supplier
-import org.scalatest.{FunSuite, Matchers, OptionValues, TryValues}
+import org.scalatest.{ FunSuite, Matchers, OptionValues, TryValues }
 
 class RollbackOnErrorTest extends FunSuite with Matchers with OptionValues with TryValues {
 
@@ -13,7 +13,6 @@ class RollbackOnErrorTest extends FunSuite with Matchers with OptionValues with 
       val supplier = Supplier("abc").save
       supplier.id.get
     }
-
 
     DB.commit { implicit sess =>
       val supplier = Suppliers.findById(supId)

@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package io.strongtyped.active.slick
+package io.strongtyped.active.slick
 
 import scala.slick.jdbc.JdbcBackend
 import scala.util.Try
 
-
-trait ActiveRecordExtensions { this:TableQueries =>
+trait ActiveRecordExtensions { this: TableQueries =>
 
   trait ActiveRecord[M] {
 

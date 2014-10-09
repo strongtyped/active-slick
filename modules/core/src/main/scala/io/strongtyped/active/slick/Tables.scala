@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package io.strongtyped.active.slick
+package io.strongtyped.active.slick
 
-trait Tables {  this:Profile =>
+trait Tables { this: Profile =>
 
   import jdbcDriver.simple._
 
@@ -23,22 +23,18 @@ trait Tables {  this:Profile =>
     def id: Column[I]
   }
 
-
-  abstract class IdTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)
-                                        (implicit val colType: BaseColumnType[I])
-    extends Table[M](tag, schemaName, tableName) with TableWithId[I] {
+  abstract class IdTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(implicit val colType: BaseColumnType[I])
+      extends Table[M](tag, schemaName, tableName) with TableWithId[I] {
 
     def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[I]) = this(tag, None, tableName)
   }
 
-
-
-  trait TableWithVersion  {
+  trait TableWithVersion {
     def version: Column[Long]
   }
 
   abstract class IdVersionTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(override implicit val colType: BaseColumnType[I])
-    extends IdTable[M, I](tag, schemaName, tableName)(colType) with TableWithVersion {
+      extends IdTable[M, I](tag, schemaName, tableName)(colType) with TableWithVersion {
 
     def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[I]) = this(tag, None, tableName)
   }

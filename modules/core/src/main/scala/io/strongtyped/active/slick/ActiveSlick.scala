@@ -13,6 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package io.strongtyped.active.slick
+package io.strongtyped.active.slick
 
 trait ActiveSlick extends Tables with TableQueries with ActiveRecordExtensions with Profile

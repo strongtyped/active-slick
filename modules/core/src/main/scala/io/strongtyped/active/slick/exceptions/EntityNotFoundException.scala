@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package io.strongtyped.active.slick.exceptions
+package io.strongtyped.active.slick.exceptions
 
-class EntityNotFoundException[T](notFoundRecord:T)
+class EntityNotFoundException[T](notFoundRecord: T)
   extends ActiveSlickException(s"Record not found: $notFoundRecord")

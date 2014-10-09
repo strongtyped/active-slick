@@ -2,11 +2,10 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.exceptions.EntityNotFoundException
-import io.strongtyped.active.slick.models.{Beer, Supplier}
-import org.scalatest.{FunSuite, Matchers, OptionValues, TryValues}
+import io.strongtyped.active.slick.models.{ Beer, Supplier }
+import org.scalatest.{ FunSuite, Matchers, OptionValues, TryValues }
 
 class BeerTest extends FunSuite with Matchers with OptionValues with TryValues {
-
 
   test("A Beer should be persistable") {
     DB.rollback { implicit sess =>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- package io.strongtyped.active.slick
+package io.strongtyped.active.slick
 
 import scala.slick.driver.JdbcDriver
 

@@ -18,12 +18,11 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.exceptions.StaleObjectStateException
-import io.strongtyped.active.slick.models.{Beer, Supplier}
+import io.strongtyped.active.slick.models.{ Beer, Supplier }
 import org.h2.jdbc.JdbcSQLException
-import org.scalatest.{TryValues, OptionValues, Matchers, FunSuite}
+import org.scalatest.{ TryValues, OptionValues, Matchers, FunSuite }
 
-class SupplierTest extends FunSuite  with Matchers with OptionValues with TryValues {
-
+class SupplierTest extends FunSuite with Matchers with OptionValues with TryValues {
 
   test("A Supplier should be persistable") {
 
@@ -44,7 +43,6 @@ class SupplierTest extends FunSuite  with Matchers with OptionValues with TryVal
 
     }
   }
-
 
   test("A Supplier is versionable") {
     DB.rollback { implicit sess =>
@@ -68,14 +66,12 @@ class SupplierTest extends FunSuite  with Matchers with OptionValues with TryVal
     }
   }
 
-
   test("A Supplier can't be deleted if it has Beers linked to it") {
 
     DB.rollback { implicit sess =>
       val supplier = Supplier("Acme, Inc.").save
 
       supplier.id shouldBe defined
-
 
       supplier.id.map { supId =>
         val coffee = Beer("Abc", supId, 3.2).save

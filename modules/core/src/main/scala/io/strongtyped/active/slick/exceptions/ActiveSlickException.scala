@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package io.strongtyped.active.slick.exceptions
+package io.strongtyped.active.slick.exceptions
 
-class ActiveSlickException(msg:String) extends RuntimeException(msg) {
-//  this(msg:String) = this(msg, this)
-//  this(cause:Throwable) = this("", cause)
-}
+class ActiveSlickException(msg: String) extends RuntimeException(msg)
