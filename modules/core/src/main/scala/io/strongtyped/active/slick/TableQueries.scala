@@ -80,7 +80,7 @@ trait TableQueries { this: Profile with Tables =>
     def add(model: M)(implicit sess: Session): I =
       this.returning(this.map(_.id)).insert(model)
 
-    def tryAdd(model: M)(implicit sess: Session): I = {
+    def tryAdd(model: M)(implicit sess: Session): Try[I] = {
       val tried = Try(add(model))
       if (tried.isFailure) sess.rollback()
       tried
@@ -103,7 +103,7 @@ trait TableQueries { this: Profile with Tables =>
 
     def deleteById(id: I)(implicit sess: Session): Boolean = filterById(id).delete == 1
 
-    def tryDeleteById(id: I)(implicit sess: Session): Boolean = {
+    def tryDeleteById(id: I)(implicit sess: Session): Try[Boolean] = {
       val tried = Try(deleteById(id))
       if (tried.isFailure) sess.rollback()
       tried
