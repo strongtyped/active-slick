@@ -1,23 +1,14 @@
 import sbt._
 import sbt.Keys._
-import com.typesafe.sbt.SbtScalariform
-
-object ActiveSlickBuild extends Build with Dependencies {
-
-  val buildName         = "ActiveSlick"
-  val scalaBuildOptions = Seq("-unchecked", "-deprecation", "-feature", "-Xlint")
 
 
-  val buildSettings = Seq(
-    scalaVersion := "2.11.2",
-    scalacOptions := scalaBuildOptions
-  ) ++ SbtScalariform.scalariformSettings
+object ActiveSlickBuild extends Build with BuildSettings with Dependencies {
 
   
   lazy val root = Project(
     id = "active-slick-root",
     base = file("."),
-    settings = buildSettings ++ Seq(
+    settings = projectSettings ++ Seq(
       publishArtifact := false,
       libraryDependencies ++= mainDependencies ++ mainTestDependencies
     )
@@ -29,7 +20,7 @@ object ActiveSlickBuild extends Build with Dependencies {
   lazy val activeSlick: Project = Project(
     id = "active-slick",
     base = file("modules/core"),
-    settings = buildSettings ++ Seq(
+    settings = projectSettings ++ Seq(
       libraryDependencies ++= mainDependencies ++ mainTestDependencies
       )
   ) 
@@ -38,10 +29,11 @@ object ActiveSlickBuild extends Build with Dependencies {
 
 
   // SAMPLES =======================================
+  // contains examples used on the docs, not intented to be released
   lazy val samples: Project = Project(
     id = "active-slick-samples",
     base = file("modules/samples"),
-    settings = buildSettings ++ Seq(
+    settings = projectSettings ++ Seq(
       publishArtifact := false,
       libraryDependencies ++= mainDependencies ++ macroDeps
     )

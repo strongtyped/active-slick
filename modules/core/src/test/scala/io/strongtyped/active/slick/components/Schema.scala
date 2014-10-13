@@ -9,7 +9,7 @@ trait Schema extends Logging { this: Tables with TableQueries with Profile =>
 
   import jdbcDriver.simple._
 
-  class SuppliersTable(tag: Tag) extends IdVersionTable[Supplier, Int](tag, "SUPPLIERS") {
+  class SuppliersTable(tag: Tag) extends IdentifiableVersionTable[Supplier](tag, "SUPPLIERS") {
 
     def version = column[Long]("VERSION")
     def name = column[String]("SUPPLIER_NAME")
@@ -21,7 +21,7 @@ trait Schema extends Logging { this: Tables with TableQueries with Profile =>
 
   val Suppliers = VersionableTableQuery[Supplier, SuppliersTable](tag => new SuppliersTable(tag))
 
-  class BeersTable(tag: Tag) extends IdTable[Beer, Int](tag, "BEERS") {
+  class BeersTable(tag: Tag) extends IdentifiableTable[Beer](tag, "BEERS") {
 
     def name = column[String]("BEER_NAME")
     def supID = column[Int]("SUP_ID")

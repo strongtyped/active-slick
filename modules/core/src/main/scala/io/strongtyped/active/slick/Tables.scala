@@ -15,27 +15,42 @@
  */
 package io.strongtyped.active.slick
 
+import io.strongtyped.active.slick.models.{ Versionable, Identifiable }
+
 trait Tables { this: Profile =>
 
   import jdbcDriver.simple._
 
-  trait TableWithId[I] {
+  trait IdColumn[I] {
     def id: Column[I]
   }
 
-  abstract class IdTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(implicit val colType: BaseColumnType[I])
-      extends Table[M](tag, schemaName, tableName) with TableWithId[I] {
-
-    def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[I]) = this(tag, None, tableName)
-  }
-
-  trait TableWithVersion {
+  trait VersionColumn {
     def version: Column[Long]
   }
 
-  abstract class IdVersionTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(override implicit val colType: BaseColumnType[I])
-      extends IdTable[M, I](tag, schemaName, tableName)(colType) with TableWithVersion {
+  abstract class IdTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(implicit val colType: BaseColumnType[I])
+      extends Table[M](tag, schemaName, tableName) with IdColumn[I] {
 
     def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[I]) = this(tag, None, tableName)
   }
+
+  abstract class IdVersionTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(override implicit val colType: BaseColumnType[I])
+      extends IdTable[M, I](tag, schemaName, tableName)(colType) with VersionColumn {
+
+    def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[I]) = this(tag, None, tableName)
+  }
+
+  abstract class IdentifiableTable[M <: Identifiable[M]](tag: Tag, schemaName: Option[String], tableName: String)(override implicit val colType: BaseColumnType[M#Id])
+      extends IdTable[M, M#Id](tag, schemaName, tableName) {
+
+    def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[M#Id]) = this(tag, None, tableName)
+  }
+
+  abstract class IdentifiableVersionTable[M <: Identifiable[M] with Versionable[M]](tag: Tag, schemaName: Option[String], tableName: String)(override implicit val colType: BaseColumnType[M#Id])
+      extends IdentifiableTable[M](tag, schemaName, tableName)(colType) with VersionColumn {
+
+    def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[M#Id]) = this(tag, None, tableName)
+  }
+
 }

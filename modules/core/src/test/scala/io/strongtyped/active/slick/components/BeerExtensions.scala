@@ -9,9 +9,7 @@ trait BeerExtensions {
   this: ActiveSlick with ModelExtensions =>
 
   implicit class BeerExtensions(val model: Beer) extends ActiveRecord[Beer] {
-
     override val table = Beers
-
     def supplier(implicit session: JdbcBackend#Session): Option[Supplier] =
       Suppliers.findOptionById(model.supID)
   }

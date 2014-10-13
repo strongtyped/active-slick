@@ -15,7 +15,7 @@ trait MappingActiveSlickIdentifiable {
     override def withId(id: Id): Foo = copy(id = Some(id))
   }
 
-  class FooTable(tag: Tag) extends IdTable[Foo, Int](tag, "FOOS") {
+  class FooTable(tag: Tag) extends IdentifiableTable[Foo](tag, "FOOS") {
     def name = column[String]("NAME")
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
     def * = (name, id.?) <> (Foo.tupled, Foo.unapply)
