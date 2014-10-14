@@ -115,22 +115,21 @@ trait MappingActiveSlickIdentifiable {
     override def withId(id: Id): Foo = copy(id = Some(id))
   }
 
-  class FooTable(tag: Tag) extends IdTable[Foo, Int](tag, "FOOS") {
+  class FooTable(tag: Tag) extends EntityTable[Foo](tag, "FOOS") {
     def name = column[String]("NAME")
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-    def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
+    def * = (name, id.?) <> (Foo.tupled, Foo.unapply)
   }
 
-  val Foos = new IdentifiableTableQuery[Foo, FooTable](tag => new FooTable(tag))
-
+  val Foos = new EntityTableQuery[Foo, FooTable](tag => new FooTable(tag))
 }
 
 ```
 Note that the `Identifiable` trait is parametrized on the type that will extend it, in this case `Foo`. As such we can have a self-type reference and guarantee that `withId` will return the same type. 
-(see [Identifiable](https://github.com/strongtyped/active-slick/blob/develop/src/main/scala/io/strongtyped/active/slick/models/Identifiable.scala) implementation)
+(see [Identifiable](https://github.com/strongtyped/active-slick/blob/develop/modules/core/src/main/scala/io/strongtyped/active/slick/models/Identifiable.scala) implementation)
 
-Moreover, it defines a type alias `Id` instead of a type parameter. This type alias will be used in a type projection by `IdentifiableTableQuery`. We can now let the compiler check that the id of the model matches the type parameter of the table's id column. 
-(see [IdTableExt](https://github.com/strongtyped/active-slick/blob/develop/src/main/scala/io/strongtyped/active/slick/TableQueries.scala#L94) implementation)
+Moreover, it defines a type alias `Id` instead of a type parameter. This type alias will be used in a type projection by `EntityTableQuery`. We can now let the compiler check that the id of the model matches the type parameter of the table's id column. 
+(see [EntityTableQuery](https://github.com/strongtyped/active-slick/blob/develop/modules/core/src/main/scala/io/strongtyped/active/slick/Tables.scala#L55) implementation)
 
 ### TODO
 - more testing, examples and docs
