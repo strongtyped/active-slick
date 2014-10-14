@@ -129,7 +129,7 @@ Note that the `Identifiable` trait is parametrized on the type that will extend 
 (see [Identifiable](https://github.com/strongtyped/active-slick/blob/develop/modules/core/src/main/scala/io/strongtyped/active/slick/models/Identifiable.scala) implementation)
 
 Moreover, it defines a type alias `Id` instead of a type parameter. This type alias will be used in a type projection by `EntityTableQuery`. We can now let the compiler check that the id of the model matches the type parameter of the table's id column. 
-(see [EntityTableQuery](https://github.com/strongtyped/active-slick/blob/develop/modules/core/src/main/scala/io/strongtyped/active/slick/Tables.scala#L55) implementation)
+(see [EntityTable](https://github.com/strongtyped/active-slick/blob/develop/modules/core/src/main/scala/io/strongtyped/active/slick/Tables.scala#L55) and [EntityTableQuery](https://github.com/strongtyped/active-slick/blob/develop/modules/core/src/main/scala/io/strongtyped/active/slick/TableQueries.scala#L131)implementations)
 
 ### TODO
 - more testing, examples and docs
