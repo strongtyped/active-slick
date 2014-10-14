@@ -38,12 +38,24 @@ trait TableQueries { this: Profile with Tables =>
     def save(model: M)(implicit sess: Session): M
     def delete(model: M)(implicit sess: Session): Boolean
 
+    /** Try to save the model.
+      * On occurrence of a Failure, session is marked for rollback
+      * @return A [[scala.util.Success[M]]] is case of success, Failure otherwise.
+      */
     def trySave(model: M)(implicit sess: Session): Try[M] = {
       val tried = Try(save(model))
       if (tried.isFailure) sess.rollback()
       tried
     }
 
+    /** Try to delete the model.
+      *
+      * If nothing is deleted, returns [[scala.util.Success[false]]].
+      * If something is deleted, returns [[scala.util.Success[true]]].
+      *
+      * On occurrence of a Failure, session is marked for rollback
+      * @return A [[scala.util.Success[Boolean]]] is case of success, Failure otherwise.
+      */
     def tryDelete(model: M)(implicit sess: Session): Try[Boolean] = {
       val tried = Try(delete(model))
       if (tried.isFailure) sess.rollback()
@@ -58,7 +70,7 @@ trait TableQueries { this: Profile with Tables =>
     /**
      * Extracts the model Id of a arbitrary model.
      * @param model a mapped model
-     * @return a Some[I] if Id is filled, None otherwise
+     * @return a [[Some[I]]] if Id is filled, [[None]] otherwise
      */
     def extractId(model: M)(implicit sess: Session): Option[I]
 
