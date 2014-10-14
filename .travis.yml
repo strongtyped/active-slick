@@ -1,0 +1,4 @@
+language: scala
+script: sbt -jvm-opts jvmopts.travis test
+jdk:
+  - openjdk6
