@@ -114,7 +114,7 @@ trait TableQueries { this: Profile with Tables =>
     def findOptionById(id: I)(implicit sess: Session): Option[M] = filterById(id).firstOption
   }
 
-  class IdentifiableTableQuery[M <: Identifiable[M], T <: IdentifiableTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
+  class EntityTableQuery[M <: Identifiable[M], T <: EntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
       extends TableWithIdQuery[M, M#Id, T](cons) {
 
     def extractId(identifiable: M)(implicit sess: JdbcBackend#Session) = identifiable.id
@@ -122,8 +122,8 @@ trait TableQueries { this: Profile with Tables =>
     def withId(entity: M, id: M#Id)(implicit sess: JdbcBackend#Session) = entity.withId(id)
   }
 
-  class VersionableTableQuery[M <: Versionable[M] with Identifiable[M], T <: IdentifiableVersionTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
-      extends IdentifiableTableQuery[M, T](cons) {
+  class VersionableEntityTableQuery[M <: Versionable[M] with Identifiable[M], T <: VersionableEntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
+      extends EntityTableQuery[M, T](cons) {
 
     override def save(versionable: M)(implicit sess: Session): M = {
 
@@ -153,14 +153,14 @@ trait TableQueries { this: Profile with Tables =>
 
   }
 
-  object IdentifiableTableQuery {
-    def apply[M <: Identifiable[M], T <: IdentifiableTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id]) =
-      new IdentifiableTableQuery[M, T](cons)
+  object EntityTableQuery {
+    def apply[M <: Identifiable[M], T <: EntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id]) =
+      new EntityTableQuery[M, T](cons)
   }
 
-  object VersionableTableQuery {
-    def apply[M <: Versionable[M] with Identifiable[M], T <: IdentifiableVersionTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id]) =
-      new VersionableTableQuery[M, T](cons)
+  object VersionableEntityTableQuery {
+    def apply[M <: Versionable[M] with Identifiable[M], T <: VersionableEntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id]) =
+      new VersionableEntityTableQuery[M, T](cons)
   }
 
 }

@@ -41,16 +41,7 @@ trait Tables { this: Profile =>
     def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[I]) = this(tag, None, tableName)
   }
 
-  abstract class IdentifiableTable[M <: Identifiable[M]](tag: Tag, schemaName: Option[String], tableName: String)(override implicit val colType: BaseColumnType[M#Id])
-      extends IdTable[M, M#Id](tag, schemaName, tableName) {
-
-    def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[M#Id]) = this(tag, None, tableName)
-  }
-
-  abstract class IdentifiableVersionTable[M <: Identifiable[M] with Versionable[M]](tag: Tag, schemaName: Option[String], tableName: String)(override implicit val colType: BaseColumnType[M#Id])
-      extends IdentifiableTable[M](tag, schemaName, tableName)(colType) with VersionColumn {
-
-    def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[M#Id]) = this(tag, None, tableName)
-  }
+  type EntityTable[M <: Identifiable[M]] = IdTable[M, M#Id]
+  type VersionableEntityTable[M <: Identifiable[M] with Versionable[M]] = IdVersionTable[M, M#Id]
 
 }
