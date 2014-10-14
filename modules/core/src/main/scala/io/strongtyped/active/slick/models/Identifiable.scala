@@ -31,8 +31,9 @@ trait Identifiable[E <: Identifiable[E]] {
    */
   def id: Option[E#Id]
 
-  /** Provide the means to assign an ID to the entity
-    * @return A copy of this Entity with an ID.
-    */
+  /**
+   * Provide the means to assign an ID to the entity
+   * @return A copy of this Entity with an ID.
+   */
   def withId(id: E#Id): E
 }
