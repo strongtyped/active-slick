@@ -16,13 +16,14 @@
 
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.exceptions.{ EntityNotFoundException, RowNotFoundException, StaleObjectStateException }
+import io.strongtyped.active.slick.exceptions._
 import io.strongtyped.active.slick.models.{ Identifiable, Versionable }
 import scala.language.implicitConversions
 import scala.slick.jdbc.JdbcBackend
-import scala.util.Try
+import scala.util.{ Success, Failure, Try }
 
-trait TableQueries { this: Profile with Tables =>
+trait TableQueries {
+  this: Profile with Tables =>
 
   import jdbcDriver.simple._
 
@@ -30,39 +31,34 @@ trait TableQueries { this: Profile with Tables =>
 
     def count(implicit sess: Session): Int = length.run
 
-    def list(implicit sess: Session): List[M] = this.list
+    def fetchAll(implicit sess: Session): List[M] = this.list
 
     def pagedList(pageIndex: Int, limit: Int)(implicit sess: Session): List[M] =
       drop(pageIndex).take(limit).run.toList
 
-    def save(model: M)(implicit sess: Session): M
-    def delete(model: M)(implicit sess: Session): Boolean
+    def save(model: M)(implicit sess: Session): M = trySave(model).get
+
+    def update(model: M)(implicit sess: Session): M = tryUpdate(model).get
+
+    def delete(model: M)(implicit sess: Session): Unit = tryDelete(model).get
 
     /**
      * Try to save the model.
-     * On occurrence of a Failure, session is marked for rollback
      * @return A Success[M] is case of success, Failure otherwise.
      */
-    def trySave(model: M)(implicit sess: Session): Try[M] = {
-      val tried = Try(save(model))
-      if (tried.isFailure) sess.rollback()
-      tried
-    }
+    def trySave(model: M)(implicit sess: Session): Try[M]
 
     /**
      * Try to delete the model.
-     *
-     * If nothing is deleted, returns Success[Boolean(false)].
-     * If something is deleted, returns Success[Boolean(true)].
-     *
-     * On occurrence of a Failure, session is marked for rollback
-     * @return A Success[Boolean] is case of success, Failure otherwise.
+     * @return A Success[Unit] is case of success, Failure otherwise.
      */
-    def tryDelete(model: M)(implicit sess: Session): Try[Boolean] = {
-      val tried = Try(delete(model))
-      if (tried.isFailure) sess.rollback()
-      tried
-    }
+    def tryDelete(model: M)(implicit sess: Session): Try[Unit]
+
+    /**
+     * Try to update the model.
+     * @return A Success[M] is case of success, Failure otherwise.
+     */
+    def tryUpdate(model: M)(implicit sess: Session): Try[M]
 
   }
 
@@ -75,6 +71,13 @@ trait TableQueries { this: Profile with Tables =>
      * @return a Some[I] if Id is filled, None otherwise
      */
     def extractId(model: M)(implicit sess: Session): Option[I]
+
+    def tryExtractId(model: M)(implicit sess: Session): Try[I] = {
+      extractId(model) match {
+        case Some(id) => Success(id)
+        case None => Failure(RowNotFoundException(model))
+      }
+    }
 
     /**
      *
@@ -91,36 +94,91 @@ trait TableQueries { this: Profile with Tables =>
      * @param model a mapped model
      * @return the database generated identifier.
      */
-    def add(model: M)(implicit sess: Session): I =
-      this.returning(this.map(_.id)).insert(model)
+    def add(model: M)(implicit sess: Session): I = tryAdd(model).get
 
     def tryAdd(model: M)(implicit sess: Session): Try[I] = {
-      val tried = Try(add(model))
+      rollbackOnFailure {
+        Try(this.returning(this.map(_.id)).insert(model))
+      }
+    }
+
+    protected def rollbackOnFailure[R](query: => Try[R])(implicit sess: Session): Try[R] = {
+      val tried = query
       if (tried.isFailure) sess.rollback()
       tried
     }
 
-    override def save(model: M)(implicit sess: Session): M = {
-      extractId(model)
-        .map { id =>
-          val affectedRows = filterById(id).update(model)
-          if (affectedRows == 0) throw new EntityNotFoundException(model)
-          else model
-        }
-        .getOrElse {
-          withId(model, add(model))
-        }
+    protected def mustAffectOneSingleRow(query: => Int): Try[Unit] = {
+
+      val affectedRows = query
+
+      if (affectedRows == 1) Success(Unit)
+      else if (affectedRows == 0) Failure(NoRowsAffectedException)
+      else Failure(ManyRowsAffectedException(affectedRows))
+
     }
 
-    override def delete(model: M)(implicit sess: Session): Boolean =
-      extractId(model).exists(id => deleteById(id))
+    override def tryUpdate(model: M)(implicit sess: Session): Try[M] = {
+      rollbackOnFailure {
+        tryExtractId(model).flatMap { id =>
+          tryUpdate(id, model)
+        }
+      }
+    }
 
-    def deleteById(id: I)(implicit sess: Session): Boolean = filterById(id).delete == 1
+    override def trySave(model: M)(implicit sess: Session): Try[M] = {
+      rollbackOnFailure {
+        extractId(model) match {
+          // if has an Id, try to update it
+          case Some(id) => tryUpdate(id, model)
 
-    def tryDeleteById(id: I)(implicit sess: Session): Try[Boolean] = {
-      val tried = Try(deleteById(id))
-      if (tried.isFailure) sess.rollback()
-      tried
+          // if has no Id, try to add it
+          case None => tryAdd(model).map { id => withId(model, id) }
+        }
+      }
+    }
+
+    protected def tryUpdate(id: I, model: M)(implicit sess: Session): Try[M] = {
+      mustAffectOneSingleRow {
+        filterById(id).update(model)
+      }.recoverWith {
+        // if nothing gets updated, we want a Failure[RowNotFoundException]
+        // all other failures must be propagated
+        case NoRowsAffectedException => Failure(RowNotFoundException(model))
+
+      }.map { _ =>
+        model // return a Try[M] if only one row is affected
+      }
+    }
+
+    override def tryDelete(model: M)(implicit sess: Session): Try[Unit] = {
+      rollbackOnFailure {
+        tryExtractId(model).flatMap { id =>
+          tryDeleteById(id)
+        }
+      }
+    }
+
+    def deleteById(id: I)(implicit sess: Session): Unit = tryDeleteById(id).get
+
+    def tryDeleteById(id: I)(implicit sess: Session): Try[Unit] = {
+      rollbackOnFailure {
+        mustAffectOneSingleRow {
+          filterById(id).delete
+
+        }.recoverWith {
+          // if nothing gets deleted, we want a Failure[RowNotFoundException]
+          // all other failures must be propagated
+          case NoRowsAffectedException => Failure(RowNotFoundException(id))
+        }
+      }
+    }
+
+    def tryFindById(id: I)(implicit sess: Session): Try[M] = {
+      findOptionById(id) match {
+        case Some(model) => Success(model)
+        case None => Failure(RowNotFoundException(id))
+      }
     }
 
     def findById(id: I)(implicit sess: Session): M = findOptionById(id).get
@@ -139,29 +197,41 @@ trait TableQueries { this: Profile with Tables =>
   class VersionableEntityTableQuery[M <: Versionable[M] with Identifiable[M], T <: VersionableEntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
       extends EntityTableQuery[M, T](cons) {
 
-    override def save(versionable: M)(implicit sess: Session): M = {
+    override protected def tryUpdate(id: M#Id, versionable: M)(implicit sess: Session): Try[M] = {
 
-      extractId(versionable).map { id =>
+      val queryById = filter(_.id === id)
+      val queryByIdAndVersion = queryById.filter(_.version === versionable.version)
+      val modelWithNewVersion = versionable.withVersion(versionable.version + 1)
 
-        val queryById = filter(_.id === id)
-        val queryByIdAndVersion = queryById.filter(_.version === versionable.version)
+      mustAffectOneSingleRow {
+        queryByIdAndVersion.update(modelWithNewVersion)
 
-        val modelWithNewVersion = versionable.withVersion(versionable.version + 1)
-
-        val affectedRows = queryByIdAndVersion.update(modelWithNewVersion)
-
-        if (affectedRows != 1) {
-          val currentObjOpt = queryById.firstOption
-          currentObjOpt match {
-            case Some(current) => throw new StaleObjectStateException(versionable, current)
-            case None => throw new RowNotFoundException(versionable)
+      }.recoverWith {
+        // no updates?
+        case NoRowsAffectedException =>
+          // if row exists we have a stale object
+          // all other failures must be propagated
+          tryFindById(id).flatMap { currentOnDb =>
+            Failure(StaleObjectStateException(versionable, currentOnDb))
           }
-        }
 
-        modelWithNewVersion
-      } getOrElse {
-        val modelWithVersion = versionable.withVersion(1)
-        withId(modelWithVersion, add(modelWithVersion))
+      }.map { _ =>
+        modelWithNewVersion // return the versionable entity with an updated version
+      }
+    }
+
+    override def trySave(versionable: M)(implicit sess: Session): Try[M] = {
+      rollbackOnFailure {
+        extractId(versionable) match {
+          // if has an Id, try to update it
+          case Some(id) => tryUpdate(id, versionable)
+
+          // if has no Id, try to add it
+          case None =>
+            // init versioning
+            val modelWithVersion = versionable.withVersion(1)
+            tryAdd(modelWithVersion).map { id => withId(modelWithVersion, id) }
+        }
       }
     }
 

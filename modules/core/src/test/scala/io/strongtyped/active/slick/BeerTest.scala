@@ -1,9 +1,9 @@
 package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
-import io.strongtyped.active.slick.exceptions.EntityNotFoundException
-import io.strongtyped.active.slick.models.{ Beer, Supplier }
-import org.scalatest.{ FunSuite, Matchers, OptionValues, TryValues }
+import io.strongtyped.active.slick.exceptions.RowNotFoundException
+import io.strongtyped.active.slick.models.{Beer, Supplier}
+import org.scalatest.{FunSuite, Matchers, OptionValues, TryValues}
 
 class BeerTest extends FunSuite with Matchers with OptionValues with TryValues {
 
@@ -28,7 +28,18 @@ class BeerTest extends FunSuite with Matchers with OptionValues with TryValues {
 
       val supId = supplier.id.get
       val tried = Beer("Abc", supId, 3.2, Some(10)).trySave
-      tried.failure.exception shouldBe a[EntityNotFoundException[_]]
+      tried.failure.exception shouldBe a[RowNotFoundException[_]]
+    }
+  }
+
+  test("Update of not persisted Entity should fail") {
+    DB.rollback { implicit sess =>
+      val supplier = Supplier("Acme, Inc.").save
+      supplier.id shouldBe defined
+      val supId = supplier.id.get
+      val tried = Beer("Abc", supId, 3.2, Some(10)).tryUpdate
+
+      tried.failure.exception shouldBe a[RowNotFoundException[_]]
     }
   }
 
