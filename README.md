@@ -18,7 +18,7 @@ All operations are provided by `TableQueries` sub-classes.
 
 ## Project artifact
 
-The lastest release (0.2.0) is available on Sonatype's repository. 
+The latest release (0.2.0) is available on Sonatype's repository. 
 
     libraryDependencies += "io.strongtyped"  %  "active-slick_2.11"  % "0.2.0"
 or
