@@ -16,11 +16,11 @@ trait BuildSettings { this:Build =>
 		  organization 		:= Organization
 		, scalaVersion 		:= ScalaVersion
 		, scalacOptions 	:= ScalacOptions
-	) ++ SbtScalariform.scalariformSettings ++ sonatypePublishSettings
+	) ++ SbtScalariform.defaultScalariformSettings ++ sonatypePublishSettings
 
   	def sonatypePublishSettings = sonatypeSettings ++ Seq(
   	  profileName		:= "io.strongtyped",
-	  pomExtra 			:= (<url>https://github.com/strongtyped/active-slick</url>
+	    pomExtra 			:= <url>https://github.com/strongtyped/active-slick</url>
       <licenses>
         <license>
           <name>Apache-style</name>
@@ -38,6 +38,6 @@ trait BuildSettings { this:Build =>
           <name>Renato Cavalcanti</name>
           <url>http://www.strongtyped.io/</url>
         </developer>
-      </developers>)
+      </developers>
 	)
 }

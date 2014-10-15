@@ -17,7 +17,7 @@
 package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
-import io.strongtyped.active.slick.exceptions.StaleObjectStateException
+import io.strongtyped.active.slick.exceptions.{RowNotFoundException, StaleObjectStateException}
 import io.strongtyped.active.slick.models.{ Beer, Supplier }
 import org.h2.jdbc.JdbcSQLException
 import org.scalatest.{ TryValues, OptionValues, Matchers, FunSuite }
