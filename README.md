@@ -13,7 +13,7 @@ All operations are provided by `TableQueries` sub-classes.
 - Generic Id type. 
 - `Identifiable` trait and respective `EntityTable` to manage Entities.
 - `Versionable` trait and respective `VersionableEntityTable` for optimistic locking.
-- `ActiveRecord` trait to enable the Active Record pattern on mapped case classe via class extensions (pimp-my-library style)
+- `ActiveRecord` trait to enable the Active Record Pattern on mapped case classe via class extensions (pimp-my-library style)
 
 
 ## Project artifact
