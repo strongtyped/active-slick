@@ -32,6 +32,8 @@ or
 
 
 
-## Usage 
 
-Usage information can be found on the [wiki pages](https://github.com/strongtyped/active-slick/wiki/Introduction).
+## Usage 
+Usage information can be found on the [wiki pages](https://github.com/strongtyped/active-slick/wiki/Introduction) or via an [Activator Template](http://typesafe.com/activator/template/slick-active-record).
+
+
