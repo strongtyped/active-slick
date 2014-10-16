@@ -35,7 +35,7 @@ object ActiveSlickBuild extends Build with BuildSettings with Dependencies {
     base = file("modules/samples"),
     settings = projectSettings ++ Seq(
       publishArtifact := false,
-      libraryDependencies ++= mainDependencies ++ macroDeps
+      libraryDependencies ++= mainDependencies
     )
   ) dependsOn activeSlick
   //================================================
