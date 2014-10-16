@@ -18,14 +18,15 @@ All operations are provided by `TableQueries` sub-classes.
 
 ## Project artifact
 
-The latest release (0.2.0) is available on Sonatype's repository. 
+The latest release (0.2.1) is available on Sonatype's repository. 
+This is a crossbuild for Scala 2.10 and 2.11 and and Slick 2.1. 
 
-    libraryDependencies += "io.strongtyped"  %  "active-slick_2.11"  % "0.2.0"
+    libraryDependencies += "io.strongtyped" % "active-slick_2.10" % "0.2.1"
 or
+    libraryDependencies += "io.strongtyped" % "active-slick_2.11" % "0.2.1"
+or 
+    libraryDependencies += "io.strongtyped" %% "active-slick" % "0.2.1"
 
-    libraryDependencies += "io.strongtyped"  %%  "active-slick"  % "0.2.0"    
-
-Note: ActiveSlick is currently only build for Scala 2.11 and Slick 2.1
 
 ## Usage 
 
