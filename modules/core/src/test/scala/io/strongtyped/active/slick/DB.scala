@@ -34,6 +34,13 @@ object DB {
 
   private def apply[T](block: Session => T): T = apply(Rollback)(block)
 
+  def autoCommit[T](block: Session => T): T = {
+    // slick sessions are autocommit
+    db.withSession { implicit session =>
+      block(session)
+    }
+  }
+
   def apply[T](txOps: TxOps)(block: Session => T): T = {
     db.withTransaction { implicit session =>
       val result = block(session)

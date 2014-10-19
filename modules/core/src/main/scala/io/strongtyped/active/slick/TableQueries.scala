@@ -104,7 +104,10 @@ trait TableQueries {
 
     protected def rollbackOnFailure[R](query: => Try[R])(implicit sess: Session): Try[R] = {
       val tried = query
-      if (tried.isFailure) sess.rollback()
+      
+      if (tried.isFailure && !sess.conn.getAutoCommit)
+        sess.rollback()
+
       tried
     }
 
