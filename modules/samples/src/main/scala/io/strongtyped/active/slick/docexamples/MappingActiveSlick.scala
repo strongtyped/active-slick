@@ -19,8 +19,8 @@ trait MappingWithActiveSlick {
   }
 
   val Foos = new TableWithIdQuery[Foo, Int, FooTable](tag => new FooTable(tag)) {
-    override def extractId(model: Foo)(implicit sess: Session) = model.id
-    override def withId(model: Foo, id: Int)(implicit sess: Session) = model.copy(id = Some(id))
+    override def extractId(model: Foo) = model.id
+    override def withId(model: Foo, id: Int) = model.copy(id = Some(id))
   }
 
 }

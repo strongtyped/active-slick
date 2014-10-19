@@ -70,7 +70,7 @@ trait TableQueries {
      * @param model a mapped model
      * @return a Some[I] if Id is filled, None otherwise
      */
-    def extractId(model: M)(implicit sess: Session): Option[I]
+    def extractId(model: M): Option[I]
 
     def tryExtractId(model: M)(implicit sess: Session): Try[I] = {
       extractId(model) match {
@@ -85,7 +85,7 @@ trait TableQueries {
      * @param id an id, usually generate by the database
      * @return a model M with an assigned id.
      */
-    def withId(model: M, id: I)(implicit sess: Session): M
+    def withId(model: M, id: I): M
 
     def filterById(id: I)(implicit sess: Session) = filter(_.id === id)
 
@@ -104,7 +104,10 @@ trait TableQueries {
 
     protected def rollbackOnFailure[R](query: => Try[R])(implicit sess: Session): Try[R] = {
       val tried = query
-      if (tried.isFailure) sess.rollback()
+      
+      if (tried.isFailure && !sess.conn.getAutoCommit)
+        sess.rollback()
+
       tried
     }
 
@@ -189,9 +192,9 @@ trait TableQueries {
   class EntityTableQuery[M <: Identifiable[M], T <: EntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
       extends TableWithIdQuery[M, M#Id, T](cons) {
 
-    def extractId(identifiable: M)(implicit sess: JdbcBackend#Session) = identifiable.id
+    def extractId(identifiable: M) = identifiable.id
 
-    def withId(entity: M, id: M#Id)(implicit sess: JdbcBackend#Session) = entity.withId(id)
+    def withId(entity: M, id: M#Id) = entity.withId(id)
   }
 
   class VersionableEntityTableQuery[M <: Versionable[M] with Identifiable[M], T <: VersionableEntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])

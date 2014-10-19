@@ -15,5 +15,4 @@ trait Dependencies { this:Build with BuildSettings =>
     scalaTest, h2database
   )
 
-  
 }

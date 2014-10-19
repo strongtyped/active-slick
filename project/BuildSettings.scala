@@ -5,7 +5,7 @@ import xerial.sbt.Sonatype.SonatypeKeys._
 import xerial.sbt.Sonatype.sonatypeSettings
 
 trait BuildSettings { this:Build => 
-	
+
 	val Organization = "io.strongtyped"
 
 	val ScalacOptions = Seq("-unchecked", "-deprecation", "-feature", "-Xlint")
