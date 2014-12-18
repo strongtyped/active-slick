@@ -1,6 +1,8 @@
 package io.strongtyped.active.slick.docexamples
 
 import io.strongtyped.active.slick.ActiveSlick
+import shapeless._
+import shapeless.Lens
 import io.strongtyped.active.slick.models.Identifiable
 
 import scala.slick.driver.{ H2Driver, JdbcDriver }
@@ -10,9 +12,8 @@ trait MappingActiveSlickIdentifiable {
 
   import jdbcDriver.simple._
 
-  case class Foo(name: String, id: Option[Int] = None) extends Identifiable[Foo] {
+  case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
     override type Id = Int
-    override def withId(id: Id): Foo = copy(id = Some(id))
   }
 
   class FooTable(tag: Tag) extends EntityTable[Foo](tag, "FOOS") {
@@ -21,7 +22,10 @@ trait MappingActiveSlickIdentifiable {
     def * = (name, id.?) <> (Foo.tupled, Foo.unapply)
   }
 
-  val Foos = new EntityTableQuery[Foo, FooTable](tag => new FooTable(tag))
+  val Foos = EntityTableQuery[Foo, FooTable](
+    cons = tag => new FooTable(tag),
+    idLens = lens[Foo] >> 'id
+  )
 
 }
 

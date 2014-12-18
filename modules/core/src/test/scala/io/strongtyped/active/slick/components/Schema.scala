@@ -1,12 +1,16 @@
 package io.strongtyped.active.slick.components
 
-import io.strongtyped.active.slick.{ TableQueries, Tables, Profile }
+import io.strongtyped.active.slick.{EntityTableQueries, TableQueries, Tables, Profile}
 import io.strongtyped.active.slick.models.{ Beer, Supplier }
+import shapeless._
 
-import scala.slick.direct.AnnotationMapper.column
 import scala.slick.util.Logging
 
-trait Schema extends Logging { this: Tables with TableQueries with Profile =>
+trait Schema extends Logging {
+  this: Tables
+    with  EntityTableQueries
+    with TableQueries
+    with Profile =>
 
   import jdbcDriver.simple._
 
@@ -20,7 +24,13 @@ trait Schema extends Logging { this: Tables with TableQueries with Profile =>
 
   }
 
-  val Suppliers = VersionableEntityTableQuery[Supplier, SuppliersTable](tag => new SuppliersTable(tag))
+  val Suppliers = VersionableEntityTableQuery[Supplier, SuppliersTable](
+    cons = tag => new SuppliersTable(tag),
+    idLens = lens[Supplier] >> 'id,
+    versionLens = lens[Supplier] >> 'version
+  )
+
+
 
   class BeersTable(tag: Tag) extends EntityTable[Beer](tag, "BEERS") {
 
@@ -34,7 +44,12 @@ trait Schema extends Logging { this: Tables with TableQueries with Profile =>
     def supplier = foreignKey("SUP_FK", supID, Suppliers)(_.id)
   }
 
-  val Beers = EntityTableQuery[Beer, BeersTable](tag => new BeersTable(tag))
+  val idFunc = (beer:Beer) => { beer.id }
+
+  val Beers = EntityTableQuery[Beer, BeersTable](
+    cons = tag => new BeersTable(tag),
+    idLens = lens[Beer] >> 'id
+  )
 
   def createSchema(implicit sess: Session) = {
     logger.info("Creating schema ... ")

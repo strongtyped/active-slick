@@ -9,20 +9,19 @@ object ActiveSlickBuild extends Build with BuildSettings with Dependencies {
     id = "active-slick-root",
     base = file("."),
     settings = projectSettings ++ Seq(
-      publishArtifact := false,
-      libraryDependencies ++= mainDependencies ++ mainTestDependencies
+      publishArtifact := false
     )
   ) aggregate(activeSlick, samples)
 
-  
-  
+
+
   // CORE ==========================================
   lazy val activeSlick: Project = Project(
     id = "active-slick",
     base = file("modules/core"),
     settings = projectSettings ++ Seq(
       libraryDependencies ++= mainDependencies ++ mainTestDependencies
-      )
+    )
   ) 
   //================================================
 

@@ -4,6 +4,8 @@ import io.strongtyped.active.slick.ActiveSlick
 import io.strongtyped.active.slick.models.Identifiable
 
 import scala.slick.driver.{ H2Driver, JdbcDriver }
+import shapeless._
+import shapeless.Lens
 
 trait MappingWithActiveSlick {
   this: ActiveSlick =>
@@ -11,18 +13,17 @@ trait MappingWithActiveSlick {
   import jdbcDriver.simple._
 
   case class Foo(name: String, id: Option[Int] = None)
-
+  
   class FooTable(tag: Tag) extends IdTable[Foo, Int](tag, "FOOS") {
     def name = column[String]("NAME")
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
     def * = (name, id.?) <> (Foo.tupled, Foo.unapply)
   }
 
-  val Foos = new TableWithIdQuery[Foo, Int, FooTable](tag => new FooTable(tag)) {
-    override def extractId(model: Foo) = model.id
-    override def withId(model: Foo, id: Int) = model.copy(id = Some(id))
-  }
-
+  val Foos = new TableWithIdQuery[Foo, Int, FooTable](
+    tag => new FooTable(tag),
+    lens[Foo] >> 'id
+  )
 }
 
 object MappingWithActiveSlickApp {

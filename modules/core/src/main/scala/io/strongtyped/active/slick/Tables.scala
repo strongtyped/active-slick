@@ -15,7 +15,7 @@
  */
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.models.{ Versionable, Identifiable }
+import io.strongtyped.active.slick.models.Identifiable
 
 /**
  * Defines Slick table extensions.
@@ -52,12 +52,12 @@ trait Tables { this: Profile =>
    * Type alias for [[IdTable]]s mapping [[io.strongtyped.active.slick.models.Identifiable]]s
    * Id type is mapped via type projection of Identifiable#Id
    */
-  type EntityTable[M <: Identifiable[M]] = IdTable[M, M#Id]
+  type EntityTable[M <: Identifiable] = IdTable[M, M#Id]
 
   /**
    * Type alias for [[IdTable]]s mapping [[io.strongtyped.active.slick.models.Identifiable]]s with version.
    * Id type is mapped via type projection of Identifiable#Id
    */
-  type VersionableEntityTable[M <: Identifiable[M] with Versionable[M]] = IdVersionTable[M, M#Id]
+  type VersionableEntityTable[M <: Identifiable] = IdVersionTable[M, M#Id]
 
 }
