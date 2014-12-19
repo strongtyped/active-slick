@@ -17,10 +17,9 @@
 package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.exceptions._
-import io.strongtyped.active.slick.models.{ Identifiable, Versionable }
+import shapeless.Lens
 import scala.language.implicitConversions
-import scala.slick.jdbc.JdbcBackend
-import scala.util.{ Success, Failure, Try }
+import scala.util.{Failure, Success, Try}
 
 trait TableQueries {
   this: Profile with Tables =>
@@ -62,30 +61,17 @@ trait TableQueries {
 
   }
 
-  abstract class TableWithIdQuery[M, I: BaseColumnType, T <: IdTable[M, I]](cons: Tag => T)
+  class TableWithIdQuery[M, I, T <: IdTable[M, I]](cons: Tag => T, idLens:Lens[M, Option[I]])(implicit bct: BaseColumnType[I])
       extends ActiveTableQuery[M, T](cons) {
 
-    /**
-     * Extracts the model Id of a arbitrary model.
-     * @param model a mapped model
-     * @return a Some[I] if Id is filled, None otherwise
-     */
-    def extractId(model: M): Option[I]
 
-    def tryExtractId(model: M)(implicit sess: Session): Try[I] = {
-      extractId(model) match {
+    private def tryExtractId(model: M)(implicit sess: Session): Try[I] = {
+      idLens.get(model) match {
         case Some(id) => Success(id)
         case None => Failure(RowNotFoundException(model))
       }
     }
 
-    /**
-     *
-     * @param model a mapped model (usually without an assigned id).
-     * @param id an id, usually generate by the database
-     * @return a model M with an assigned id.
-     */
-    def withId(model: M, id: I): M
 
     def filterById(id: I)(implicit sess: Session) = filter(_.id === id)
 
@@ -131,12 +117,14 @@ trait TableQueries {
 
     override def trySave(model: M)(implicit sess: Session): Try[M] = {
       rollbackOnFailure {
-        extractId(model) match {
+        idLens.get(model) match {
           // if has an Id, try to update it
           case Some(id) => tryUpdate(id, model)
 
           // if has no Id, try to add it
-          case None => tryAdd(model).map { id => withId(model, id) }
+          case None => tryAdd(model).map { id =>
+            idLens.set(model)(Option(id))
+          }
         }
       }
     }
@@ -144,6 +132,7 @@ trait TableQueries {
     protected def tryUpdate(id: I, model: M)(implicit sess: Session): Try[M] = {
       mustAffectOneSingleRow {
         filterById(id).update(model)
+
       }.recoverWith {
         // if nothing gets updated, we want a Failure[RowNotFoundException]
         // all other failures must be propagated
@@ -189,65 +178,7 @@ trait TableQueries {
     def findOptionById(id: I)(implicit sess: Session): Option[M] = filterById(id).firstOption
   }
 
-  class EntityTableQuery[M <: Identifiable[M], T <: EntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
-      extends TableWithIdQuery[M, M#Id, T](cons) {
 
-    def extractId(identifiable: M) = identifiable.id
 
-    def withId(entity: M, id: M#Id) = entity.withId(id)
-  }
-
-  class VersionableEntityTableQuery[M <: Versionable[M] with Identifiable[M], T <: VersionableEntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id])
-      extends EntityTableQuery[M, T](cons) {
-
-    override protected def tryUpdate(id: M#Id, versionable: M)(implicit sess: Session): Try[M] = {
-
-      val queryById = filter(_.id === id)
-      val queryByIdAndVersion = queryById.filter(_.version === versionable.version)
-      val modelWithNewVersion = versionable.withVersion(versionable.version + 1)
-
-      mustAffectOneSingleRow {
-        queryByIdAndVersion.update(modelWithNewVersion)
-
-      }.recoverWith {
-        // no updates?
-        case NoRowsAffectedException =>
-          // if row exists we have a stale object
-          // all other failures must be propagated
-          tryFindById(id).flatMap { currentOnDb =>
-            Failure(StaleObjectStateException(versionable, currentOnDb))
-          }
-
-      }.map { _ =>
-        modelWithNewVersion // return the versionable entity with an updated version
-      }
-    }
-
-    override def trySave(versionable: M)(implicit sess: Session): Try[M] = {
-      rollbackOnFailure {
-        extractId(versionable) match {
-          // if has an Id, try to update it
-          case Some(id) => tryUpdate(id, versionable)
-
-          // if has no Id, try to add it
-          case None =>
-            // init versioning
-            val modelWithVersion = versionable.withVersion(1)
-            tryAdd(modelWithVersion).map { id => withId(modelWithVersion, id) }
-        }
-      }
-    }
-
-  }
-
-  object EntityTableQuery {
-    def apply[M <: Identifiable[M], T <: EntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id]) =
-      new EntityTableQuery[M, T](cons)
-  }
-
-  object VersionableEntityTableQuery {
-    def apply[M <: Versionable[M] with Identifiable[M], T <: VersionableEntityTable[M]](cons: Tag => T)(implicit ev1: BaseColumnType[M#Id]) =
-      new VersionableEntityTableQuery[M, T](cons)
-  }
 
 }
