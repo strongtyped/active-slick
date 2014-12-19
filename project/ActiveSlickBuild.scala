@@ -14,15 +14,12 @@ object ActiveSlickBuild extends Build with BuildSettings with Dependencies {
   ) aggregate(activeSlick, samples)
 
 
-
   // CORE ==========================================
   lazy val activeSlick: Project = Project(
     id = "active-slick",
     base = file("modules/core"),
-    settings = projectSettings ++ Seq(
-      libraryDependencies ++= Seq(slick, shapeless.value) ++ Seq(h2database, scalaTest)
-    )
-  ) 
+    settings = projectSettings ++ mainDeps ++ testDeps
+  )
   //================================================
 
 
@@ -33,9 +30,8 @@ object ActiveSlickBuild extends Build with BuildSettings with Dependencies {
     id = "active-slick-samples",
     base = file("modules/samples"),
     settings = projectSettings ++ Seq(
-      publishArtifact := false,
-      libraryDependencies ++= Seq(slick, shapeless.value)
-    )
+      publishArtifact := false
+    ) ++ mainDeps
   ) dependsOn activeSlick
   //================================================
   

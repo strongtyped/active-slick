@@ -1,5 +1,5 @@
+import sbt.Keys._
 import sbt._
-import sbt.Keys.scalaVersion
 
 trait Dependencies { this:Build =>
 
@@ -19,4 +19,11 @@ trait Dependencies { this:Build =>
   val scalaTest     =   "org.scalatest"           %%  "scalatest"     % "2.2.1"    % "test"
   val h2database    =   "com.h2database"          %   "h2"            % "1.4.181"  % "test"
 
+  val mainDeps =  Seq(
+    libraryDependencies ++= Seq(slick, shapeless.value)
+  )
+
+  val testDeps = Seq(
+    libraryDependencies ++= Seq(h2database, scalaTest)
+  )
 }
