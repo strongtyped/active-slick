@@ -20,7 +20,7 @@ object ActiveSlickBuild extends Build with BuildSettings with Dependencies {
     id = "active-slick",
     base = file("modules/core"),
     settings = projectSettings ++ Seq(
-      libraryDependencies ++= mainDependencies ++ mainTestDependencies
+      libraryDependencies ++= Seq(slick, shapeless.value) ++ Seq(h2database, scalaTest)
     )
   ) 
   //================================================
@@ -34,7 +34,7 @@ object ActiveSlickBuild extends Build with BuildSettings with Dependencies {
     base = file("modules/samples"),
     settings = projectSettings ++ Seq(
       publishArtifact := false,
-      libraryDependencies ++= mainDependencies
+      libraryDependencies ++= Seq(slick, shapeless.value)
     )
   ) dependsOn activeSlick
   //================================================

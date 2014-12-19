@@ -6,11 +6,10 @@ import xerial.sbt.Sonatype.sonatypeSettings
 
 trait BuildSettings { this:Build => 
 
-	val ScalacOptions = Seq("-unchecked", "-deprecation", "-feature", "-Xlint")
 
 	val projectSettings = Seq(
     scalaVersion  := "2.11.4",
-		scalacOptions := ScalacOptions
+		scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Xlint")
 	) ++
     SbtScalariform.defaultScalariformSettings ++
     sonatypePublishSettings
