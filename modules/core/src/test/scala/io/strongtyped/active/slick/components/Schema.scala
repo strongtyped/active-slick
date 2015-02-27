@@ -1,14 +1,14 @@
 package io.strongtyped.active.slick.components
 
-import io.strongtyped.active.slick.{EntityTableQueries, TableQueries, Tables, Profile}
+import io.strongtyped.active.slick._
 import io.strongtyped.active.slick.models.{ Beer, Supplier }
 import shapeless._
 
 import scala.slick.util.Logging
 
-trait Schema extends Logging {
+trait Schema extends Logging with QueryCapabilities {
   this: Tables
-    with  EntityTableQueries
+    with EntityTableQueries
     with TableQueries
     with Profile =>
 
@@ -17,27 +17,28 @@ trait Schema extends Logging {
   class SuppliersTable(tag: Tag) extends VersionableEntityTable[Supplier](tag, "SUPPLIERS") {
 
     def version = column[Long]("VERSION")
-    def name = column[String]("SUPPLIER_NAME")
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+    def name    = column[String]("SUPPLIER_NAME")
+    def id      = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
     def * = (name, version, id.?) <> (Supplier.tupled, Supplier.unapply)
 
   }
 
-  val Suppliers = VersionableEntityTableQuery[Supplier, SuppliersTable](
+  val Suppliers = new VersionableEntityTableQuery[Supplier, SuppliersTable](
     cons = tag => new SuppliersTable(tag),
     idLens = lens[Supplier] >> 'id,
     versionLens = lens[Supplier] >> 'version
-  )
+  ) with FetchAll
+
 
 
 
   class BeersTable(tag: Tag) extends EntityTable[Beer](tag, "BEERS") {
 
-    def name = column[String]("BEER_NAME")
-    def supID = column[Int]("SUP_ID")
-    def price = column[Double]("PRICE")
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+    def name    = column[String]("BEER_NAME")
+    def supID   = column[Int]("SUP_ID")
+    def price   = column[Double]("PRICE")
+    def id      = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
     def * = (name, supID, price, id.?) <> (Beer.tupled, Beer.unapply)
 

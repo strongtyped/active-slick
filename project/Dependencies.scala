@@ -5,14 +5,13 @@ trait Dependencies { this:Build =>
 
 
   val slick         =   "com.typesafe.slick"      %%  "slick"         % "2.1.0"
-  val shapeless = Def setting (
+  
+  val shapeless     = Def setting (
       CrossVersion partialVersion scalaVersion.value match {
-
         case Some((2, scalaMajor)) if scalaMajor >= 11 =>
-          "com.chuusai" %% "shapeless" % "2.0.0"
-
+          "com.chuusai" %% "shapeless" % "2.1.0"
         case Some((2, 10)) =>
-          "com.chuusai" %  "shapeless" % "2.0.0" cross CrossVersion.full
+          "com.chuusai" %  "shapeless" % "2.1.0" cross CrossVersion.full
       }
     )
 

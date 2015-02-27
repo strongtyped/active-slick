@@ -8,7 +8,6 @@ trait BuildSettings { this:Build =>
 
 
 	val projectSettings = Seq(
-    scalaVersion  := "2.11.4",
 		scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Xlint")
 	) ++
     SbtScalariform.defaultScalariformSettings ++

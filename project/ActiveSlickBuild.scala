@@ -25,7 +25,7 @@ object ActiveSlickBuild extends Build with BuildSettings with Dependencies {
 
 
   // SAMPLES =======================================
-  // contains examples used on the docs, not intented to be released
+  // contains examples used on the docs, not intended to be released
   lazy val samples: Project = Project(
     id = "active-slick-samples",
     base = file("modules/samples"),
