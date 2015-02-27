@@ -17,10 +17,10 @@
 package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
-import io.strongtyped.active.slick.exceptions.{RowNotFoundException, StaleObjectStateException}
-import io.strongtyped.active.slick.models.{ Beer, Supplier }
+import io.strongtyped.active.slick.exceptions.StaleObjectStateException
+import io.strongtyped.active.slick.models.{Beer, Supplier}
 import org.h2.jdbc.JdbcSQLException
-import org.scalatest.{ TryValues, OptionValues, Matchers, FunSuite }
+import org.scalatest.{FunSuite, Matchers, OptionValues, TryValues}
 
 class SupplierTest extends FunSuite with Matchers with OptionValues with TryValues {
 
@@ -36,6 +36,8 @@ class SupplierTest extends FunSuite with Matchers with OptionValues with TryValu
       persistedSupp.id shouldBe defined
 
       Suppliers.count shouldBe (initialCount + 1)
+
+      Suppliers.fetchAll should have size(initialCount + 1)
 
       persistedSupp.delete
 

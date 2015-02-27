@@ -1,0 +1,59 @@
+package io.strongtyped.active.slick.test
+
+import io.strongtyped.active.slick.ActiveTestCake
+import org.scalatest._
+
+trait DbSuite extends FlatSpec with Matchers with OptionValues with TryValues {
+
+  import scala.slick.driver.H2Driver.simple._
+
+  sealed trait TxOps {
+    def complete(sess: Session): Unit
+  }
+
+  object Rollback extends TxOps {
+    override def complete(sess: Session): Unit = sess.rollback()
+  }
+
+  object Commit extends TxOps {
+    override def complete(sess: Session): Unit = ()
+  }
+
+  object DB {
+
+    lazy val db = {
+      val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")
+      val keepAliveSession = db.createSession()
+      keepAliveSession.force() // keep the database in memory with an extra connection
+      db
+    }
+
+    def commit[T](block: Session => T): T = apply(Commit)(block)
+    def rollback[T](block: Session => T): T = apply(Rollback)(block)
+
+    private def apply[T](block: Session => T): T = apply(Rollback)(block)
+
+    def autoCommit[T](block: Session => T): T = {
+      // slick sessions are autocommit
+      db.withSession { implicit session =>
+        block(session)
+      }
+    }
+
+    def apply[T](txOps: TxOps)(block: Session => T): T = {
+      db.withTransaction { implicit session =>
+        val result = block(session)
+        txOps.complete(session)
+        result
+      }
+    }
+  }
+
+  def db(testFun : (Session) => Unit)(implicit cake: ActiveTestCake) : Unit = {
+    DB.rollback { implicit session =>
+      cake.createSchema
+      testFun(session)
+    }
+  }
+
+}

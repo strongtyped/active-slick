@@ -18,6 +18,7 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.exceptions._
 import shapeless.Lens
+
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
@@ -28,12 +29,8 @@ trait TableQueries {
 
   abstract class ActiveTableQuery[M, T <: Table[M]](cons: Tag => T) extends TableQuery(cons) {
 
+
     def count(implicit sess: Session): Int = length.run
-
-    def fetchAll(implicit sess: Session): List[M] = this.list
-
-    def pagedList(pageIndex: Int, limit: Int)(implicit sess: Session): List[M] =
-      drop(pageIndex).take(limit).run.toList
 
     def save(model: M)(implicit sess: Session): M = trySave(model).get
 
@@ -97,14 +94,18 @@ trait TableQueries {
       tried
     }
 
+    protected def mustAffectAtLeastOneRow(query: => Int): Try[Unit] = {
+      query match {
+        case n if n >= 1 => Success(Unit)
+        case 0 => Failure(NoRowsAffectedException)
+      }
+    }
     protected def mustAffectOneSingleRow(query: => Int): Try[Unit] = {
-
-      val affectedRows = query
-
-      if (affectedRows == 1) Success(Unit)
-      else if (affectedRows == 0) Failure(NoRowsAffectedException)
-      else Failure(ManyRowsAffectedException(affectedRows))
-
+      query match {
+        case 1 => Success(Unit)
+        case 0 => Failure(NoRowsAffectedException)
+        case n => Failure(ManyRowsAffectedException(n))
+      }
     }
 
     override def tryUpdate(model: M)(implicit sess: Session): Try[M] = {

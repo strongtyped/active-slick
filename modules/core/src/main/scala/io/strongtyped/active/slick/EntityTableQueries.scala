@@ -1,7 +1,7 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.exceptions.{StaleObjectStateException, NoRowsAffectedException}
-import io.strongtyped.active.slick.models.{Versionable, Identifiable}
+import io.strongtyped.active.slick.exceptions.{NoRowsAffectedException, StaleObjectStateException}
+import io.strongtyped.active.slick.models.Identifiable
 import shapeless.Lens
 import scala.util.{Failure, Try}
 
@@ -14,10 +14,7 @@ trait EntityTableQueries {
 
   class EntityTableQuery[M <: Identifiable, T <: EntityTable[M]]
                         (cons: Tag => T, idLens:Lens[M, Option[M#Id]])
-                        (implicit bct: BaseColumnType[M#Id])
-                        extends TableWithIdQuery[M, M#Id, T](cons, idLens) {
-
-  }
+                        (implicit bct: BaseColumnType[M#Id]) extends TableWithIdQuery[M, M#Id, T](cons, idLens)
 
 
   object EntityTableQuery {
@@ -30,8 +27,7 @@ trait EntityTableQueries {
 
   class VersionableEntityTableQuery[M <: Identifiable, T <: VersionableEntityTable[M]]
                                    (cons: Tag => T, idLens:Lens[M, Option[M#Id]], versionLens:Lens[M, Long])
-                                   (implicit bct: BaseColumnType[M#Id])
-                                   extends EntityTableQuery[M, T](cons, idLens) {
+                                   (implicit bct: BaseColumnType[M#Id]) extends EntityTableQuery[M, T](cons, idLens) {
 
     override protected def tryUpdate(id: M#Id, versionable: M)(implicit sess: Session): Try[M] = {
 
