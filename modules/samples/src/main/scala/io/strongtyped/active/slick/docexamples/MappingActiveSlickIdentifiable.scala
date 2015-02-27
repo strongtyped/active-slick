@@ -4,7 +4,7 @@ import io.strongtyped.active.slick.ActiveSlick
 import io.strongtyped.active.slick.models.Identifiable
 import shapeless._
 
-import scala.slick.driver.{H2Driver, JdbcDriver}
+import slick.driver.{H2Driver, JdbcDriver}
 
 trait MappingActiveSlickIdentifiable {
   this: ActiveSlick =>

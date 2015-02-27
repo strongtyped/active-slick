@@ -15,7 +15,7 @@
  */
 package io.strongtyped.active.slick
 
-import scala.slick.jdbc.JdbcBackend
+import slick.jdbc.JdbcBackend
 import scala.util.Try
 
 trait ActiveRecordExtensions { this: TableQueries =>

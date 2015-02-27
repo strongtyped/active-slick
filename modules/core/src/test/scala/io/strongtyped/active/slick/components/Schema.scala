@@ -4,7 +4,7 @@ import io.strongtyped.active.slick._
 import io.strongtyped.active.slick.models.{ Beer, Supplier }
 import shapeless._
 
-import scala.slick.util.Logging
+import slick.util.Logging
 
 trait Schema extends Logging with QueryCapabilities {
   this: Tables

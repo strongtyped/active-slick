@@ -2,7 +2,7 @@ package io.strongtyped.active.slick.docexamples
 
 object MappingWithoutActiveSlick {
 
-  import scala.slick.driver.H2Driver.simple._
+  import slick.driver.H2Driver.simple._
 
   val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")
 

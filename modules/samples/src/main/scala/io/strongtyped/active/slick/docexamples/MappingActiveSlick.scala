@@ -3,7 +3,7 @@ package io.strongtyped.active.slick.docexamples
 import io.strongtyped.active.slick.ActiveSlick
 import io.strongtyped.active.slick.models.Identifiable
 
-import scala.slick.driver.{ H2Driver, JdbcDriver }
+import slick.driver.{ H2Driver, JdbcDriver }
 import shapeless._
 import shapeless.Lens
 

@@ -5,7 +5,7 @@ import org.scalatest._
 
 trait DbSuite extends FlatSpec with Matchers with OptionValues with TryValues {
 
-  import scala.slick.driver.H2Driver.simple._
+  import slick.driver.H2Driver.simple._
 
   sealed trait TxOps {
     def complete(sess: Session): Unit

@@ -1,6 +1,6 @@
 package io.strongtyped.active.slick
 
-import scala.slick.driver.{H2Driver, JdbcDriver}
+import slick.driver.{H2Driver, JdbcDriver}
 
 trait ActiveTestCake extends ActiveSlick with ActiveRecordExtensions {
 

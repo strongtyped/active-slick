@@ -2,8 +2,8 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
 
-import scala.slick.driver.H2Driver
-import scala.slick.driver.H2Driver.simple._
+import slick.driver.H2Driver
+import slick.driver.H2Driver.simple._
 
 sealed trait TxOps {
   def complete(sess: Session): Unit
