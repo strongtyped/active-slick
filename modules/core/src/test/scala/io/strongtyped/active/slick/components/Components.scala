@@ -19,7 +19,7 @@ package io.strongtyped.active.slick.components
 import slick.driver.{ JdbcDriver, H2Driver, JdbcProfile }
 import io.strongtyped.active.slick.ActiveSlick
 
-class Components(override val jdbcDriver: JdbcDriver)
+class Components(override val driver: JdbcDriver)
   extends ActiveSlick with ModelExtensions
 
 object Components {

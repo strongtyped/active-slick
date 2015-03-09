@@ -1,10 +1,13 @@
 package io.strongtyped.active.slick.docexamples
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object MappingWithoutActiveSlick {
 
-  import slick.driver.H2Driver.simple._
-
-  val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")
+  import slick.driver.H2Driver.api._
 
   case class Foo(name: String, id: Option[Int] = None)
 
@@ -18,11 +21,17 @@ object MappingWithoutActiveSlick {
 
   val Foos = TableQuery[FooTable]
 
-  db.withTransaction { implicit sess =>
-    Foos.ddl.create
+  val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")
+  try {
+
+    Await.ready(db.run(Foos.schema.create), 200 millis)
     val foo = Foo("foo")
-    val id = Foos.returning(Foos.map(_.id)).insert(foo)
+    val insertAction = db.run(Foos.returning(Foos.map(_.id)) += foo)
+    val id = Await.result(insertAction, 200 millis)
     foo.copy(id = Some(id))
+
+  } finally {
+    db.close()
   }
 
 }

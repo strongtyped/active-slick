@@ -18,168 +18,116 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.exceptions._
 import shapeless.Lens
+import slick.ast.BaseTypedType
+import slick.dbio.{FailureAction, SuccessAction}
 
+import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 trait TableQueries {
   this: Profile with Tables =>
 
-  import jdbcDriver.simple._
+  import driver.api._
+
 
   abstract class ActiveTableQuery[M, T <: Table[M]](cons: Tag => T) extends TableQuery(cons) {
 
+    def count: DBIO[Int] = this.size.result
 
-    def count(implicit sess: Session): Int = length.run
+    def save(model: M)(implicit exc: ExecutionContext): DBIO[M]
 
-    def save(model: M)(implicit sess: Session): M = trySave(model).get
+    def update(model: M)(implicit exc: ExecutionContext): DBIO[M]
 
-    def update(model: M)(implicit sess: Session): M = tryUpdate(model).get
-
-    def delete(model: M)(implicit sess: Session): Unit = tryDelete(model).get
-
-    /**
-     * Try to save the model.
-     * @return A Success[M] is case of success, Failure otherwise.
-     */
-    def trySave(model: M)(implicit sess: Session): Try[M]
-
-    /**
-     * Try to delete the model.
-     * @return A Success[Unit] is case of success, Failure otherwise.
-     */
-    def tryDelete(model: M)(implicit sess: Session): Try[Unit]
-
-    /**
-     * Try to update the model.
-     * @return A Success[M] is case of success, Failure otherwise.
-     */
-    def tryUpdate(model: M)(implicit sess: Session): Try[M]
+    def delete(model: M)(implicit exc: ExecutionContext): DBIO[Unit]
 
   }
 
-  class TableWithIdQuery[M, I, T <: IdTable[M, I]](cons: Tag => T, idLens:Lens[M, Option[I]])(implicit bct: BaseColumnType[I])
-      extends ActiveTableQuery[M, T](cons) {
+  class TableWithIdQuery[M, I, T <: IdTable[M, I]](cons: Tag => T, idLens: Lens[M, Option[I]])
+                                                  (implicit ev:BaseTypedType[I]) extends ActiveTableQuery[M, T](cons) {
 
-
-    private def tryExtractId(model: M)(implicit sess: Session): Try[I] = {
+    private def tryExtractId(model: M): DBIO[I] = {
       idLens.get(model) match {
-        case Some(id) => Success(id)
-        case None => Failure(RowNotFoundException(model))
+        case Some(id) => SuccessAction(id)
+        case None     => FailureAction(new RowNotFoundException(model))
       }
     }
 
+    val filterById = this.findBy(_.id)
 
-    def filterById(id: I)(implicit sess: Session) = filter(_.id === id)
+    def findById(id: I): DBIO[M] =
+      filterById(id).result.head
+
+    def findOptionById(id: I): DBIO[Option[M]] =
+      filterById(id).result.headOption
 
     /**
      * Define an insert query that returns the database generated identifier.
      * @param model a mapped model
      * @return the database generated identifier.
      */
-    def add(model: M)(implicit sess: Session): I = tryAdd(model).get
-
-    def tryAdd(model: M)(implicit sess: Session): Try[I] = {
-      rollbackOnFailure {
-        Try(this.returning(this.map(_.id)).insert(model))
-      }
+    def add(model: M): DBIO[I] = {
+      this.returning(this.map(_.id)) += model
     }
 
-    protected def rollbackOnFailure[R](query: => Try[R])(implicit sess: Session): Try[R] = {
-      val tried = query
-      
-      if (tried.isFailure && !sess.conn.getAutoCommit)
-        sess.rollback()
+    override def save(model: M)(implicit exc: ExecutionContext): DBIO[M] = {
+      idLens.get(model) match {
+        // if has an Id, try to update it
+        case Some(id) => update(id, model)
 
-      tried
-    }
-
-    protected def mustAffectAtLeastOneRow(query: => Int): Try[Unit] = {
-      query match {
-        case n if n >= 1 => Success(Unit)
-        case 0 => Failure(NoRowsAffectedException)
-      }
-    }
-    protected def mustAffectOneSingleRow(query: => Int): Try[Unit] = {
-      query match {
-        case 1 => Success(Unit)
-        case 0 => Failure(NoRowsAffectedException)
-        case n => Failure(ManyRowsAffectedException(n))
-      }
-    }
-
-    override def tryUpdate(model: M)(implicit sess: Session): Try[M] = {
-      rollbackOnFailure {
-        tryExtractId(model).flatMap { id =>
-          tryUpdate(id, model)
+        // if has no Id, try to add it
+        case None => add(model).map { id =>
+          idLens.set(model)(Option(id))
         }
       }
     }
 
-    override def trySave(model: M)(implicit sess: Session): Try[M] = {
-      rollbackOnFailure {
-        idLens.get(model) match {
-          // if has an Id, try to update it
-          case Some(id) => tryUpdate(id, model)
+    override def update(model: M)(implicit exc: ExecutionContext): DBIO[M] = {
+      tryExtractId(model).flatMap { id =>
+        update(id, model)
+      }
+    }
 
-          // if has no Id, try to add it
-          case None => tryAdd(model).map { id =>
-            idLens.set(model)(Option(id))
-          }
+    protected def update(id: I, model: M)(implicit exc: ExecutionContext): DBIO[M] = {
+      filterById(id)
+        .update(model)
+        .mustAffectOneSingleRow
+        .asTry
+        .map {
+          case Success(()) => model
+          case Failure(NoRowsAffectedException) => throw new RowNotFoundException(model)
+          case Failure(ex) => throw ex
         }
+    }
+
+    override def delete(model: M)(implicit exc: ExecutionContext): DBIO[Unit] = {
+      tryExtractId(model).flatMap { id =>
+        deleteById(id)
       }
     }
 
-    protected def tryUpdate(id: I, model: M)(implicit sess: Session): Try[M] = {
-      mustAffectOneSingleRow {
-        filterById(id).update(model)
-
-      }.recoverWith {
-        // if nothing gets updated, we want a Failure[RowNotFoundException]
-        // all other failures must be propagated
-        case NoRowsAffectedException => Failure(RowNotFoundException(model))
-
-      }.map { _ =>
-        model // return a Try[M] if only one row is affected
-      }
+    def deleteById(id: I)(implicit exc: ExecutionContext): DBIO[Unit] = {
+      filterById(id).delete.mustAffectOneSingleRow
     }
 
-    override def tryDelete(model: M)(implicit sess: Session): Try[Unit] = {
-      rollbackOnFailure {
-        tryExtractId(model).flatMap { id =>
-          tryDeleteById(id)
-        }
-      }
-    }
-
-    def deleteById(id: I)(implicit sess: Session): Unit = tryDeleteById(id).get
-
-    def tryDeleteById(id: I)(implicit sess: Session): Try[Unit] = {
-      rollbackOnFailure {
-        mustAffectOneSingleRow {
-          filterById(id).delete
-
-        }.recoverWith {
-          // if nothing gets deleted, we want a Failure[RowNotFoundException]
-          // all other failures must be propagated
-          case NoRowsAffectedException => Failure(RowNotFoundException(id))
-        }
-      }
-    }
-
-    def tryFindById(id: I)(implicit sess: Session): Try[M] = {
-      findOptionById(id) match {
-        case Some(model) => Success(model)
-        case None => Failure(RowNotFoundException(id))
-      }
-    }
-
-    def findById(id: I)(implicit sess: Session): M = findOptionById(id).get
-
-    def findOptionById(id: I)(implicit sess: Session): Option[M] = filterById(id).firstOption
   }
 
+  implicit class UpdateActionExtensionMethods(dbAction: DBIO[Int]) {
 
+    def mustAffectOneSingleRow(implicit exc: ExecutionContext): DBIO[Unit] = {
+      dbAction.map {
+        case 1          => Unit // expecting one result
+        case 0          => throw NoRowsAffectedException
+        case n if n > 1 => throw new TooManyRowsAffectedException(affectedRowCount = n, expectedRowCount = 1)
+      }
+    }
 
+    def mustAffectAtLeastOneRow(implicit exc: ExecutionContext): DBIO[Unit] = {
+      dbAction.map {
+        case n if n >= 1 => Unit
+        case 0           => throw NoRowsAffectedException
+      }
+    }
+  }
 
 }

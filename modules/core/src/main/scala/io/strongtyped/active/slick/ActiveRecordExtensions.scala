@@ -15,25 +15,23 @@
  */
 package io.strongtyped.active.slick
 
-import slick.jdbc.JdbcBackend
-import scala.util.Try
+import slick.dbio.DBIO
 
-trait ActiveRecordExtensions { this: TableQueries =>
+import scala.concurrent.ExecutionContext
+
+trait ActiveRecordExtensions { this: TableQueries with Profile =>
 
   trait ActiveRecord[M] {
 
     type TableQuery = ActiveTableQuery[M, _]
 
-    def table: TableQuery
+    def tableQuery: TableQuery
     def model: M
 
-    def save(implicit session: JdbcBackend#Session): M = table.save(model)
-    def trySave(implicit session: JdbcBackend#Session): Try[M] = table.trySave(model)
+    def save()(implicit exc: ExecutionContext): DBIO[M] = tableQuery.save(model)
 
-    def update(implicit session: JdbcBackend#Session): M = table.update(model)
-    def tryUpdate(implicit session: JdbcBackend#Session): Try[M] = table.tryUpdate(model)
+    def update()(implicit exc: ExecutionContext): DBIO[M] = tableQuery.update(model)
 
-    def delete(implicit session: JdbcBackend#Session): Unit = table.delete(model)
-    def tryDelete(implicit session: JdbcBackend#Session): Try[Unit] = table.tryDelete(model)
+    def delete()(implicit exc: ExecutionContext): DBIO[Unit] = tableQuery.delete(model)
   }
 }

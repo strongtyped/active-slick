@@ -1,59 +1,51 @@
 package io.strongtyped.active.slick.test
 
-import io.strongtyped.active.slick.ActiveTestCake
 import org.scalatest._
+import slick.driver.{H2Driver, JdbcActionComponent}
 
-trait DbSuite extends FlatSpec with Matchers with OptionValues with TryValues {
+import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.duration.FiniteDuration
+import scala.language.postfixOps
+import scala.concurrent.duration._
 
-  import slick.driver.H2Driver.simple._
+trait DbSuite extends FlatSpec with Matchers with OptionValues with TryValues
+  with JdbcActionComponent with H2Driver with BeforeAndAfterAll {
 
-  sealed trait TxOps {
-    def complete(sess: Session): Unit
-  }
+  import slick.driver.H2Driver.api._
 
-  object Rollback extends TxOps {
-    override def complete(sess: Session): Unit = sess.rollback()
-  }
+  def query[T](dbAction: DBIO[T])(implicit timeout:FiniteDuration = 5 seconds): T =
+    runAction(dbAction)
 
-  object Commit extends TxOps {
-    override def complete(sess: Session): Unit = ()
-  }
+  def commit[T](dbAction: DBIO[T])(implicit timeout:FiniteDuration = 5 seconds): T =
+    runAction(dbAction.transactionally)
 
-  object DB {
+  def rollback[T](dbAction: DBIO[T])(implicit ex:ExecutionContext, timeout:FiniteDuration = 5 seconds): T =
+    runAction(Rollback.flatMap (_ =>  dbAction ))
 
-    lazy val db = {
-      val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")
-      val keepAliveSession = db.createSession()
-      keepAliveSession.force() // keep the database in memory with an extra connection
-      db
-    }
+  /** defaults to rollback */
+  def runOnDb[T](dbAction: DBIO[T])(implicit ex:ExecutionContext, timeout:FiniteDuration = 5 seconds): T =
+    rollback(dbAction)
 
-    def commit[T](block: Session => T): T = apply(Commit)(block)
-    def rollback[T](block: Session => T): T = apply(Rollback)(block)
 
-    private def apply[T](block: Session => T): T = apply(Rollback)(block)
+  private def runAction[T](dbAction: DBIO[T])(implicit timeout:FiniteDuration): T = {
 
-    def autoCommit[T](block: Session => T): T = {
-      // slick sessions are autocommit
-      db.withSession { implicit session =>
-        block(session)
-      }
-    }
+    val dbUrl = s"jdbc:h2:mem:active-slick-${this.getClass.getSimpleName}"
+    val db = Database.forURL(dbUrl, driver = "org.h2.Driver")
+    db.createSession().force() // keep the database in memory with an extra connection
 
-    def apply[T](txOps: TxOps)(block: Session => T): T = {
-      db.withTransaction { implicit session =>
-        val result = block(session)
-        txOps.complete(session)
-        result
-      }
+    try {
+      val result = db.run(dbAction)
+      Await.result(result, 5 seconds)
+    } finally {
+      db.close()
     }
   }
 
-  def db(testFun : (Session) => Unit)(implicit cake: ActiveTestCake) : Unit = {
-    DB.rollback { implicit session =>
-      cake.createSchema
-      testFun(session)
+  def setupSchema: DBIO[Unit]
+
+  override protected def beforeAll(): Unit = {
+    commit {
+      setupSchema
     }
   }
-
 }

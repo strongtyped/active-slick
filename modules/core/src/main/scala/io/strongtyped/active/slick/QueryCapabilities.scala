@@ -20,16 +20,16 @@ package io.strongtyped.active.slick
 trait QueryCapabilities {
   this: Profile =>
 
-  import jdbcDriver.simple._
+  import driver.api._
 
-  trait FetchAll { this: TableQuery[_ <: Table[_]] =>
-    def fetchAll(implicit sess: Session): List[_] = {
-      this.filter(_ => LiteralColumn(true)).list
-    }
-  }
+//  trait FetchAll { this: TableQuery[_ <: Table[_]] =>
+//    def fetchAll(implicit sess: Session): StreamingDbAction[_] = {
+//      this.filter(_ => LiteralColumn(true)).result
+//    }
+//  }
 
   trait DeleteAll { this: TableQuery[_ <: Table[_]] =>
-    def deleteAll(implicit sess: Session):  Int = {
+    def deleteAll():  DBIO[Int] = {
       this.filter(_ => LiteralColumn(true)).delete
     }
   }

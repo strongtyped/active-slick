@@ -1,88 +1,82 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.exceptions.{NoRowsAffectedException, StaleObjectStateException}
+import io.strongtyped.active.slick.exceptions.{StaleObjectStateException, NoRowsAffectedException}
 import io.strongtyped.active.slick.models.Identifiable
 import shapeless.Lens
-import scala.util.{Failure, Try}
+import slick.ast.BaseTypedType
+
+import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success}
 
 trait EntityTableQueries {
   this: Profile with Tables with TableQueries =>
 
-  import jdbcDriver.simple._
+  import driver.api._
 
 
-
-  class EntityTableQuery[M <: Identifiable, T <: EntityTable[M]]
-                        (cons: Tag => T, idLens:Lens[M, Option[M#Id]])
-                        (implicit bct: BaseColumnType[M#Id]) extends TableWithIdQuery[M, M#Id, T](cons, idLens)
-
+  class EntityTableQuery[M <: Identifiable, T <: EntityTable[M]](cons: Tag => T, idLens: Lens[M, Option[M#Id]])
+                                                                (implicit ev: BaseTypedType[M#Id])
+    extends TableWithIdQuery[M, M#Id, T](cons, idLens)
 
   object EntityTableQuery {
+
     def apply[M <: Identifiable, T <: EntityTable[M]]
-             (cons: Tag => T, idLens:Lens[M, Option[M#Id]])
-             (implicit ev1: BaseColumnType[M#Id]) = new EntityTableQuery[M, T](cons, idLens)
+    (cons: Tag => T, idLens: Lens[M, Option[M#Id]])(implicit ev: BaseTypedType[M#Id]) = new EntityTableQuery[M, T](cons, idLens)
   }
 
+  class VersionableEntityTableQuery[M <: Identifiable, T <: VersionableEntityTable[M]](cons: Tag => T, idLens: Lens[M, Option[M#Id]], versionLens: Lens[M, Long])
+                                                                                      (implicit ev: BaseTypedType[M#Id])
+    extends EntityTableQuery[M, T](cons, idLens) {
 
-
-  class VersionableEntityTableQuery[M <: Identifiable, T <: VersionableEntityTable[M]]
-                                   (cons: Tag => T, idLens:Lens[M, Option[M#Id]], versionLens:Lens[M, Long])
-                                   (implicit bct: BaseColumnType[M#Id]) extends EntityTableQuery[M, T](cons, idLens) {
-
-    override protected def tryUpdate(id: M#Id, versionable: M)(implicit sess: Session): Try[M] = {
+    override protected def update(id: M#Id, versionable: M)(implicit exc: ExecutionContext): DBIO[M] = {
 
       // extract current version
       val currentVersion = versionLens.get(versionable)
 
       // build a query selecting entity with current version
-      val queryById = filter(_.id === id)
-      val queryByIdAndVersion = queryById.filter(_.version === currentVersion)
+      val queryByIdAndVersion = filterById(id).map { query =>
+        query.filter(_.version === currentVersion)
+      }
 
       // model with incremented version
       val modelWithNewVersion = versionLens.set(versionable)(currentVersion + 1)
 
-      mustAffectOneSingleRow {
-        queryByIdAndVersion.update(modelWithNewVersion)
+      val tryUpdate = queryByIdAndVersion.update(modelWithNewVersion).mustAffectOneSingleRow.asTry
 
-      }.recoverWith {
-        // no updates?
-        case NoRowsAffectedException =>
-          // if row exists we have a stale object
-          // all other failures must be propagated
-          tryFindById(id).flatMap { currentOnDb =>
-            Failure(StaleObjectStateException(versionable, currentOnDb))
+      // in case of failure, we want a more meaningful exception ie: StaleObjectStateException
+      tryUpdate.flatMap {
+        case Success(_) => DBIO.successful(modelWithNewVersion)
+        case Failure(NoRowsAffectedException) =>
+          findById(id).flatMap { currentOnDb =>
+            DBIO.failed(new StaleObjectStateException(versionable, currentOnDb))
           }
-
-      }.map { _ =>
-        modelWithNewVersion // return the versionable entity with an updated version
+        case Failure(e) => DBIO.failed(e)
       }
     }
 
-    override def trySave(versionable: M)(implicit sess: Session): Try[M] = {
-      rollbackOnFailure {
-        idLens.get(versionable) match {
-          // if has an Id, try to update it
-          case Some(id) => tryUpdate(id, versionable)
+    override def save(versionable: M)(implicit exc: ExecutionContext): DBIO[M] = {
+      idLens.get(versionable) match {
+        // if has an Id, try to update it
+        case Some(id) => update(id, versionable)
 
-          // if has no Id, try to add it
-          case None =>
-            // initialize versioning
-            val modelWithVersion = versionLens.set(versionable)(1)
-            tryAdd(modelWithVersion).map { id => idLens.set(modelWithVersion)(Option(id)) }
-        }
+        // if has no Id, try to add it
+        case None =>
+          // initialize versioning
+          val modelWithVersion = versionLens.set(versionable)(1)
+          add(modelWithVersion).map { id => idLens.set(modelWithVersion)(Option(id)) }
       }
     }
 
   }
 
-
   object VersionableEntityTableQuery {
 
-    def apply[M <: Identifiable, T <: VersionableEntityTable[M]](cons: Tag => T, idLens:Lens[M, Option[M#Id]], versionLens:Lens[M, Long])
+    def apply[M <: Identifiable, T <: VersionableEntityTable[M]](cons: Tag => T, idLens: Lens[M, Option[M#Id]], versionLens: Lens[M, Long])
                                                                 (implicit ev1: BaseColumnType[M#Id]) = {
 
       new VersionableEntityTableQuery[M, T](cons, idLens, versionLens)
 
     }
   }
+
 }

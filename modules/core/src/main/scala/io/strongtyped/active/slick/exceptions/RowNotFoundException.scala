@@ -15,5 +15,4 @@
  */
 package io.strongtyped.active.slick.exceptions
 
-case class RowNotFoundException[T](notFoundRecord: T)
-  extends ActiveSlickException(s"Row not found: $notFoundRecord")
+class RowNotFoundException[T](notFoundRecord: T) extends ActiveSlickException(s"Row not found: $notFoundRecord")

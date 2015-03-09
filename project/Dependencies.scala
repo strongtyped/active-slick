@@ -3,7 +3,7 @@ import sbt._
 
 trait Dependencies { this:Build =>
 
-  val slick         =   "com.typesafe.slick"      %%  "slick"         % "3.0.0-RC1"
+  val slick         =   "com.typesafe.slick"      %%  "slick"         % "3.0.0-RC3"
   
   val shapeless     = Def setting (
       CrossVersion partialVersion scalaVersion.value match {

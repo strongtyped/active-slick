@@ -18,70 +18,80 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.exceptions.StaleObjectStateException
-import io.strongtyped.active.slick.models.{Beer, Supplier}
-import org.h2.jdbc.JdbcSQLException
-import org.scalatest.{FunSuite, Matchers, OptionValues, TryValues}
+import io.strongtyped.active.slick.models.Supplier
+import io.strongtyped.active.slick.test.DbSuite
+import org.scalatest._
+import slick.dbio._
 
-class SupplierTest extends FunSuite with Matchers with OptionValues with TryValues {
+import scala.concurrent.ExecutionContext.Implicits.global
 
-  test("A Supplier should be persistable") {
+class SupplierTest extends DbSuite with BeforeAndAfterAll {
 
-    DB.rollback { implicit sess =>
-      val initialCount = Suppliers.count
+  behavior of "A Supplier"
 
-      val supplier = Supplier("Acme, Inc.")
-      supplier.id should not be defined
+  it should "be persistable" in {
+    val initialCount = query(Suppliers.count)
 
-      val persistedSupp = supplier.save
-      persistedSupp.id shouldBe defined
+    val supplier = Supplier("Acme, Inc.")
+    supplier.id should not be defined
 
-      Suppliers.count shouldBe (initialCount + 1)
-
-      Suppliers.fetchAll should have size(initialCount + 1)
-
-      persistedSupp.delete
-
-      Suppliers.count shouldBe initialCount
-
-    }
-  }
-
-  test("A Supplier is versionable") {
-    DB.rollback { implicit sess =>
-      val supplier = Supplier("abc")
-      // no version yet
-      supplier.version shouldBe 0
-
-      val persistedSupp = supplier.save
-      persistedSupp.version should not be 0
-
-      // modify two versions and try to persist them
-      val suppWithNewVersion = persistedSupp.copy(name = "abc1").save
-
-      intercept[StaleObjectStateException[Supplier]] {
-        // supplier was persisted in the mean time, so version must be different by now
-        persistedSupp.copy(name = "abc2").save
+    val savedSupplier =
+      commit {
+        for {
+          savedSupplier <- supplier.save()
+        } yield {
+          savedSupplier
+        }
       }
+    savedSupplier.id shouldBe defined
 
-      // supplier with new version can be persisted again
-      suppWithNewVersion.copy(name = "abc").save
-    }
+    val countAfterSave = query(Suppliers.count)
+    countAfterSave shouldBe (initialCount + 1)
+
+    commit(savedSupplier.delete())
+
+    val countAfterDelete = query(Suppliers.count)
+    countAfterDelete shouldBe initialCount
+
   }
 
-  test("A Supplier can't be deleted if it has Beers linked to it") {
+  it should "be versionable" in {
 
-    DB.rollback { implicit sess =>
-      val supplier = Supplier("Acme, Inc.").save
+    val supplier = Supplier("abc")
+    // no version yet
+    supplier.version shouldBe 0
 
-      supplier.id shouldBe defined
+    val persistedSupp = commit(supplier.save)
+    persistedSupp.version should not be 0
 
-      supplier.id.map { supId =>
-        val coffee = Beer("Abc", supId, 3.2).save
-        coffee.supplier.value shouldBe supplier
-      }
+    // modify two versions and try to persist them
+    val suppWithNewVersion = commit(persistedSupp.copy(name = "abc1").save)
 
-      supplier.tryDelete.failure.exception shouldBe a[JdbcSQLException]
+    intercept[StaleObjectStateException[Supplier]] {
+      // supplier was persisted in the mean time, so version must be different by now
+      commit(persistedSupp.copy(name = "abc2").save)
     }
+
+    // supplier with new version can be persisted again
+    commit(suppWithNewVersion.copy(name = "abc").save)
   }
+
+  def setupSchema: DBIO[Unit] = createSchema
+
+  //  test("A Supplier can't be deleted if it has Beers linked to it") {
+
+  //    DB.rollback { implicit sess =>
+  //      val supplier = Supplier("Acme, Inc.").save
+  //
+  //      supplier.id shouldBe defined
+  //
+  //      supplier.id.map { supId =>
+  //        val coffee = Beer("Abc", supId, 3.2).save
+  //        coffee.supplier.value shouldBe supplier
+  //      }
+  //
+  //      supplier.tryDelete.failure.exception shouldBe a[JdbcSQLException]
+  //    }
+  //  }
 
 }

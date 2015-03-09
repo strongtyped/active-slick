@@ -21,21 +21,24 @@ import io.strongtyped.active.slick.models.Identifiable
  * Defines Slick table extensions.
  * To be mixed-in into a cake.
  */
-trait Tables { this: Profile =>
+trait Tables {
+  this: Profile =>
 
-  import jdbcDriver.simple._
+  import driver.api._
 
   trait IdColumn[I] {
-    def id: Column[I]
+
+    def id: Rep[I]
   }
 
   trait VersionColumn {
-    def version: Column[Long]
+
+    def version: Rep[Long]
   }
 
   /** Table extension to be used with a Model that has an Id. */
   abstract class IdTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(implicit val colType: BaseColumnType[I])
-      extends Table[M](tag, schemaName, tableName) with IdColumn[I] {
+    extends Table[M](tag, schemaName, tableName) with IdColumn[I] {
 
     /** Constructor without schemaName */
     def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[I]) = this(tag, None, tableName)
@@ -43,19 +46,19 @@ trait Tables { this: Profile =>
 
   /** Table extension to be used with a Model that has an Id and version (optimistic locking). */
   abstract class IdVersionTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(override implicit val colType: BaseColumnType[I])
-      extends IdTable[M, I](tag, schemaName, tableName)(colType) with VersionColumn {
+    extends IdTable[M, I](tag, schemaName, tableName)(colType) with VersionColumn {
 
     def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[I]) = this(tag, None, tableName)
   }
 
   /**
-   * Type alias for [[IdTable]]s mapping [[io.strongtyped.active.slick.models.Identifiable]]s
+   * Type alias for [[IdTable]]s mapping [[Identifiable]]s
    * Id type is mapped via type projection of Identifiable#Id
    */
   type EntityTable[M <: Identifiable] = IdTable[M, M#Id]
 
   /**
-   * Type alias for [[IdTable]]s mapping [[io.strongtyped.active.slick.models.Identifiable]]s with version.
+   * Type alias for [[IdTable]]s mapping [[Identifiable]]s with version.
    * Id type is mapped via type projection of Identifiable#Id
    */
   type VersionableEntityTable[M <: Identifiable] = IdVersionTable[M, M#Id]
