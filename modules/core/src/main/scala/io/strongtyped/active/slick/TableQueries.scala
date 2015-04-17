@@ -55,11 +55,9 @@ trait TableQueries {
 
     val filterById = this.findBy(_.id)
 
-    def findById(id: I): DBIO[M] =
-      filterById(id).result.head
+    def findById(id: I): DBIO[M] = filterById(id).result.head
 
-    def findOptionById(id: I): DBIO[Option[M]] =
-      filterById(id).result.headOption
+    def findOptionById(id: I): DBIO[Option[M]] = filterById(id).result.headOption
 
     /**
      * Define an insert query that returns the database generated identifier.
@@ -89,12 +87,11 @@ trait TableQueries {
     }
 
     protected def update(id: I, model: M)(implicit exc: ExecutionContext): DBIO[M] = {
-      filterById(id)
-        .update(model)
-        .mustAffectOneSingleRow
-        .asTry
-        .map {
-          case Success(()) => model
+
+      val triedUpdate = filterById(id).update(model).mustAffectOneSingleRow.asTry
+
+      triedUpdate.map {
+          case Success(_) => model
           case Failure(NoRowsAffectedException) => throw new RowNotFoundException(model)
           case Failure(ex) => throw ex
         }
@@ -107,25 +104,26 @@ trait TableQueries {
     }
 
     def deleteById(id: I)(implicit exc: ExecutionContext): DBIO[Unit] = {
-      filterById(id).delete.mustAffectOneSingleRow
+      filterById(id).delete.mustAffectOneSingleRow.map(_ => Unit)
     }
 
   }
 
   implicit class UpdateActionExtensionMethods(dbAction: DBIO[Int]) {
 
-    def mustAffectOneSingleRow(implicit exc: ExecutionContext): DBIO[Unit] = {
-      dbAction.map {
-        case 1          => Unit // expecting one result
-        case 0          => throw NoRowsAffectedException
-        case n if n > 1 => throw new TooManyRowsAffectedException(affectedRowCount = n, expectedRowCount = 1)
+    def mustAffectOneSingleRow(implicit exc: ExecutionContext): DBIO[Int] = {
+      dbAction.flatMap {
+        case 1          => dbAction // expecting one result
+        case 0          => DBIO.failed(NoRowsAffectedException)
+        case n if n > 1 => DBIO.failed(new TooManyRowsAffectedException(affectedRowCount = n, expectedRowCount = 1))
       }
     }
 
-    def mustAffectAtLeastOneRow(implicit exc: ExecutionContext): DBIO[Unit] = {
-      dbAction.map {
-        case n if n >= 1 => Unit
-        case 0           => throw NoRowsAffectedException
+    def mustAffectAtLeastOneRow(implicit exc: ExecutionContext): DBIO[Int] = {
+
+      dbAction.flatMap {
+        case n if n >= 1 => dbAction // expecting one or more results
+        case 0           => DBIO.failed(NoRowsAffectedException)
       }
     }
   }
