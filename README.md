@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/strongtyped/active-slick.svg?branch=develop)](https://travis-ci.org/strongtyped/active-slick)
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/strongtyped/active-slick?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 ActiveSlick is a library that offers CRUD operations for Slick 2.1 projects. The main goal is to provide some basic operations to manage the lifecycle of persisted objects (new/persisted/deleted/stale) and enable the implementation of the Active Record Pattern on Slick mapped case classes.
 
 All operations are provided by `TableQueries` sub-classes. 
