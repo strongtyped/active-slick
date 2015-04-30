@@ -3,13 +3,12 @@ package io.strongtyped.active.slick
 import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.exceptions.RowNotFoundException
 import io.strongtyped.active.slick.models.{Beer, Supplier}
-import io.strongtyped.active.slick.test.DbSuite
+import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest._
-import slick.dbio.DBIO
-
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
 
-class BeerTest extends DbSuite {
+class BeerTest extends FlatSpec with H2Suite with OptionValues with TryValues {
 
   behavior of "A Beer"
 
@@ -22,10 +21,10 @@ class BeerTest extends DbSuite {
           beerSupplier <- beer.supplier()
         } yield {
           beerSupplier.value shouldBe supplier
+          supplier.id shouldBe defined
           (supplier, beer)
         }
       }
-    supplier.id shouldBe defined
   }
 
   it should "not be persisted with an id chosen by a user" in {
@@ -41,6 +40,5 @@ class BeerTest extends DbSuite {
     triedBeer.failure.exception shouldBe a[RowNotFoundException[_]]
   }
 
-  def setupSchema: DBIO[Unit] = createSchema
-
+  override def createSchema = create
 }

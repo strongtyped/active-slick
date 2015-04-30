@@ -1,11 +1,11 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.models.Entry
-import io.strongtyped.active.slick.test.DbSuite
+import io.strongtyped.active.slick.test.{H2Suite, DbSuite}
+import org.scalatest.{TryValues, OptionValues, FlatSpec}
 import shapeless._
 import slick.dbio._
 
-class DeleteAllTest extends DbSuite {
+class DeleteAllTest  extends FlatSpec with H2Suite with OptionValues with TryValues {
 
 //  implicit val cake = new  ActiveTestCake with QueryCapabilities {
 //
@@ -49,6 +49,6 @@ class DeleteAllTest extends DbSuite {
 //    }
 //  }
 
-  def setupSchema: DBIO[Unit] = ???
+  def createSchema: DBIO[Unit] = ???
 
 }

@@ -3,7 +3,6 @@ package io.strongtyped.active.slick.components
 import io.strongtyped.active.slick._
 import io.strongtyped.active.slick.models.{Beer, Supplier}
 import shapeless._
-import slick.dbio.Effect
 import slick.util.Logging
 
 trait Schema extends Logging with QueryCapabilities {
@@ -60,7 +59,7 @@ trait Schema extends Logging with QueryCapabilities {
     idLens = lens[Beer] >> 'id
   )
 
-  def createSchema: DBIO[Unit] = {
+  def create: DBIO[Unit] = {
     logger.info("Creating schema ... ")
     (Suppliers.schema ++ Beers.schema).create
   }

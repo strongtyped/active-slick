@@ -16,16 +16,18 @@
 
 package io.strongtyped.active.slick
 
+import java.sql.SQLException
+
 import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.exceptions.StaleObjectStateException
-import io.strongtyped.active.slick.models.Supplier
-import io.strongtyped.active.slick.test.DbSuite
+import io.strongtyped.active.slick.models.{Beer, Supplier}
+import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest._
 import slick.dbio._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class SupplierTest extends DbSuite with BeforeAndAfterAll {
+class SupplierTest extends FlatSpec with H2Suite with OptionValues with TryValues {
 
   behavior of "A Supplier"
 
@@ -61,37 +63,35 @@ class SupplierTest extends DbSuite with BeforeAndAfterAll {
     // no version yet
     supplier.version shouldBe 0
 
-    val persistedSupp = commit(supplier.save)
+    val persistedSupp = commit(supplier.save())
     persistedSupp.version should not be 0
 
     // modify two versions and try to persist them
-    val suppWithNewVersion = commit(persistedSupp.copy(name = "abc1").save)
+    val suppWithNewVersion = commit(persistedSupp.copy(name = "abc1").save())
 
     intercept[StaleObjectStateException[Supplier]] {
       // supplier was persisted in the mean time, so version must be different by now
-      commit(persistedSupp.copy(name = "abc2").save)
+      commit(persistedSupp.copy(name = "abc2").save())
     }
 
     // supplier with new version can be persisted again
-    commit(suppWithNewVersion.copy(name = "abc").save)
+    commit(suppWithNewVersion.copy(name = "abc").save())
   }
 
-  def setupSchema: DBIO[Unit] = createSchema
+  it should "return an error when deleting a supplier with beers linked to it" in {
 
-  //  test("A Supplier can't be deleted if it has Beers linked to it") {
+    val deleteResult =
+      rollback {
+        for {
+          supplier <- Supplier("Acme, Inc.").save()
+          beer <- Beer("Abc", supplier.id.get, 3.2).save()
+          deleteResult <- supplier.delete().asTry
+        } yield deleteResult
+      }
 
-  //    DB.rollback { implicit sess =>
-  //      val supplier = Supplier("Acme, Inc.").save
-  //
-  //      supplier.id shouldBe defined
-  //
-  //      supplier.id.map { supId =>
-  //        val coffee = Beer("Abc", supId, 3.2).save
-  //        coffee.supplier.value shouldBe supplier
-  //      }
-  //
-  //      supplier.tryDelete.failure.exception shouldBe a[JdbcSQLException]
-  //    }
-  //  }
+    deleteResult.failure.exception shouldBe a[SQLException]
+  }
+
+  def createSchema: DBIO[Unit] = create
 
 }
