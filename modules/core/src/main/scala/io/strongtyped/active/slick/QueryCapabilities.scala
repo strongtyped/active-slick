@@ -22,12 +22,6 @@ trait QueryCapabilities {
 
   import driver.api._
 
-//  trait FetchAll { this: TableQuery[_ <: Table[_]] =>
-//    def fetchAll(implicit sess: Session): StreamingDbAction[_] = {
-//      this.filter(_ => LiteralColumn(true)).result
-//    }
-//  }
-
   trait DeleteAll { this: TableQuery[_ <: Table[_]] =>
     def deleteAll():  DBIO[Int] = {
       this.filter(_ => LiteralColumn(true)).delete
