@@ -2,7 +2,6 @@ package io.strongtyped.active.slick.docexamples
 
 import io.strongtyped.active.slick.{SimpleLens, ActiveSlick}
 import io.strongtyped.active.slick.models.Identifiable
-import shapeless._
 import slick.driver.{H2Driver, JdbcDriver}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Await

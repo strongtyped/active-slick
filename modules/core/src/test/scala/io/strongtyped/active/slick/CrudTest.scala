@@ -3,7 +3,6 @@ package io.strongtyped.active.slick
 import io.strongtyped.active.slick.models.Identifiable
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest.{FlatSpec, OptionValues}
-import shapeless._
 import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 

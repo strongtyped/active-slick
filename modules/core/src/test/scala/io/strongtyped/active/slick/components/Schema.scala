@@ -2,7 +2,6 @@ package io.strongtyped.active.slick.components
 
 import io.strongtyped.active.slick._
 import io.strongtyped.active.slick.models.{Beer, Supplier}
-import shapeless._
 import slick.util.Logging
 
 trait Schema extends Logging with QueryCapabilities {

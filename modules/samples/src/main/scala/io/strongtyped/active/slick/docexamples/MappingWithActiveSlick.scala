@@ -1,9 +1,7 @@
 package io.strongtyped.active.slick.docexamples
 
 import io.strongtyped.active.slick.{SimpleLens, ActiveSlick}
-import shapeless._
 import slick.driver.{H2Driver, JdbcDriver}
-
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
