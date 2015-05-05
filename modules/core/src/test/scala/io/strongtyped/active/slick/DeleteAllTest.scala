@@ -3,7 +3,6 @@ package io.strongtyped.active.slick
 import io.strongtyped.active.slick.models.Identifiable
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest.{FlatSpec, OptionValues}
-import shapeless._
 import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -63,7 +62,7 @@ class DeleteAllTest extends FlatSpec with H2Suite with OptionValues with QueryCa
 
   object Entries extends EntityTableQuery[Entry, EntryTable](
     cons = tag => new EntryTable(tag),
-    idLens = lens[Entry] >> 'id
+    idLens = SimpleLens[Entry, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
   ) with DeleteAll
 
 
@@ -73,32 +72,6 @@ class DeleteAllTest extends FlatSpec with H2Suite with OptionValues with QueryCa
   }
 
   override def createSchema = Entries.schema.create
-
-  //  implicit val cake = new  ActiveTestCake with QueryCapabilities {
-  //
-  //    import driver.api._
-  //
-  //  }
-  //
-  //
-  //  import cake._
-  //
-  //  "A TableQuery with DeleteAll" should "be able to delete all entities" in {
-  //    db { implicit sess =>
-  //
-  //      val initialCount = Entries.count
-  //
-  //      // test add
-  //      Entry("Foo").save
-  //      Entry("Bar").save
-  //
-  //      Entries.count shouldBe(initialCount + 2)
-  //
-  //      Entries.deleteAll
-  //
-  //      Entries.count shouldBe 0
-  //    }
-  //  }
 
 
 }

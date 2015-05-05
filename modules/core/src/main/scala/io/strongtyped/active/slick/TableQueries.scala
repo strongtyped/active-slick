@@ -17,7 +17,6 @@
 package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.exceptions._
-import shapeless.Lens
 import slick.ast.BaseTypedType
 import slick.dbio.{FailureAction, SuccessAction}
 
@@ -43,7 +42,7 @@ trait TableQueries {
 
   }
 
-  class TableWithIdQuery[M, I, T <: IdTable[M, I]](cons: Tag => T, idLens: Lens[M, Option[I]])
+  class TableWithIdQuery[M, I, T <: IdTable[M, I]](cons: Tag => T, idLens: SimpleLens[M, Option[I]])
                                                   (implicit ev:BaseTypedType[I]) extends ActiveTableQuery[M, T](cons) {
 
     private def tryExtractId(model: M): DBIO[I] = {
@@ -75,7 +74,7 @@ trait TableQueries {
 
         // if has no Id, try to add it
         case None => add(model).map { id =>
-          idLens.set(model)(Option(id))
+          idLens.set(model, Option(id))
         }
       }
     }

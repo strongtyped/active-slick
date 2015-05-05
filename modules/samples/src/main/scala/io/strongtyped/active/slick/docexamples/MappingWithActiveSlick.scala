@@ -1,6 +1,6 @@
 package io.strongtyped.active.slick.docexamples
 
-import io.strongtyped.active.slick.ActiveSlick
+import io.strongtyped.active.slick.{SimpleLens, ActiveSlick}
 import shapeless._
 import slick.driver.{H2Driver, JdbcDriver}
 
@@ -24,7 +24,7 @@ trait MappingWithActiveSlick {
 
   val Foos = new TableWithIdQuery[Foo, Int, FooTable](
     tag => new FooTable(tag),
-    lens[Foo] >> 'id
+    idLens = SimpleLens[Foo, Option[Int]](_.id, (foo, id) => foo.copy(id = id))
   )
 }
 

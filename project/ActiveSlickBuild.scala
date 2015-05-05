@@ -11,11 +11,11 @@ object ActiveSlickBuild extends Build with BuildSettings with Dependencies {
     settings = projectSettings ++ Seq(
       publishArtifact := false
     )
-  ) aggregate(activeSlick, samples)
+  ) aggregate(activeSlick, shapelessIntegration, samples)
 
 
-  // CORE ==========================================
-  lazy val activeSlick: Project = Project(
+  // Core ==========================================
+  lazy val activeSlick = Project(
     id = "active-slick",
     base = file("modules/core"),
     settings = projectSettings ++ mainDeps ++ testDeps
@@ -24,15 +24,34 @@ object ActiveSlickBuild extends Build with BuildSettings with Dependencies {
 
 
 
-  // SAMPLES =======================================
+  // Shapeless Integration  ========================
+  lazy val shapelessIntegration = {
+
+    // settings to include shapeless dependencies
+    val shapeless =  Seq(
+      libraryDependencies ++= shapelessDeps.value
+    )
+
+    Project(
+      id = "active-slick-shapeless",
+      base = file("modules/shapeless"),
+      settings = projectSettings ++ mainDeps ++ shapeless ++ testDeps
+    ) dependsOn activeSlick
+  } 
+  //================================================
+
+
+
+  // Samples =======================================
   // contains examples used on the docs, not intended to be released
-  lazy val samples: Project = Project(
+  lazy val samples = Project(
     id = "active-slick-samples",
     base = file("modules/samples"),
     settings = projectSettings ++ Seq(
       publishArtifact := false
     ) ++ mainDeps
   ) dependsOn activeSlick
-  //================================================
+  //======+=========================================
+
   
 }

@@ -76,7 +76,7 @@ class CrudTest extends FlatSpec with H2Suite with OptionValues {
 
   object Entries extends EntityTableQuery[Entry, EntryTable](
     cons = tag => new EntryTable(tag),
-    idLens = lens[Entry] >> 'id
+    idLens = SimpleLens[Entry, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
   )
 
 

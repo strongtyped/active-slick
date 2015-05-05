@@ -2,7 +2,6 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.exceptions.{StaleObjectStateException, NoRowsAffectedException}
 import io.strongtyped.active.slick.models.Identifiable
-import shapeless.Lens
 import slick.ast.BaseTypedType
 
 import scala.concurrent.ExecutionContext
@@ -14,19 +13,19 @@ trait EntityTableQueries {
   import driver.api._
 
 
-  class EntityTableQuery[M <: Identifiable, T <: EntityTable[M]](cons: Tag => T, idLens: Lens[M, Option[M#Id]])
-                                                                (implicit ev: BaseTypedType[M#Id])
-    extends TableWithIdQuery[M, M#Id, T](cons, idLens)
+  class EntityTableQuery[M <: Identifiable, T <: EntityTable[M]](cons: Tag => T, idLens: SimpleLens[M, Option[M#Id]])(implicit ev: BaseTypedType[M#Id]) extends TableWithIdQuery[M, M#Id, T](cons, idLens)
+
 
   object EntityTableQuery {
 
-    def apply[M <: Identifiable, T <: EntityTable[M]]
-    (cons: Tag => T, idLens: Lens[M, Option[M#Id]])(implicit ev: BaseTypedType[M#Id]) = new EntityTableQuery[M, T](cons, idLens)
+    def apply[M <: Identifiable, T <: EntityTable[M]](cons: Tag => T, idLens: SimpleLens[M, Option[M#Id]])(implicit ev: BaseTypedType[M#Id]) = {
+      new EntityTableQuery[M, T](cons, idLens)
+    }
   }
 
-  class VersionableEntityTableQuery[M <: Identifiable, T <: VersionableEntityTable[M]](cons: Tag => T, idLens: Lens[M, Option[M#Id]], versionLens: Lens[M, Long])
-                                                                                      (implicit ev: BaseTypedType[M#Id])
-    extends EntityTableQuery[M, T](cons, idLens) {
+
+
+  class VersionableEntityTableQuery[M <: Identifiable, T <: VersionableEntityTable[M]](cons: Tag => T, idLens: SimpleLens[M, Option[M#Id]], versionLens: SimpleLens[M, Long])(implicit ev: BaseTypedType[M#Id]) extends EntityTableQuery[M, T](cons, idLens) {
 
     override protected def update(id: M#Id, versionable: M)(implicit exc: ExecutionContext): DBIO[M] = {
 
@@ -39,7 +38,7 @@ trait EntityTableQueries {
       }
 
       // model with incremented version
-      val modelWithNewVersion = versionLens.set(versionable)(currentVersion + 1)
+      val modelWithNewVersion = versionLens.set(versionable, currentVersion + 1)
 
       val tryUpdate = queryByIdAndVersion.update(modelWithNewVersion).mustAffectOneSingleRow.asTry
 
@@ -62,8 +61,8 @@ trait EntityTableQueries {
         // if has no Id, try to add it
         case None =>
           // initialize versioning
-          val modelWithVersion = versionLens.set(versionable)(1)
-          add(modelWithVersion).map { id => idLens.set(modelWithVersion)(Option(id)) }
+          val modelWithVersion = versionLens.set(versionable, 1)
+          add(modelWithVersion).map { id => idLens.set(modelWithVersion, Option(id)) }
       }
     }
 
@@ -71,7 +70,7 @@ trait EntityTableQueries {
 
   object VersionableEntityTableQuery {
 
-    def apply[M <: Identifiable, T <: VersionableEntityTable[M]](cons: Tag => T, idLens: Lens[M, Option[M#Id]], versionLens: Lens[M, Long])
+    def apply[M <: Identifiable, T <: VersionableEntityTable[M]](cons: Tag => T, idLens: SimpleLens[M, Option[M#Id]], versionLens: SimpleLens[M, Long])
                                                                 (implicit ev1: BaseColumnType[M#Id]) = {
 
       new VersionableEntityTableQuery[M, T](cons, idLens, versionLens)

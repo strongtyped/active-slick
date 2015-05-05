@@ -18,19 +18,18 @@ trait Schema extends Logging with QueryCapabilities {
 
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
-    def * = (name, version, id.?) <>(Supplier.tupled, Supplier.unapply)
+    def * = (name, version, id.?) <> (Supplier.tupled, Supplier.unapply)
 
   }
 
   val Suppliers = new VersionableEntityTableQuery[Supplier, SuppliersTable](
     // construct function
     cons = tag => new SuppliersTable(tag),
-    // shapeless lens to assign and extract id
-    idLens = lens[Supplier] >> 'id,
-    // shapeless lens to assign and extract version
-    versionLens = lens[Supplier] >> 'version
+    // lens to assign and extract id
+    idLens = SimpleLens[Supplier, Option[Int]](_.id, (supplier, id) => supplier.copy(id = id)),
+    // lens to assign and extract version
+    versionLens = SimpleLens[Supplier, Long](_.version, (supplier, version) => supplier.copy(version = version))
   )
-  // with FetchAll
 
 
   class BeersTable(tag: Tag) extends EntityTable[Beer](tag, "BEERS") {
@@ -43,7 +42,7 @@ trait Schema extends Logging with QueryCapabilities {
 
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
-    def * = (name, supID, price, id.?) <>(Beer.tupled, Beer.unapply)
+    def * = (name, supID, price, id.?) <> (Beer.tupled, Beer.unapply)
 
     def supplier = foreignKey("SUP_FK", supID, Suppliers)(_.id)
   }
@@ -55,8 +54,8 @@ trait Schema extends Logging with QueryCapabilities {
   val Beers = EntityTableQuery[Beer, BeersTable](
     // construct function
     cons = tag => new BeersTable(tag),
-    // shapeless lens to assign and extract id
-    idLens = lens[Beer] >> 'id
+    // lens to assign and extract id
+    idLens = SimpleLens[Beer, Option[Int]](_.id, (beer, id) => beer.copy(id = id))
   )
 
   def create: DBIO[Unit] = {

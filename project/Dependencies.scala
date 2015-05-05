@@ -5,7 +5,7 @@ trait Dependencies { this:Build =>
 
   val slick         =   "com.typesafe.slick"      %%  "slick"         % "3.0.0"
   
-  val shapeless = Def setting (
+  val shapelessDeps = Def setting (
        CrossVersion partialVersion scalaVersion.value match {
          case Some((2, scalaMajor)) if scalaMajor >= 11 =>
            Seq("com.chuusai" %% "shapeless" % "2.1.0")
@@ -21,7 +21,7 @@ trait Dependencies { this:Build =>
   val h2database    =   "com.h2database"          %   "h2"            % "1.4.181"  % "test"
 
   val mainDeps =  Seq(
-    libraryDependencies ++= shapeless.value ++ Seq(slick)
+    libraryDependencies ++= Seq(slick)
   )
 
   val testDeps = Seq(
