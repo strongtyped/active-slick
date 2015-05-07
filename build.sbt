@@ -6,4 +6,4 @@ organization := "io.strongtyped"
 
 crossScalaVersions := Seq("2.10.5", "2.11.6")
 
-fork in run := true
+parallelExecution in Test := false
