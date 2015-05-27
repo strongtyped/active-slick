@@ -1,7 +1,7 @@
 package io.strongtyped.active.slick
 
-import slick.driver.JdbcDriver
+import slick.driver.JdbcProfile
 
 trait Profile {
-  val driver: JdbcDriver
+  protected val profile:JdbcProfile
 }

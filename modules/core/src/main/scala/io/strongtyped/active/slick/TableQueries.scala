@@ -11,7 +11,7 @@ import scala.util.{Failure, Success}
 trait TableQueries {
   this: Profile with Tables =>
 
-  import driver.api._
+  import profile.api._
 
 
   abstract class ActiveTableQuery[M, T <: Table[M]](cons: Tag => T) extends TableQuery(cons) {

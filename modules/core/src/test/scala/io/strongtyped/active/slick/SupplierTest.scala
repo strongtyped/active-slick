@@ -1,4 +1,3 @@
-
 package io.strongtyped.active.slick
 
 import java.sql.SQLException

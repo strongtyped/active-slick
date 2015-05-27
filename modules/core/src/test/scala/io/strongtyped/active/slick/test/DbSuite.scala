@@ -2,21 +2,23 @@ package io.strongtyped.active.slick.test
 
 import io.strongtyped.active.slick.{Profile, ActiveRecordExtensions, ActiveSlick}
 import org.scalatest._
+import slick.dbio
+import slick.dbio.Effect.{Transactional, All}
 
 import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{Await, ExecutionContext}
 import scala.language.postfixOps
-import scala.util.{Failure, Success}
+import scala.util.{Try, Failure, Success}
 
 trait DbSuite extends BeforeAndAfterAll with Matchers with ActiveSlick with ActiveRecordExtensions  {
 
   self:Suite with Profile =>
 
-  import driver.api._
+  import profile.api._
 
-  def setupDb : driver.backend.DatabaseDef
+  def setupDb : profile.backend.DatabaseDef
 
-  private lazy val database:driver.backend.DatabaseDef = setupDb
+  private lazy val database:profile.backend.DatabaseDef = setupDb
 
   override protected def afterAll(): Unit = {
     database.close()
@@ -34,16 +36,14 @@ trait DbSuite extends BeforeAndAfterAll with Matchers with ActiveSlick with Acti
 
     case class RollbackException(expected: T) extends RuntimeException("rollback exception")
 
-    val rollbackAction = dbAction.flatMap { result =>
-      // NOTE:
-      // DBIO.failed returns DBIOAction[Nothing, NoStream, Effect], but we need to preserve T
-      // otherwise, we'll end up with a 'R' returned by 'transactionally' method
-      // this seems to be need when compiling for 2.10.x (probably a bug fixed on 2.11.x series)
-      DBIO.failed(RollbackException(result)).map(_ => result) // map back to T
+    val markedForRollback = dbAction.flatMap { result =>
+      DBIO
+        .failed(RollbackException(result))
+        .map(_ => result) // map back to T
     }.transactionally.asTry
 
     val finalAction =
-      rollbackAction.map {
+      markedForRollback.map {
         case Success(result)                    => result
         case Failure(RollbackException(result)) => result
         case Failure(other)                     => throw other

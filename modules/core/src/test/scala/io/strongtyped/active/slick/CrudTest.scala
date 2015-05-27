@@ -8,7 +8,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class CrudTest extends FlatSpec with H2Suite with OptionValues {
 
-  import driver.api._
+  import profile.api._
 
   behavior of "A EntityTable (CRUD)"
 

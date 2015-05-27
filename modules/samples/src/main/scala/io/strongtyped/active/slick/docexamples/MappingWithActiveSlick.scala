@@ -10,7 +10,7 @@ import scala.language.postfixOps
 trait MappingWithActiveSlick {
   this: ActiveSlick =>
 
-  import driver.api._
+  import profile.api._
 
   case class Foo(name: String, id: Option[Int] = None)
   
@@ -28,8 +28,9 @@ trait MappingWithActiveSlick {
 
 object MappingWithActiveSlickApp {
 
-  class Components(override val driver: JdbcDriver) extends ActiveSlick with MappingWithActiveSlick {
-    import driver.api._
+  class Components(override val profile: JdbcDriver) extends ActiveSlick with MappingWithActiveSlick {
+
+    import profile.api._
 
     def run[T](block: Database => T): T = {
       val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")

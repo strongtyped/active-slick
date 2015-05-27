@@ -4,10 +4,10 @@ import io.strongtyped.active.slick._
 import io.strongtyped.active.slick.models.{Beer, Supplier}
 import slick.util.Logging
 
-trait Schema extends Logging with QueryCapabilities {
+trait Schema extends Logging with Capabilities {
   this: Tables with EntityTableQueries with TableQueries with Profile =>
 
-  import driver.api._
+  import profile.api._
 
   class SuppliersTable(tag: Tag) extends VersionableEntityTable[Supplier](tag, "SUPPLIERS") {
 

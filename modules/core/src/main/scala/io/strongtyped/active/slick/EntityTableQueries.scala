@@ -10,7 +10,7 @@ import scala.util.{Failure, Success}
 trait EntityTableQueries {
   this: Profile with Tables with TableQueries =>
 
-  import driver.api._
+  import profile.api._
 
 
   class EntityTableQuery[M <: Identifiable, T <: EntityTable[M]](cons: Tag => T, idLens: SimpleLens[M, Option[M#Id]])(implicit ev: BaseTypedType[M#Id]) extends TableWithIdQuery[M, M#Id, T](cons, idLens)

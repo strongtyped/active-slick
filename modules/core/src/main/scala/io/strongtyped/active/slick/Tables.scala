@@ -9,7 +9,7 @@ import io.strongtyped.active.slick.models.Identifiable
 trait Tables {
   this: Profile =>
 
-  import driver.api._
+  import profile.api._
 
   trait IdColumn[I] {
 

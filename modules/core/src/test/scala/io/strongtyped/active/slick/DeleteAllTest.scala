@@ -7,9 +7,9 @@ import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class DeleteAllTest extends FlatSpec with H2Suite with OptionValues with QueryCapabilities {
+class DeleteAllTest extends FlatSpec with H2Suite with OptionValues with Capabilities {
 
-  import driver.api._
+  import profile.api._
 
   behavior of "A DeleteAll capability mixin"
 

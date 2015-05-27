@@ -1,10 +1,10 @@
 package io.strongtyped.active.slick
 
 
-trait QueryCapabilities {
+trait Capabilities {
   this: Profile =>
 
-  import driver.api._
+  import profile.api._
 
   trait DeleteAll { this: TableQuery[_ <: Table[_]] =>
     def deleteAll():  DBIO[Int] = {

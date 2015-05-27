@@ -11,7 +11,7 @@ import scala.language.postfixOps
 trait MappingActiveSlickIdentifiable {
   this: ActiveSlick =>
 
-  import driver.api._
+  import profile.api._
 
   case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
     override type Id = Int
@@ -34,9 +34,9 @@ trait MappingActiveSlickIdentifiable {
 
 object MappingActiveSlickIdentifiableApp {
 
-  class Components(override val driver: JdbcDriver) extends ActiveSlick with MappingActiveSlickIdentifiable {
+  class Components(override val profile: JdbcDriver) extends ActiveSlick with MappingActiveSlickIdentifiable {
 
-    import driver.api._
+    import profile.api._
 
     def run[T](block: Database => T): T = {
       val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")
