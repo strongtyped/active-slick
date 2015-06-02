@@ -1,24 +1,22 @@
 package io.strongtyped.active.slick.test
 
-import io.strongtyped.active.slick.{Profile, ActiveRecordExtensions, ActiveSlick}
+import io.strongtyped.active.slick.JdbcProfileProvider
 import org.scalatest._
-import slick.dbio
-import slick.dbio.Effect.{Transactional, All}
 
 import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{Await, ExecutionContext}
 import scala.language.postfixOps
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success}
 
-trait DbSuite extends BeforeAndAfterAll with Matchers with ActiveSlick with ActiveRecordExtensions  {
+trait DbSuite extends BeforeAndAfterAll with Matchers with OptionValues with TryValues  {
 
-  self:Suite with Profile =>
+  self:Suite with JdbcProfileProvider =>
 
-  import profile.api._
+  import jdbcProfile.api._
 
-  def setupDb : profile.backend.DatabaseDef
+  def setupDb : jdbcProfile.backend.DatabaseDef
 
-  private lazy val database:profile.backend.DatabaseDef = setupDb
+  private lazy val database:jdbcProfile.backend.DatabaseDef = setupDb
 
   override protected def afterAll(): Unit = {
     database.close()

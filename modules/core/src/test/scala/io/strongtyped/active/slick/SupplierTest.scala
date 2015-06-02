@@ -1,17 +1,13 @@
 package io.strongtyped.active.slick
 
 import java.sql.SQLException
-
-import io.strongtyped.active.slick.components.Components.instance._
+import scala.concurrent.ExecutionContext.Implicits.global
 import io.strongtyped.active.slick.exceptions.StaleObjectStateException
-import io.strongtyped.active.slick.models.{Beer, Supplier}
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest._
-import slick.dbio._
+import slick.dbio.DBIO
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class SupplierTest extends FlatSpec with H2Suite with OptionValues with TryValues {
+class SupplierTest extends FlatSpec with H2Suite with Schema {
 
   behavior of "A Supplier"
 

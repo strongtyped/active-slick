@@ -1,14 +1,12 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.exceptions.RowNotFoundException
-import io.strongtyped.active.slick.models.{Beer, Supplier}
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
-class BeerTest extends FlatSpec with H2Suite with OptionValues with TryValues {
+class BeerTest extends FlatSpec with H2Suite with Schema {
 
   behavior of "A Beer"
 
@@ -41,4 +39,4 @@ class BeerTest extends FlatSpec with H2Suite with OptionValues with TryValues {
   }
 
   override def createSchema = create
-}
+ }

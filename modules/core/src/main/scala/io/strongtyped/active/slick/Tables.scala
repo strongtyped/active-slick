@@ -1,15 +1,12 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.models.Identifiable
-
 /**
  * Defines Slick table extensions.
  * To be mixed-in into a cake.
  */
-trait Tables {
-  this: Profile =>
+trait Tables { self: JdbcProfileProvider =>
 
-  import profile.api._
+  import jdbcProfile.api._
 
   trait IdColumn[I] {
 
@@ -25,8 +22,12 @@ trait Tables {
   abstract class IdTable[M, I](tag: Tag, schemaName: Option[String], tableName: String)(implicit val colType: BaseColumnType[I])
     extends Table[M](tag, schemaName, tableName) with IdColumn[I] {
 
+    type Model = M
+    type Id = I
+
     /** Constructor without schemaName */
     def this(tag: Tag, tableName: String)(implicit mapping: BaseColumnType[I]) = this(tag, None, tableName)
+
   }
 
   /** Table extension to be used with a Model that has an Id and version (optimistic locking). */

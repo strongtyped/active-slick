@@ -1,4 +1,4 @@
-package io.strongtyped.active.slick.models
+package io.strongtyped.active.slick
 
 /**
  * Base trait to define a model having an ID (i.e.: Entity).
