@@ -17,7 +17,6 @@ abstract class EntityDao[M <: Identifiable, T <: Tables#EntityTable[M]](val jdbc
   import jdbcProfile._
   import jdbcProfile.api._
 
-
   def tableQuery: TableQueries#EntityTableQuery[M, T]
 
   def idLens: SimpleLens[M, Option[M#Id]]

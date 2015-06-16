@@ -19,14 +19,11 @@ trait H2Suite extends DbSuite with JdbcProfileProvider { self:Suite =>
   def timeout = 5 seconds
 
   override def setupDb: jdbcProfile.backend.DatabaseDef = {
-
-    val dbUrl = s"jdbc:h2:mem:${this.getClass.getSimpleName}"
+    // each test suite gets its own isolated DB
+    val dbUrl = s"jdbc:h2:mem:${this.getClass.getSimpleName};DB_CLOSE_DELAY=-1"
     val db = Database.forURL(dbUrl, driver = "org.h2.Driver")
-    db.createSession().force()
-
     val result = db.run(createSchema)
     Await.result(result, timeout)
-
     db
   }
 }

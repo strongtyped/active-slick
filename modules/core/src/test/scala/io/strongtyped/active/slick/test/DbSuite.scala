@@ -22,8 +22,6 @@ trait DbSuite extends BeforeAndAfterAll with Matchers with OptionValues with Try
     database.close()
   }
 
-  // keep the database in memory with an extra connection
-
   def query[T](dbAction: DBIO[T])(implicit ex: ExecutionContext, timeout: FiniteDuration = 5 seconds): T =
     runAction(dbAction)
 
