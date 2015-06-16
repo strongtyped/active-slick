@@ -11,7 +11,7 @@ class CrudTest extends FlatSpec with H2Suite with TableQueries with JdbcProfileP
 
   import jdbcProfile.api._
 
-  behavior of "A EntityTable (CRUD)"
+  behavior of "An EntityDao (CRUD)"
 
   it should "support all CRUD operations" in {
     rollback {

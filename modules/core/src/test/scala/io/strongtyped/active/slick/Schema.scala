@@ -35,9 +35,7 @@ trait Schema extends TableQueries with JdbcProfileProvider {
 
   val Suppliers = EntityTableQuery[Supplier, SuppliersTable](tag => new SuppliersTable(tag))
 
-  class SupplierDao
-    extends EntityDao[Supplier, SuppliersTable](jdbcProfile)
-    with OptimisticLocking[Supplier, SuppliersTable] {
+  class SupplierDao extends EntityDao[Supplier, SuppliersTable](jdbcProfile) with OptimisticLocking[Supplier, SuppliersTable] {
 
     val tableQuery = Suppliers
 
