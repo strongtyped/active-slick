@@ -1,7 +1,7 @@
 import sbt.Keys._
 import sbt._
 
-trait Dependencies { this:Build =>
+object Dependencies {
 
   val slick         =   "com.typesafe.slick"      %%  "slick"         % "3.0.0"
   

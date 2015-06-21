@@ -4,10 +4,9 @@ import com.typesafe.sbt.SbtScalariform
 import xerial.sbt.Sonatype.SonatypeKeys._
 import xerial.sbt.Sonatype.sonatypeSettings
 
-trait BuildSettings { this:Build => 
+object BuildSettings {
 
-
-	val projectSettings = Seq(
+	val projSettings = Seq(
 		scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Xlint")
 	) ++
     SbtScalariform.defaultScalariformSettings ++
