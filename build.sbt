@@ -13,7 +13,7 @@ parallelExecution in Test := false
 
 
 lazy val root = Project(
-  id = "active-slick-root",
+  id = "active-slick",
   base = file("."),
   settings = projSettings ++ Seq(
     publishArtifact := false
@@ -23,7 +23,7 @@ lazy val root = Project(
 
 // Core ==========================================
 lazy val activeSlick = Project(
-  id = "active-slick",
+  id = "active-slick-core",
   base = file("modules/core"),
   settings = projSettings ++ mainDeps ++ testDeps
 )
