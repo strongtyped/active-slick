@@ -11,13 +11,16 @@ import scala.concurrent.ExecutionContext
 import scala.language.{existentials, higherKinds, implicitConversions}
 import scala.util.{Failure, Success}
 
-abstract class EntityDao[M <: Identifiable, T <: Tables#EntityTable[M]](val jdbcProfile: JdbcProfile)(implicit ev: BaseTypedType[M#Id])
+abstract class EntityDao[M <: Identifiable](val jdbcProfile: JdbcProfile)(implicit ev: BaseTypedType[M#Id])
   extends EntityDaoLike[M] with JdbcProfileProvider {
 
-  import jdbcProfile._
   import jdbcProfile.api._
 
-  def tableQuery: TableQueries#EntityTableQuery[M, T]
+  type EntityTable <: Table[M]
+
+  def tableQuery: TableQuery[EntityTable]
+
+  def $id(table: EntityTable): Rep[M#Id]
 
   def idLens: SimpleLens[M, Option[M#Id]]
 
@@ -112,7 +115,7 @@ abstract class EntityDao[M <: Identifiable, T <: Tables#EntityTable[M]](val jdbc
 
   override def insert(model: M)(implicit exc: ExecutionContext): DBIO[M#Id] = {
     beforeInsert(model).flatMap { preparedModel =>
-      tableQuery.returning(tableQuery.map(_.id)) += preparedModel
+      tableQuery.returning(tableQuery.map($id)) += preparedModel
     }
   }
 
@@ -126,15 +129,14 @@ abstract class EntityDao[M <: Identifiable, T <: Tables#EntityTable[M]](val jdbc
   }
 
 
-
   protected def update(id: M#Id, model: M)(implicit exc: ExecutionContext): DBIO[M] = {
 
     val triedUpdate = filterById(id).update(model).mustAffectOneSingleRow.asTry
 
-    triedUpdate.map {
-      case Success(_)                       => model
-      case Failure(NoRowsAffectedException) => throw new RowNotFoundException(model)
-      case Failure(ex)                      => throw ex
+    triedUpdate.flatMap {
+      case Success(_)                       => DBIO.successful(model)
+      case Failure(NoRowsAffectedException) => DBIO.failed(new RowNotFoundException(model))
+      case Failure(ex)                      => DBIO.failed(ex)
     }
   }
 
@@ -156,9 +158,7 @@ abstract class EntityDao[M <: Identifiable, T <: Tables#EntityTable[M]](val jdbc
     }
   }
 
-  def filterById(id: M#Id) = tableQuery.filter(_.id === id)
+  def filterById(id: M#Id) = tableQuery.filter($id(_) === id)
 
-  implicit def queryDeleteActionExtensionMethodsFixed[C[_]](q: Query[_ <: Tables#EntityTable[_], _, C]): DeleteActionExtensionMethods =
-    createDeleteActionExtensionMethods(deleteCompiler.run(q.toNode).tree, ())
 
 }

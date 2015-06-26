@@ -12,9 +12,6 @@ trait EntityDaoLike[M <: Identifiable] extends SlickDao[M] {
 
   import jdbcProfile.api._
 
-  type Model <: M
-  type Id <: M#Id
-
   def insert(model: M)(implicit exc: ExecutionContext): DBIO[M#Id]
 
   def deleteById(id: M#Id)(implicit exc: ExecutionContext): DBIO[Int]

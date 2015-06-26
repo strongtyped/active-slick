@@ -1,15 +1,18 @@
 package io.strongtyped.active.slick.dao
 
 import io.strongtyped.active.slick.DBIOExtensions._
-import io.strongtyped.active.slick.exceptions.{NoRowsAffectedException, StaleObjectStateException}
-import io.strongtyped.active.slick.{Tables, Identifiable, SimpleLens}
+import io.strongtyped.active.slick.exceptions.{StaleObjectStateException, NoRowsAffectedException}
+import io.strongtyped.active.slick.{SimpleLens, Identifiable}
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-trait OptimisticLocking[M <: Identifiable, T <: Tables#VersionableEntityTable[M]] { dao:EntityDao[M, T] =>
+trait OptimisticLocking[M <: Identifiable] {
+  dao: EntityDao[M] =>
 
   import dao.jdbcProfile.api._
+
+  def $version(table:EntityTable): Rep[Long]
 
   def versionLens: SimpleLens[M, Long]
 
@@ -19,7 +22,7 @@ trait OptimisticLocking[M <: Identifiable, T <: Tables#VersionableEntityTable[M]
     val currentVersion = versionLens.get(versionable)
 
     // build a query selecting entity with current version
-    val queryByIdAndVersion = dao.filterById(id).filter(_.version === currentVersion)
+    val queryByIdAndVersion = dao.filterById(id).filter($version(_) === currentVersion)
 
     // model with incremented version
     val modelWithNewVersion = versionLens.set(versionable, currentVersion + 1)
@@ -49,5 +52,4 @@ trait OptimisticLocking[M <: Identifiable, T <: Tables#VersionableEntityTable[M]
         dao.insert(modelWithVersion).map { id => idLens.set(modelWithVersion, Option(id)) }
     }
   }
-
 }

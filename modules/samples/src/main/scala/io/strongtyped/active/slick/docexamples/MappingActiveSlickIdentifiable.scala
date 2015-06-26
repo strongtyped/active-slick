@@ -10,7 +10,7 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 
 
-object MappingActiveSlickIdentifiable extends TableQueries with JdbcProfileProvider {
+object MappingActiveSlickIdentifiable extends  JdbcProfileProvider {
 
   val jdbcProfile = H2Driver
   import jdbcProfile.api._
@@ -19,21 +19,26 @@ object MappingActiveSlickIdentifiable extends TableQueries with JdbcProfileProvi
     override type Id = Int
   }
 
-  class FooTable(tag: Tag) extends EntityTable[Foo](tag, "FOOS") {
-    def name = column[String]("NAME")
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-    def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
-  }
+  object FooDao extends EntityDao[Foo](jdbcProfile) {
 
-  object FooDao extends EntityDao[Foo, FooTable](jdbcProfile) {
+    class FooTable(tag: Tag) extends jdbcProfile.api.Table[Foo](tag, "FOOS") {
+      def name = column[String]("NAME")
+      def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+      def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
+    }
+    type EntityTable = FooTable
 
-    val tableQuery = EntityTableQuery[Foo, FooTable](tag => new FooTable(tag))
+
+    def $id(table:FooTable) = table.id
+
+    val tableQuery = TableQuery[FooTable]
 
     val idLens = SimpleLens[Foo, Option[Int]](_.id, (foo, id) => foo.copy(id = id))
 
-    def createSchema = {
-      tableQuery.schema.create
 
+    def createSchema = {
+      import jdbcProfile.api._
+      tableQuery.schema.create
     }
   }
 

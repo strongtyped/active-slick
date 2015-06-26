@@ -7,7 +7,7 @@ import org.scalatest.FlatSpec
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class EntityDaoBeforeInsertUpdateTest extends FlatSpec with H2Suite with TableQueries with JdbcProfileProvider {
+class EntityDaoBeforeInsertUpdateTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
   import jdbcProfile.api._
 
@@ -18,7 +18,7 @@ class EntityDaoBeforeInsertUpdateTest extends FlatSpec with H2Suite with TableQu
     val result =
       rollback {
         for {
-          result <- Entry("  ").save().asTry
+          result <- Foo("  ").save().asTry
         } yield result
       }
 
@@ -32,7 +32,7 @@ class EntityDaoBeforeInsertUpdateTest extends FlatSpec with H2Suite with TableQu
 
         val finalAction =
           for {
-            savedEntry <- Entry("abc").save()
+            savedEntry <- Foo("abc").save()
             // update name should fail according to beforeUpdate method definition
             updatedEntry <- savedEntry.copy(name = "Bar").save()
           } yield updatedEntry
@@ -44,34 +44,38 @@ class EntityDaoBeforeInsertUpdateTest extends FlatSpec with H2Suite with TableQu
   }
 
 
-  override def createSchema = EntryTableQuery.schema.create
+  override def createSchema = {
+    foos.createSchema
+  }
 
 
-  case class Entry(name: String, id: Option[Int] = None) extends Identifiable {
+  case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
     type Id = Int
   }
-
-  class EntryTable(tag: Tag) extends EntityTable[Entry](tag, "ENTRIES_VALIDATION_TEST") {
-
-    def name = column[String]("NAME")
-
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-
-    def * = (name, id.?) <>(Entry.tupled, Entry.unapply)
-
-  }
-
-  val EntryTableQuery = EntityTableQuery[Entry, EntryTable](tag => new EntryTable(tag))
 
 
   class NameShouldNotBeEmptyException extends RuntimeException("Name should not be empty")
   class NameCanNotBeModifiedException extends RuntimeException("Name can not be modified")
 
-  class EntryDao extends EntityDao[Entry, EntryTable](jdbcProfile) {
-    val tableQuery = EntryTableQuery
-    val idLens = SimpleLens[Entry, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
+  class FooDao extends EntityDao[Foo](jdbcProfile) {
 
-    override def beforeInsert(model: Entry)(implicit exc: ExecutionContext): DBIO[Entry] = {
+    class FooTable(tag: Tag) extends jdbcProfile.api.Table[Foo](tag, "FOO_VALIDATION_TEST") {
+
+      def name = column[String]("NAME")
+
+      def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+
+      def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
+
+    }
+    type EntityTable = FooTable
+    val tableQuery = TableQuery[FooTable]
+
+    def $id(table: FooTable) = table.id
+
+    val idLens = SimpleLens[Foo, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
+
+    override def beforeInsert(model: Foo)(implicit exc: ExecutionContext): DBIO[Foo] = {
       if (model.name.trim.isEmpty) {
         DBIO.failed(new NameShouldNotBeEmptyException)
       } else {
@@ -79,7 +83,7 @@ class EntityDaoBeforeInsertUpdateTest extends FlatSpec with H2Suite with TableQu
       }
     }
 
-    override def beforeUpdate(id: Int, model: Entry)(implicit exc: ExecutionContext):  DBIO[Entry] = {
+    override def beforeUpdate(id: Int, model: Foo)(implicit exc: ExecutionContext):  DBIO[Foo] = {
       findById(id).flatMap { oldModel =>
         if (oldModel.name != model.name) {
           DBIO.failed(new NameCanNotBeModifiedException)
@@ -88,13 +92,18 @@ class EntityDaoBeforeInsertUpdateTest extends FlatSpec with H2Suite with TableQu
         }
       }
     }
+
+    def createSchema = {
+      import jdbcProfile.api._
+      tableQuery.schema.create
+    }
   }
 
-  val entryDao = new EntryDao
+  val foos = new FooDao
 
 
-  implicit class EntryExtensions(val model: Entry) extends ActiveRecord[Entry] {
-    val dao = entryDao
+  implicit class EntryExtensions(val model: Foo) extends ActiveRecord[Foo] {
+    val dao = foos
   }
 
 }

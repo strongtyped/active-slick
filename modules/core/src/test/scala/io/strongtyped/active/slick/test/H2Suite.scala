@@ -1,6 +1,6 @@
 package io.strongtyped.active.slick.test
 
-import io.strongtyped.active.slick.{TableQueries, JdbcProfileProvider}
+import io.strongtyped.active.slick.JdbcProfileProvider
 import org.scalatest.Suite
 import slick.driver.{H2Driver, JdbcDriver}
 

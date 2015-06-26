@@ -1,13 +1,12 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.dao.{EntityDao, OptimisticLocking, SlickDao}
+import io.strongtyped.active.slick.dao.{OptimisticLocking, EntityDao, SlickDao}
 
 import scala.language.existentials
 
-trait Schema extends TableQueries with JdbcProfileProvider {
+trait Schema extends JdbcProfileProvider {
 
   import jdbcProfile.api._
-
 
   case class Supplier(name: String, version: Long = 0, id: Option[Int] = None) extends Identifiable {
     override type Id = Int
@@ -21,69 +20,87 @@ trait Schema extends TableQueries with JdbcProfileProvider {
   }
 
 
-  class SuppliersTable(tag: Tag) extends VersionableEntityTable[Supplier](tag, "SUPPLIERS") {
 
-    def version = column[Long]("VERSION")
+  class SupplierDao extends EntityDao[Supplier](jdbcProfile) with OptimisticLocking[Supplier] {
 
-    def name = column[String]("SUPPLIER_NAME")
 
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+    type EntityTable = SuppliersTable
 
-    def * = (name, version, id.?) <>(Supplier.tupled, Supplier.unapply)
+    class SuppliersTable(tag: Tag) extends jdbcProfile.api.Table[Supplier](tag, "SUPPLIERS") {
 
-  }
+      def version = column[Long]("VERSION")
 
-  val Suppliers = EntityTableQuery[Supplier, SuppliersTable](tag => new SuppliersTable(tag))
+      def name = column[String]("SUPPLIER_NAME")
 
-  class SupplierDao extends EntityDao[Supplier, SuppliersTable](jdbcProfile) with OptimisticLocking[Supplier, SuppliersTable] {
+      def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
-    val tableQuery = Suppliers
+      def * = (name, version, id.?) <>(Supplier.tupled, Supplier.unapply)
+
+    }
+    val tableQuery = TableQuery[EntityTable]
+
+    def $id(table: EntityTable) = table.id
+
+    def $version(table: EntityTable) = table.version
 
     val idLens = SimpleLens[Supplier, Option[Int]](_.id, (supp, id) => supp.copy(id = id))
 
     val versionLens =  SimpleLens[Supplier, Long](_.version, (supp, version) => supp.copy(version = version))
+    
+    def createSchema = {
+      import jdbcProfile.api._
+      tableQuery.schema.create
+    }
   }
 
   implicit class SupplierRecord(val model: Supplier) extends ActiveRecord[Supplier] {
     def dao: SlickDao[Supplier] = new SupplierDao
   }
 
+  val Suppliers = new SupplierDao
 
-  // Beer Table, DAO and Record extension
-  class BeersTable(tag: Tag) extends EntityTable[Beer](tag, "BEERS") {
+  class BeersDao extends EntityDao[Beer](jdbcProfile)  {
 
-    def name = column[String]("BEER_NAME")
+    type EntityTable = BeersTable
 
-    def supID = column[Int]("SUP_ID")
+    // Beer Table, DAO and Record extension
+    class BeersTable(tag: Tag) extends jdbcProfile.api.Table[Beer](tag, "BEERS") {
 
-    def price = column[Double]("PRICE")
+      def name = column[String]("BEER_NAME")
 
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+      def supID = column[Int]("SUP_ID")
 
-    def * = (name, supID, price, id.?) <>(Beer.tupled, Beer.unapply)
+      def price = column[Double]("PRICE")
 
-    def supplier = foreignKey("SUP_FK", supID, Suppliers)(_.id)
-  }
+      def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
-  val Beers = EntityTableQuery[Beer, BeersTable](tag => new BeersTable(tag))
+      def * = (name, supID, price, id.?) <>(Beer.tupled, Beer.unapply)
 
-  class BeersDao extends EntityDao[Beer, BeersTable](jdbcProfile)  {
+      def supplier = foreignKey("SUP_FK", supID, Suppliers.tableQuery)(_.id)
+    }
 
-    val tableQuery = Beers
+    val tableQuery = TableQuery[EntityTable]
+
+    def $id(table:EntityTable) = table.id
 
     val idLens = SimpleLens[Beer, Option[Int]](_.id, (beer, id) => beer.copy(id = id))
+
+    def createSchema = {
+      import jdbcProfile.api._
+      tableQuery.schema.create
+    }
   }
+
+  val Beers = new BeersDao
 
   implicit class BeerRecord(val model:Beer) extends ActiveRecord[Beer] {
 
-    val dao: SlickDao[Beer] = new BeersDao
+    val dao: SlickDao[Beer] = Beers
 
-    val supplierDao = new SupplierDao
-
-    def supplier(): DBIO[Option[Supplier]] = supplierDao.findOptionById(model.supID)
+    def supplier(): DBIO[Option[Supplier]] = Suppliers.findOptionById(model.supID)
   }
 
   def create: DBIO[Unit] = {
-    (Suppliers.schema ++ Beers.schema).create
+    DBIO.seq(Suppliers.createSchema, Beers.createSchema)
   }
 }

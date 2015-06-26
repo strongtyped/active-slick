@@ -7,7 +7,7 @@ import org.scalatest.FlatSpec
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
-class CrudTest extends FlatSpec with H2Suite with TableQueries with JdbcProfileProvider {
+class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
   import jdbcProfile.api._
 
@@ -17,25 +17,25 @@ class CrudTest extends FlatSpec with H2Suite with TableQueries with JdbcProfileP
     rollback {
       for {
         // collect initial count
-        initialCount <- entryDao.count
+        initialCount <- foos.count
 
         // save new entry
-        savedEntry <- Entry("Foo").save()
+        savedEntry <- Foo("Foo").save()
 
         // count again, must be initialCount + 1
-        count <- entryDao.count
+        count <- foos.count
 
         // update entry
         updatedEntry <- savedEntry.copy(name = "Bar").save()
 
         // find it back from DB
-        found <- entryDao.findById(savedEntry.id.get)
+        found <- foos.findById(savedEntry.id.get)
 
         // delete it
         _ <- found.delete()
 
         // count total one more time
-        finalCount <- entryDao.count
+        finalCount <- foos.count
       } yield {
 
         // check that we can add new entry
@@ -57,34 +57,44 @@ class CrudTest extends FlatSpec with H2Suite with TableQueries with JdbcProfileP
   }
 
 
-  override def createSchema = EntryTableQuery.schema.create
+  override def createSchema = {
+    foos.createSchema
+  }
 
 
-  case class Entry(name: String, id: Option[Int] = None) extends Identifiable {
+  case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
     type Id = Int
   }
 
-  class EntryTable(tag: Tag) extends EntityTable[Entry](tag, "ENTRIES_CRUD_TEST") {
+  class FooDao extends EntityDao[Foo](jdbcProfile) {
 
-    def name = column[String]("NAME")
+    class FooTable(tag: Tag) extends jdbcProfile.api.Table[Foo](tag, "FOO_CRUD_TEST") {
 
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+      def name = column[String]("NAME")
 
-    def * = (name, id.?) <>(Entry.tupled, Entry.unapply)
+      def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+
+      def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
+    }
+
+    type EntityTable = FooTable
+    val tableQuery = TableQuery[EntityTable]
+
+    def $id(table: FooTable) = table.id
+
+    val idLens = SimpleLens[Foo, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
+
+    def createSchema = {
+      import jdbcProfile.api._
+      tableQuery.schema.create
+    }
   }
 
-  val EntryTableQuery = EntityTableQuery[Entry, EntryTable](tag => new EntryTable(tag))
-
-  class EntryDao extends EntityDao[Entry, EntryTable](jdbcProfile) {
-    val tableQuery = EntryTableQuery
-    val idLens = SimpleLens[Entry, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
-  }
-
-  val entryDao = new EntryDao
+  val foos = new FooDao
 
 
-  implicit class EntryExtensions(val model: Entry) extends ActiveRecord[Entry] {
-    val dao = entryDao
+  implicit class EntryExtensions(val model: Foo) extends ActiveRecord[Foo] {
+    val dao = foos
   }
 
 }
