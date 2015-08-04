@@ -1,6 +1,5 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.dao.{OptimisticLocking, EntityDao, SlickDao}
 
 import scala.language.existentials
 
@@ -9,6 +8,7 @@ trait Schema extends JdbcProfileProvider {
   import jdbcProfile.api._
 
   case class Supplier(name: String, version: Long = 0, id: Option[Int] = None) extends Identifiable {
+
     override type Id = Int
   }
 
@@ -16,12 +16,12 @@ trait Schema extends JdbcProfileProvider {
                   supID: Int,
                   price: Double,
                   id: Option[Int] = None) extends Identifiable {
+
     type Id = Int
   }
 
 
-
-  class SupplierDao extends EntityDao[Supplier](jdbcProfile) with OptimisticLocking[Supplier] {
+  class SupplierDao extends EntityActions[Supplier](jdbcProfile) with OptimisticLocking[Supplier] {
 
 
     type EntityTable = SuppliersTable
@@ -37,16 +37,17 @@ trait Schema extends JdbcProfileProvider {
       def * = (name, version, id.?) <>(Supplier.tupled, Supplier.unapply)
 
     }
+
     val tableQuery = TableQuery[EntityTable]
 
     def $id(table: EntityTable) = table.id
 
-    def $version(table: EntityTable) = table.version
-
     val idLens = SimpleLens[Supplier, Option[Int]](_.id, (supp, id) => supp.copy(id = id))
 
-    val versionLens =  SimpleLens[Supplier, Long](_.version, (supp, version) => supp.copy(version = version))
-    
+    def $version(table: EntityTable) = table.version
+
+    val versionLens = SimpleLens[Supplier, Long](_.version, (supp, version) => supp.copy(version = version))
+
     def createSchema = {
       import jdbcProfile.api._
       tableQuery.schema.create
@@ -54,12 +55,13 @@ trait Schema extends JdbcProfileProvider {
   }
 
   implicit class SupplierRecord(val model: Supplier) extends ActiveRecord[Supplier] {
-    def dao: SlickDao[Supplier] = new SupplierDao
+
+    def crudActions: CrudActions[Supplier] = new SupplierDao
   }
 
   val Suppliers = new SupplierDao
 
-  class BeersDao extends EntityDao[Beer](jdbcProfile)  {
+  class BeersDao extends EntityActions[Beer](jdbcProfile) {
 
     type EntityTable = BeersTable
 
@@ -81,7 +83,7 @@ trait Schema extends JdbcProfileProvider {
 
     val tableQuery = TableQuery[EntityTable]
 
-    def $id(table:EntityTable) = table.id
+    def $id(table: EntityTable) = table.id
 
     val idLens = SimpleLens[Beer, Option[Int]](_.id, (beer, id) => beer.copy(id = id))
 
@@ -93,9 +95,9 @@ trait Schema extends JdbcProfileProvider {
 
   val Beers = new BeersDao
 
-  implicit class BeerRecord(val model:Beer) extends ActiveRecord[Beer] {
+  implicit class BeerRecord(val model: Beer) extends ActiveRecord[Beer] {
 
-    val dao: SlickDao[Beer] = Beers
+    val crudActions: CrudActions[Beer] = Beers
 
     def supplier(): DBIO[Option[Supplier]] = Suppliers.findOptionById(model.supID)
   }

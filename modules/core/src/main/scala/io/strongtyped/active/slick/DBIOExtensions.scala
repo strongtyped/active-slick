@@ -26,4 +26,15 @@ object DBIOExtensions {
     }
   }
 
+  implicit class SelectSingleExtensionMethods[R](dbAction: DBIO[Seq[R]]) {
+
+    def mustSelectSingleRecord(implicit exc: ExecutionContext): DBIO[R] = {
+      dbAction.flatMap {
+        case s if s.size == 1 => DBIO.successful(s.head)
+        case s if s.isEmpty   => DBIO.failed(NoRowsAffectedException)
+        case s                => DBIO.failed(new TooManyRowsAffectedException(affectedRowCount = s.size, expectedRowCount = 1))
+      }
+    }
+  }
+
 }

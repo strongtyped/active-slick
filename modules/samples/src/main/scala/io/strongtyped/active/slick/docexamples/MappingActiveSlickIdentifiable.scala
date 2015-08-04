@@ -1,7 +1,6 @@
 package io.strongtyped.active.slick.docexamples
 
-import io.strongtyped.active.slick.dao.EntityDao
-import io.strongtyped.active.slick._
+import _root_.io.strongtyped.active.slick._
 import slick.driver.H2Driver
 
 import scala.concurrent.Await
@@ -19,7 +18,7 @@ object MappingActiveSlickIdentifiable extends  JdbcProfileProvider {
     override type Id = Int
   }
 
-  object FooDao extends EntityDao[Foo](jdbcProfile) {
+  object FooActions$$$ extends EntityActions[Foo](jdbcProfile) {
 
     class FooTable(tag: Tag) extends jdbcProfile.api.Table[Foo](tag, "FOOS") {
       def name = column[String]("NAME")
@@ -45,7 +44,7 @@ object MappingActiveSlickIdentifiable extends  JdbcProfileProvider {
   def run[T](block: Database => T): T = {
     val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")
     try {
-      Await.ready(db.run(FooDao.createSchema), 200 millis)
+      Await.ready(db.run(FooActions$$$.createSchema), 200 millis)
       block(db)
     } finally {
       db.close()
@@ -55,7 +54,7 @@ object MappingActiveSlickIdentifiable extends  JdbcProfileProvider {
   def main(args: Array[String]): Unit = {
     run { db =>
       val foo = Foo("foo")
-      val fooWithId = Await.result(db.run(FooDao.save(foo)), 200 millis)
+      val fooWithId = Await.result(db.run(FooActions$$$.save(foo)), 200 millis)
       assert(fooWithId.id.isDefined, "Foo's ID should be defined")
     }
   }

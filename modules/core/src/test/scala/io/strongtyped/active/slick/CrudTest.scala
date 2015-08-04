@@ -1,9 +1,9 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.dao.EntityDao
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest.FlatSpec
 
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
@@ -16,26 +16,26 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
   it should "support all CRUD operations" in {
     rollback {
       for {
-        // collect initial count
-        initialCount <- foos.count
+      // collect initial count
+        initialCount <- Foos.count
 
         // save new entry
         savedEntry <- Foo("Foo").save()
 
         // count again, must be initialCount + 1
-        count <- foos.count
+        count <- Foos.count
 
         // update entry
         updatedEntry <- savedEntry.copy(name = "Bar").save()
 
         // find it back from DB
-        found <- foos.findById(savedEntry.id.get)
+        found <- Foos.findById(savedEntry.id.get)
 
         // delete it
         _ <- found.delete()
 
         // count total one more time
-        finalCount <- foos.count
+        finalCount <- Foos.count
       } yield {
 
         // check that we can add new entry
@@ -56,17 +56,17 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
     }
   }
 
-
   override def createSchema = {
-    foos.createSchema
+    Foos.createSchema
   }
 
 
   case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
+
     type Id = Int
   }
 
-  class FooDao extends EntityDao[Foo](jdbcProfile) {
+  class FooDao extends EntityActions[Foo](jdbcProfile) {
 
     class FooTable(tag: Tag) extends jdbcProfile.api.Table[Foo](tag, "FOO_CRUD_TEST") {
 
@@ -90,11 +90,12 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
     }
   }
 
-  val foos = new FooDao
+  val Foos = new FooDao
 
 
   implicit class EntryExtensions(val model: Foo) extends ActiveRecord[Foo] {
-    val dao = foos
+
+    val crudActions = Foos
   }
 
 }

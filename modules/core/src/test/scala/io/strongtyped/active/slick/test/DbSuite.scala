@@ -2,21 +2,22 @@ package io.strongtyped.active.slick.test
 
 import io.strongtyped.active.slick.JdbcProfileProvider
 import org.scalatest._
+import slick.backend.DatabasePublisher
 
 import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{Await, ExecutionContext}
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
-trait DbSuite extends BeforeAndAfterAll with Matchers with OptionValues with TryValues  {
+trait DbSuite extends BeforeAndAfterAll with Matchers with OptionValues with TryValues {
 
-  self:Suite with JdbcProfileProvider =>
+  self: Suite with JdbcProfileProvider =>
 
   import jdbcProfile.api._
 
-  def setupDb : jdbcProfile.backend.DatabaseDef
+  def setupDb: jdbcProfile.backend.DatabaseDef
 
-  private lazy val database:jdbcProfile.backend.DatabaseDef = setupDb
+  private lazy val database: jdbcProfile.backend.DatabaseDef = setupDb
 
   override protected def afterAll(): Unit = {
     database.close()
@@ -24,6 +25,10 @@ trait DbSuite extends BeforeAndAfterAll with Matchers with OptionValues with Try
 
   def query[T](dbAction: DBIO[T])(implicit ex: ExecutionContext, timeout: FiniteDuration = 5 seconds): T =
     runAction(dbAction)
+
+  def stream[T](dbAction: StreamingDBIO[T, T])(implicit ex: ExecutionContext, timeout: FiniteDuration = 5 seconds): DatabasePublisher[T] = {
+    database.stream(dbAction.transactionally)
+  }
 
   def commit[T](dbAction: DBIO[T])(implicit ex: ExecutionContext, timeout: FiniteDuration = 5 seconds): T =
     runAction(dbAction.transactionally)

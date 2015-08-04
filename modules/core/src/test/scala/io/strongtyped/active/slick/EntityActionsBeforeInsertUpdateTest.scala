@@ -1,13 +1,12 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.dao.EntityDao
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest.FlatSpec
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class EntityDaoBeforeInsertUpdateTest extends FlatSpec with H2Suite with JdbcProfileProvider {
+class EntityActionsBeforeInsertUpdateTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
   import jdbcProfile.api._
 
@@ -57,7 +56,7 @@ class EntityDaoBeforeInsertUpdateTest extends FlatSpec with H2Suite with JdbcPro
   class NameShouldNotBeEmptyException extends RuntimeException("Name should not be empty")
   class NameCanNotBeModifiedException extends RuntimeException("Name can not be modified")
 
-  class FooDao extends EntityDao[Foo](jdbcProfile) {
+  class FooDao extends EntityActions[Foo](jdbcProfile) {
 
     class FooTable(tag: Tag) extends jdbcProfile.api.Table[Foo](tag, "FOO_VALIDATION_TEST") {
 
@@ -103,7 +102,7 @@ class EntityDaoBeforeInsertUpdateTest extends FlatSpec with H2Suite with JdbcPro
 
 
   implicit class EntryExtensions(val model: Foo) extends ActiveRecord[Foo] {
-    val dao = foos
+    val crudActions = foos
   }
 
 }

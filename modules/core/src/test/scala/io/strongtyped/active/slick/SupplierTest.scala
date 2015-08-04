@@ -19,11 +19,7 @@ class SupplierTest extends FlatSpec with H2Suite with Schema {
 
     val savedSupplier =
       commit {
-        for {
-          savedSupplier <- supplier.save()
-        } yield {
-          savedSupplier
-        }
+        supplier.save()
       }
     savedSupplier.id shouldBe defined
 
