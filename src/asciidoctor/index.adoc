@@ -1,0 +1,65 @@
+= ActiveSlick
+:linkcss:
+:toc2:
+:icons: font
+:source-highlighter: pygments
+:pygments-style: monokai
+:pygments-linenums-mode: inline
+
+
+ActiveSlick is a library that offers CRUD operations for Slick 3.0 projects. The main goal is to provide some basic operations to manage the lifecycle of persisted objects (new/persisted/deleted/stale) and enable the implementation of the Active Record Pattern on Slick mapped case classes.
+
+== Main features
+- Basic CRUD and auxiliary methods - add/update/save, delete, list, findById and count.
+- Model classes don't need to implement any specific class or trait,
+  although for convenience you can extend **Identifiable** traits.  
+- Generic Id type. 
+- Optimistic locking my means of incremental version.
+- **ActiveRecord** trait to enable the Active Record Pattern on mapped case classe via class extensions (pimp-my-library style)
+
+== Motivation
+
+Slick is able to map result sets to case classes or Tuples because of its isomorphism. This is done thanks to built-in Scala features. However, there is no direct link between case class fields and database columns. Everything is done based on isomorphic projections.
+
+As a consequence, managing of Entities IDs must be done by hand, over and over again. One needs to save a model, ask Slick to return the generated ID and add it explicitly to the case class.  
+
+
+== Project artifact
+
+libraryDependencies += "io.strongtyped" %% "active-slick" % "0.3.0"
+
+Current version supports Slick 3.0 only. 
+
+== Entity Management in Slick
+
+The following code fragment demonstrates how this is typically done in a Slick application.  
+
+
+[source,scala,linenums]
+----  
+include::../../modules/samples/src/main/scala/io/strongtyped/active/slick/docexamples/MappingWithoutActiveSlick.scala[tags=adoc]
+----
+
+Both **Foo** and **FooTable** have an **Id** representing the primary key. On **Foo** is a field of type **Option[Int]** and on **FooTable** is a method returning a **Column[Int]**, but they are not **linked** to each other. In order to provide some generic functionality to manage Entities both **IDs** must be connected.
+
+* #1 Foo has an ID field
+* #2 FooTable has an ID Column
+* #3 However, when inserting a new Foo we need some boilerplate in order to get back the generated ID
+
+
+== Mapping using ActiveSlick
+
+The following code fragment illustrates how we can use ActiveSlick **EntityActions** to bind the model Id field and the table id column.  
+
+[source,scala,linenums]
+----  
+include::../../modules/samples/src/main/scala/io/strongtyped/active/slick/docexamples/MappingActiveSlickIdentifiable.scala[tags=adoc]
+----
+
+The mapping is basically the same. However, we define it inside **FooRepository** which implements **EntityActions[Foo]**.
+
+We have now a well known column for our primary key. The next step is to define the method to extract the id from our model and to add a generated id back into the model. 
+
+ 
+
+
