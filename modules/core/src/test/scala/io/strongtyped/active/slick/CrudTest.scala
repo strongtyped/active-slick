@@ -2,14 +2,11 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest.FlatSpec
-
-import scala.concurrent.Await
+import slick.ast.BaseTypedType
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
 class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
-
-  import jdbcProfile.api._
 
   behavior of "An EntityDao (CRUD)"
 
@@ -56,7 +53,7 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
     }
   }
 
-  override def createSchema = {
+  override def createSchemaAction = {
     Foos.createSchema
   }
 
@@ -66,9 +63,15 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
     type Id = Int
   }
 
-  class FooDao extends EntityActions[Foo](jdbcProfile) {
+  class FooDao extends EntityActions(jdbcProfile) {
 
-    class FooTable(tag: Tag) extends jdbcProfile.api.Table[Foo](tag, "FOO_CRUD_TEST") {
+    import jdbcProfile.api._
+
+    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
+
+    type Entity = Foo
+
+    class FooTable(tag: Tag) extends Table[Foo](tag, "FOO_CRUD_TEST") {
 
       def name = column[String]("NAME")
 
@@ -93,7 +96,7 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
   val Foos = new FooDao
 
 
-  implicit class EntryExtensions(val model: Foo) extends ActiveRecord[Foo] {
+  implicit class EntryExtensions(val entity: Foo) extends ActiveRecord[Foo] {
 
     val crudActions = Foos
   }

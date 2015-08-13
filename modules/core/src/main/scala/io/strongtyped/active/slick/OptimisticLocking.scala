@@ -5,8 +5,9 @@ import io.strongtyped.active.slick.DBIOExtensions._
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-trait OptimisticLocking[M <: Identifiable] {
-  self: EntityActions[M] =>
+trait OptimisticLocking {
+  self: EntityActions =>
+
 
   import self.jdbcProfile.api._
 

@@ -1,38 +1,45 @@
 package io.strongtyped.active.slick.docexamples
 
 import io.strongtyped.active.slick._
+import slick.ast.BaseTypedType
 import slick.driver.H2Driver
 import io.strongtyped.active.slick.Lens._
 import scala.language.postfixOps
 
 //@formatter:off
-object MappingWithActiveSlick extends JdbcProfileProvider {
+// tag::adoc[]
+object MappingWithActiveSlick {
 
-  // tag::adoc[]
-  val jdbcProfile = H2Driver
-
-  import jdbcProfile.api._
-
-  case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
+  case class Coffee(name: String, id: Option[Int] = None) extends Identifiable {
     override type Id = Int
   }
 
-  object FooRepository extends EntityActions[Foo](jdbcProfile) {
+  object CoffeeRepo extends EntityActions(H2Driver) {
 
-    class FooTable(tag: Tag) extends jdbcProfile.api.Table[Foo](tag, "FOOS") {
+    import jdbcProfile.api._
+
+    class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") {
       def name = column[String]("NAME")
       def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-      def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
+      def * = (name, id.?) <>(Coffee.tupled, Coffee.unapply)
     }
 
-    type EntityTable = FooTable // # <1>
-
-    def $id(table: FooTable) = table.id // # <2>
-
-    val tableQuery = TableQuery[FooTable] // # <3>
-
-    val idLens = lens[Foo, Option[Int]](_.id, (foo, id) => foo.copy(id = id)) // # <4>
+    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]] // #<1>
+    type Entity = Coffee // #<2>
+    type EntityTable = CoffeeTable // # <3>
+    def $id(table: CoffeeTable) = table.id // # <4>
+    val tableQuery = TableQuery[CoffeeTable] // # <5>
+    val idLens = lens[Coffee, Option[Int]]( // # <6>
+      coffee => coffee.id,
+      (coffee, id) => coffee.copy(id = id)
+    )
   }
-  // end::adoc[]
+
+  implicit class EntryExtensions(val entity: Coffee) extends ActiveRecord[Coffee] {
+    val crudActions = CoffeeRepo
+  }
+
+  val saveAction = Coffee("Colombia").save()
 }
+// end::adoc[]
 //@formatter:on

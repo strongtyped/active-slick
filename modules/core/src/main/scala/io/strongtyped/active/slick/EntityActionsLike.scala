@@ -1,18 +1,19 @@
 package io.strongtyped.active.slick
 
+import slick.ast.BaseTypedType
 import slick.driver.JdbcProfile
 
 import scala.concurrent.ExecutionContext
 
 
-trait EntityActionsLike[M <: Identifiable] extends CrudActions[M] {
+trait EntityActionsLike extends CrudActions {
 
   val jdbcProfile: JdbcProfile
 
   import jdbcProfile.api._
 
-  type Entity = M
-  type Id = M#Id
+  type Entity <: Identifiable
+  type Id = Entity#Id
 
   def insert(entity: Entity)(implicit exc: ExecutionContext): DBIO[Id]
 

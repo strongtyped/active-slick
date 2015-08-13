@@ -1,6 +1,8 @@
 package io.strongtyped.active.slick
 
 
+import slick.ast.BaseTypedType
+
 import scala.language.existentials
 
 trait Schema extends JdbcProfileProvider {
@@ -21,12 +23,16 @@ trait Schema extends JdbcProfileProvider {
   }
 
 
-  class SupplierDao extends EntityActions[Supplier](jdbcProfile) with OptimisticLocking[Supplier] {
+  class SupplierDao extends EntityActions(jdbcProfile) with OptimisticLocking {
 
+    import jdbcProfile.api._
 
+    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
+
+    type Entity = Supplier
     type EntityTable = SuppliersTable
 
-    class SuppliersTable(tag: Tag) extends jdbcProfile.api.Table[Supplier](tag, "SUPPLIERS") {
+    class SuppliersTable(tag: Tag) extends Table[Supplier](tag, "SUPPLIERS") {
 
       def version = column[Long]("VERSION")
 
@@ -54,19 +60,25 @@ trait Schema extends JdbcProfileProvider {
     }
   }
 
-  implicit class SupplierRecord(val model: Supplier) extends ActiveRecord[Supplier] {
-
-    def crudActions: CrudActions[Supplier] = new SupplierDao
-  }
 
   val Suppliers = new SupplierDao
 
-  class BeersDao extends EntityActions[Beer](jdbcProfile) {
+  implicit class SupplierRecord(val entity: Supplier) extends ActiveRecord[Supplier] {
 
+    val crudActions: CrudActions = Suppliers
+  }
+
+  class BeersDao extends EntityActions(jdbcProfile) {
+
+    import jdbcProfile.api._
+
+    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
+
+    type Entity = Beer
     type EntityTable = BeersTable
 
     // Beer Table, DAO and Record extension
-    class BeersTable(tag: Tag) extends jdbcProfile.api.Table[Beer](tag, "BEERS") {
+    class BeersTable(tag: Tag) extends Table[Beer](tag, "BEERS") {
 
       def name = column[String]("BEER_NAME")
 
@@ -95,14 +107,11 @@ trait Schema extends JdbcProfileProvider {
 
   val Beers = new BeersDao
 
-  implicit class BeerRecord(val model: Beer) extends ActiveRecord[Beer] {
+  implicit class BeerRecord(val entity: Beer) extends ActiveRecord[Beer] {
 
-    val crudActions: CrudActions[Beer] = Beers
+    val crudActions: CrudActions = Beers
 
-    def supplier(): DBIO[Option[Supplier]] = Suppliers.findOptionById(model.supID)
+    def supplier() = Suppliers.findOptionById(entity.supID)
   }
 
-  def create: DBIO[Unit] = {
-    DBIO.seq(Suppliers.createSchema, Beers.createSchema)
-  }
 }

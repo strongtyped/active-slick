@@ -4,22 +4,22 @@ import slick.driver.JdbcProfile
 
 import scala.concurrent.ExecutionContext
 
-trait CrudActions[M] {
+trait CrudActions {
 
   val jdbcProfile: JdbcProfile
 
   import jdbcProfile.api._
 
-  type Model = M
+  type Entity
 
   def count: DBIO[Int]
 
-  def save(model: Model)(implicit exc: ExecutionContext): DBIO[Model]
+  def save(entity: Entity)(implicit exc: ExecutionContext): DBIO[Entity]
 
-  def update(model: Model)(implicit exc: ExecutionContext): DBIO[Model]
+  def update(entity: Entity)(implicit exc: ExecutionContext): DBIO[Entity]
 
-  def delete(model: Model)(implicit exc: ExecutionContext): DBIO[Int]
+  def delete(entity: Entity)(implicit exc: ExecutionContext): DBIO[Int]
 
-  def fetchAll(fetchSize: Int = 100)(implicit exc: ExecutionContext): StreamingDBIO[Seq[Model], Model]
+  def fetchAll(fetchSize: Int = 100)(implicit exc: ExecutionContext): StreamingDBIO[Seq[Entity], Entity]
 
 }

@@ -8,13 +8,14 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-trait H2Suite extends DbSuite with JdbcProfileProvider { self:Suite =>
+trait H2Suite extends DbSuite with JdbcProfileProvider {
+  self: Suite =>
 
   val jdbcProfile: JdbcDriver = H2Driver
 
   import jdbcProfile.api._
 
-  def createSchema: DBIO[Unit]
+  def createSchemaAction: DBIO[Unit]
 
   def timeout = 5 seconds
 
@@ -22,7 +23,7 @@ trait H2Suite extends DbSuite with JdbcProfileProvider { self:Suite =>
     // each test suite gets its own isolated DB
     val dbUrl = s"jdbc:h2:mem:${this.getClass.getSimpleName};DB_CLOSE_DELAY=-1"
     val db = Database.forURL(dbUrl, driver = "org.h2.Driver")
-    val result = db.run(createSchema)
+    val result = db.run(createSchemaAction.transactionally)
     Await.result(result, timeout)
     db
   }

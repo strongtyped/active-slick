@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.2">
+<title>ActiveSlick</title>
+<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="./pygments-monokai.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>ActiveSlick</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_main_features">Main features</a></li>
+<li><a href="#_project_artifact">Project artifact</a></li>
+<li><a href="#_motivation">Motivation</a></li>
+<li><a href="#_history">History</a></li>
+<li><a href="#_mapping_using_activeslick">Mapping using ActiveSlick</a></li>
+<li><a href="#_transactions">Transactions</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>ActiveSlick is a library that offers CRUD operations for Slick 3.0 projects. The main goal is to provide some basic operations to manage the lifecycle of persisted objects (new/persisted/deleted/stale) and enable the implementation of the Active Record Pattern on Slick mapped case classes.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_main_features">Main features</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Basic CRUD and auxiliary methods - add/update/save, delete, findById, count and fetchAll (backed by Reactive Streams).</p>
+</li>
+<li>
+<p>Generic Id type.</p>
+</li>
+<li>
+<p>Optimistic locking my means of incremental version.</p>
+</li>
+<li>
+<p><strong>ActiveRecord</strong> trait to enable the Active Record Pattern on mapped case classes via class extensions (pimp-my-library style)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_project_artifact">Project artifact</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The artifacts are published to Sonatype Repository. Simply add the following to your build.sbt.</p>
+</div>
+<div class="paragraph">
+<p>As of version 0.3.0 we don&#8217;t support Slick 2.0 anymore. The differences between Slick 2.0 and Slick 3.0 are so huge that it makes impossible to support two versions.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="scala"><span class="tok-n">libraryDependencies</span> <span class="tok-o">+=</span> <span class="tok-s">&quot;io.strongtyped&quot;</span> <span class="tok-o">%%</span> <span class="tok-s">&quot;active-slick&quot;</span> <span class="tok-o">%</span> <span class="tok-s">&quot;0.3.0&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Source code for version 0.3.0 can be found at:
+<a href="https://github.com/strongtyped/active-slick/tree/v0.3.0" class="bare">https://github.com/strongtyped/active-slick/tree/v0.3.0</a></p>
+</div>
+<div class="paragraph">
+<p>The version supporting Slick 2.0 is still available on Sonatype Repo. However, this documentation only covers the current version (i.e.: 0.3.0).</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="scala"><span class="tok-n">libraryDependencies</span> <span class="tok-o">+=</span> <span class="tok-s">&quot;io.strongtyped&quot;</span> <span class="tok-o">%%</span> <span class="tok-s">&quot;active-slick&quot;</span> <span class="tok-o">%</span> <span class="tok-s">&quot;0.2.2&quot;</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Source code for version 0.2.2 can be found at:
+<a href="https://github.com/strongtyped/active-slick/tree/v0.2.2" class="bare">https://github.com/strongtyped/active-slick/tree/v0.2.2</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_motivation">Motivation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Slick is able to map result sets to case classes or Tuples because of its isomorphism. This is done thanks to built-in Scala features. However, there is no direct link between case class fields and database columns. Everything is done based on isomorphic projections.</p>
+</div>
+<div class="paragraph">
+<p>As a consequence, managing of Entities IDs must be done by hand, over and over again. One needs to save a model, ask Slick to return the generated ID and add it explicitly to the case class.</p>
+</div>
+<div class="paragraph">
+<p>The following code fragment demonstrates how this is typically done in a Slick application.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="scala"><span class="lineno"> 1</span>   <span class="tok-k">import</span> <span class="tok-nn">slick.driver.H2Driver.api._</span>
+<span class="lineno"> 2</span> 
+<span class="lineno"> 3</span>   <span class="tok-k">case</span> <span class="tok-k">class</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-k">:</span> <span class="tok-kt">String</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Option</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]</span> <span class="tok-k">=</span> <span class="tok-nc">None</span><span class="tok-o">)</span> <span class="tok-c1">// </span><i class="conum" data-value="1"></i><b>(1)</b>
+<span class="lineno"> 4</span> 
+<span class="lineno"> 5</span>   <span class="tok-k">class</span> <span class="tok-nc">CoffeeTable</span><span class="tok-o">(</span><span class="tok-n">tag</span><span class="tok-k">:</span> <span class="tok-kt">Tag</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">Table</span><span class="tok-o">[</span><span class="tok-kt">Coffee</span><span class="tok-o">](</span><span class="tok-n">tag</span><span class="tok-o">,</span> <span class="tok-s">&quot;COFFEE&quot;</span><span class="tok-o">)</span> <span class="tok-o">{</span>
+<span class="lineno"> 6</span>     <span class="tok-k">def</span> <span class="tok-n">name</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">String</span><span class="tok-o">](</span><span class="tok-s">&quot;NAME&quot;</span><span class="tok-o">)</span>
+<span class="lineno"> 7</span>     <span class="tok-k">def</span> <span class="tok-n">id</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">](</span><span class="tok-s">&quot;ID&quot;</span><span class="tok-o">,</span> <span class="tok-n">O</span><span class="tok-o">.</span><span class="tok-nc">PrimaryKey</span><span class="tok-o">,</span> <span class="tok-n">O</span><span class="tok-o">.</span><span class="tok-nc">AutoInc</span><span class="tok-o">)</span> <span class="tok-c1">// </span><i class="conum" data-value="2"></i><b>(2)</b>
+<span class="lineno"> 8</span>     <span class="tok-k">def</span> <span class="tok-o">*</span> <span class="tok-k">=</span> <span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-o">.?)</span> <span class="tok-o">&lt;&gt;(</span><span class="tok-nc">Coffee</span><span class="tok-o">.</span><span class="tok-n">tupled</span><span class="tok-o">,</span> <span class="tok-nc">Coffee</span><span class="tok-o">.</span><span class="tok-n">unapply</span><span class="tok-o">)</span>
+<span class="lineno"> 9</span>   <span class="tok-o">}</span>
+<span class="lineno">10</span> 
+<span class="lineno">11</span>   <span class="tok-k">val</span> <span class="tok-nc">Coffees</span> <span class="tok-k">=</span> <span class="tok-nc">TableQuery</span><span class="tok-o">[</span><span class="tok-kt">CoffeeTable</span><span class="tok-o">]</span>
+<span class="lineno">12</span> 
+<span class="lineno">13</span>   <span class="tok-k">val</span> <span class="tok-n">coffee</span> <span class="tok-k">=</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-s">&quot;Colombia&quot;</span><span class="tok-o">)</span>
+<span class="lineno">14</span>   <span class="tok-k">val</span> <span class="tok-n">insertAction</span> <span class="tok-k">=</span> <span class="tok-nc">Coffees</span><span class="tok-o">.</span><span class="tok-n">returning</span><span class="tok-o">(</span><span class="tok-nc">Coffees</span><span class="tok-o">.</span><span class="tok-n">map</span><span class="tok-o">(</span><span class="tok-k">_</span><span class="tok-o">.</span><span class="tok-n">id</span><span class="tok-o">))</span> <span class="tok-o">+=</span> <span class="tok-n">coffee</span> <span class="tok-c1">// </span> <i class="conum" data-value="3"></i><b>(3)</b></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Both <strong>Coffee</strong> and <strong>CoffeeTable</strong> have an <strong>Id</strong> representing the primary key. <strong>Coffee</strong> has a field of type <strong>Option[Int]</strong> (#1) and <strong>CoffeeTable</strong> has a method returning a <strong>Rep[Int]</strong> (#2). However, in order to inserta new Coffee we need some boilerplate to get back the generated ID (#3).</p>
+</div>
+<div class="paragraph">
+<p>If we manage to connect both <strong>ID</strong> we can provide some generic functionality to manage Entities. Inserting a new Entity is only one of the possible use cases. With a well known ID, we can distinguish if an Entity has been already persisted or not, we can easilly implement byId methods (deleteById, findById) and we can add extensions methods like: save, udpate, delete</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_history">History</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The first intention of this project was to implement Slick DAOs or Repositories using only Scala features and the Scala compiler (no code generation).</p>
+</div>
+<div class="paragraph">
+<p>In the time of Slick 2.0, this library required the usage of the Cake Pattern to wire together all the parts wihtout pre-defining a driver.</p>
+</div>
+<div class="paragraph">
+<p>Since Slick 3.0 imposes a huge refactoring, we decided to turn ActiveSlick inside out and eliminate the need of the Cake Pattern.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_mapping_using_activeslick">Mapping using ActiveSlick</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following code fragment illustrates how we can use ActiveSlick <strong>EntityActions</strong> to bind the model Id field and the table id column.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="scala"><span class="lineno"> 1</span> <span class="tok-k">object</span> <span class="tok-nc">MappingWithActiveSlick</span> <span class="tok-o">{</span>
+<span class="lineno"> 2</span> 
+<span class="lineno"> 3</span>   <span class="tok-k">case</span> <span class="tok-k">class</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-k">:</span> <span class="tok-kt">String</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Option</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]</span> <span class="tok-k">=</span> <span class="tok-nc">None</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">Identifiable</span> <span class="tok-o">{</span>
+<span class="lineno"> 4</span>     <span class="tok-k">override</span> <span class="tok-k">type</span> <span class="tok-kt">Id</span> <span class="tok-o">=</span> <span class="tok-nc">Int</span>
+<span class="lineno"> 5</span>   <span class="tok-o">}</span>
+<span class="lineno"> 6</span> 
+<span class="lineno"> 7</span>   <span class="tok-k">object</span> <span class="tok-nc">CoffeeRepo</span> <span class="tok-k">extends</span> <span class="tok-nc">EntityActions</span><span class="tok-o">(</span><span class="tok-n">H2Driver</span><span class="tok-o">)</span> <span class="tok-o">{</span>
+<span class="lineno"> 8</span> 
+<span class="lineno"> 9</span>     <span class="tok-k">import</span> <span class="tok-nn">jdbcProfile.api._</span>
+<span class="lineno">10</span> 
+<span class="lineno">11</span>     <span class="tok-k">class</span> <span class="tok-nc">CoffeeTable</span><span class="tok-o">(</span><span class="tok-n">tag</span><span class="tok-k">:</span> <span class="tok-kt">Tag</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">Table</span><span class="tok-o">[</span><span class="tok-kt">Coffee</span><span class="tok-o">](</span><span class="tok-n">tag</span><span class="tok-o">,</span> <span class="tok-s">&quot;COFFEE&quot;</span><span class="tok-o">)</span> <span class="tok-o">{</span>
+<span class="lineno">12</span>       <span class="tok-k">def</span> <span class="tok-n">name</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">String</span><span class="tok-o">](</span><span class="tok-s">&quot;NAME&quot;</span><span class="tok-o">)</span>
+<span class="lineno">13</span>       <span class="tok-k">def</span> <span class="tok-n">id</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">](</span><span class="tok-s">&quot;ID&quot;</span><span class="tok-o">,</span> <span class="tok-n">O</span><span class="tok-o">.</span><span class="tok-nc">PrimaryKey</span><span class="tok-o">,</span> <span class="tok-n">O</span><span class="tok-o">.</span><span class="tok-nc">AutoInc</span><span class="tok-o">)</span>
+<span class="lineno">14</span>       <span class="tok-k">def</span> <span class="tok-o">*</span> <span class="tok-k">=</span> <span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-o">.?)</span> <span class="tok-o">&lt;&gt;(</span><span class="tok-nc">Coffee</span><span class="tok-o">.</span><span class="tok-n">tupled</span><span class="tok-o">,</span> <span class="tok-nc">Coffee</span><span class="tok-o">.</span><span class="tok-n">unapply</span><span class="tok-o">)</span>
+<span class="lineno">15</span>     <span class="tok-o">}</span>
+<span class="lineno">16</span> 
+<span class="lineno">17</span>     <span class="tok-k">implicit</span> <span class="tok-k">val</span> <span class="tok-n">baseTypedType</span><span class="tok-k">:</span> <span class="tok-kt">BaseTypedType</span><span class="tok-o">[</span><span class="tok-kt">Id</span><span class="tok-o">]</span> <span class="tok-k">=</span> <span class="tok-n">implicitly</span><span class="tok-o">[</span><span class="tok-kt">BaseTypedType</span><span class="tok-o">[</span><span class="tok-kt">Id</span><span class="tok-o">]]</span> <span class="tok-c1">// </span><i class="conum" data-value="1"></i><b>(1)</b>
+<span class="lineno">18</span>     <span class="tok-k">type</span> <span class="tok-kt">Entity</span> <span class="tok-o">=</span> <span class="tok-nc">Coffee</span> <span class="tok-c1">// </span><i class="conum" data-value="2"></i><b>(2)</b>
+<span class="lineno">19</span>     <span class="tok-k">type</span> <span class="tok-kt">EntityTable</span> <span class="tok-o">=</span> <span class="tok-nc">CoffeeTable</span> <span class="tok-c1">// </span><i class="conum" data-value="3"></i><b>(3)</b>
+<span class="lineno">20</span>     <span class="tok-k">def</span> <span class="tok-nc">$id</span><span class="tok-o">(</span><span class="tok-n">table</span><span class="tok-k">:</span> <span class="tok-kt">CoffeeTable</span><span class="tok-o">)</span> <span class="tok-k">=</span> <span class="tok-n">table</span><span class="tok-o">.</span><span class="tok-n">id</span> <span class="tok-c1">// </span><i class="conum" data-value="4"></i><b>(4)</b>
+<span class="lineno">21</span>     <span class="tok-k">val</span> <span class="tok-n">tableQuery</span> <span class="tok-k">=</span> <span class="tok-nc">TableQuery</span><span class="tok-o">[</span><span class="tok-kt">CoffeeTable</span><span class="tok-o">]</span> <span class="tok-c1">// </span><i class="conum" data-value="5"></i><b>(5)</b>
+<span class="lineno">22</span>     <span class="tok-k">val</span> <span class="tok-n">idLens</span> <span class="tok-k">=</span> <span class="tok-n">lens</span><span class="tok-o">[</span><span class="tok-kt">Coffee</span>, <span class="tok-kt">Option</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]](</span> <span class="tok-c1">// </span><i class="conum" data-value="6"></i><b>(6)</b>
+<span class="lineno">23</span>       <span class="tok-n">coffee</span> <span class="tok-k">=&gt;</span> <span class="tok-n">coffee</span><span class="tok-o">.</span><span class="tok-n">id</span><span class="tok-o">,</span>
+<span class="lineno">24</span>       <span class="tok-o">(</span><span class="tok-n">coffee</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-o">)</span> <span class="tok-k">=&gt;</span> <span class="tok-n">coffee</span><span class="tok-o">.</span><span class="tok-n">copy</span><span class="tok-o">(</span><span class="tok-n">id</span> <span class="tok-k">=</span> <span class="tok-n">id</span><span class="tok-o">)</span>
+<span class="lineno">25</span>     <span class="tok-o">)</span>
+<span class="lineno">26</span>   <span class="tok-o">}</span>
+<span class="lineno">27</span> 
+<span class="lineno">28</span>   <span class="tok-k">implicit</span> <span class="tok-k">class</span> <span class="tok-nc">EntryExtensions</span><span class="tok-o">(</span><span class="tok-k">val</span> <span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Coffee</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">ActiveRecord</span><span class="tok-o">[</span><span class="tok-kt">Coffee</span><span class="tok-o">]</span> <span class="tok-o">{</span>
+<span class="lineno">29</span>     <span class="tok-k">val</span> <span class="tok-n">crudActions</span> <span class="tok-k">=</span> <span class="tok-nc">CoffeeRepo</span>
+<span class="lineno">30</span>   <span class="tok-o">}</span>
+<span class="lineno">31</span> 
+<span class="lineno">32</span>   <span class="tok-k">val</span> <span class="tok-n">saveAction</span> <span class="tok-k">=</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-s">&quot;Colombia&quot;</span><span class="tok-o">).</span><span class="tok-n">save</span><span class="tok-o">()</span>
+<span class="lineno">33</span> <span class="tok-o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The mapping is basically the same. Except that Coffee implements <strong>Identifiable</strong> However, we define it inside <strong>CoffeeRepo</strong> which implements <strong>EntityActions</strong>.</p>
+</div>
+<div class="paragraph">
+<p>We have now a well known column for our primary key. The next step is to define the method to extract the id from our model and to add a generated id back into the model.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_transactions">Transactions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>As of version 0.3.0 and the introduction of DBIO in Slick 3.0, all methods return DBIO (not Futures). In Slick 3.0 the DB sessions and the transactional sessions are not passed as implicit parameters therefore is the user that have to manage the sessions and transactions.</p>
+</div>
+<div class="paragraph">
+<p>If ActiveSlick were returning Futures instead, then the transactions will have to be managed internally by ActiveSlick which is of course not desirable.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2015-08-14 02:08:45 CEST
+</div>
+</div>
+</body>
+</html>

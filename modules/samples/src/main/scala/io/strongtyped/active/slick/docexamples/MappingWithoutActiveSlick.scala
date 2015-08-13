@@ -8,18 +8,18 @@ object MappingWithoutActiveSlick {
   // tag::adoc[]
   import slick.driver.H2Driver.api._
 
-  case class Foo(name: String, id: Option[Int] = None) // #<1>
+  case class Coffee(name: String, id: Option[Int] = None) // #<1>
 
-  class FooTable(tag: Tag) extends Table[Foo](tag, "FOOS") {
+  class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") {
     def name = column[String]("NAME")
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc) // #<2>
-    def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
+    def * = (name, id.?) <>(Coffee.tupled, Coffee.unapply)
   }
 
-  val Foos = TableQuery[FooTable]
+  val Coffees = TableQuery[CoffeeTable]
 
-  val foo = Foo("foo")
-  val insertAction = Foos.returning(Foos.map(_.id)) += foo // #<3>
+  val coffee = Coffee("Colombia")
+  val insertAction = Coffees.returning(Coffees.map(_.id)) += coffee // #<3>
   // end::adoc[]
 }
 //@formatter:on

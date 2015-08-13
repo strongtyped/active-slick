@@ -10,10 +10,12 @@ import scala.concurrent.ExecutionContext
 import scala.language.{existentials, higherKinds, implicitConversions}
 import scala.util.{Failure, Success}
 
-abstract class EntityActions[M <: Identifiable](val jdbcProfile: JdbcProfile)(implicit ev: BaseTypedType[M#Id])
-  extends EntityActionsLike[M] with JdbcProfileProvider {
+abstract class EntityActions(val jdbcProfile: JdbcProfile)
+  extends EntityActionsLike with JdbcProfileProvider {
 
   import jdbcProfile.api._
+
+  implicit def baseTypedType: BaseTypedType[Id]
 
   type EntityTable <: Table[Entity]
 

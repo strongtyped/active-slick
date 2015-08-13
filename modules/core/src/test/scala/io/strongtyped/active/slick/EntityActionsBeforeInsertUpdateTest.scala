@@ -2,6 +2,7 @@ package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest.FlatSpec
+import slick.ast.BaseTypedType
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -43,22 +44,31 @@ class EntityActionsBeforeInsertUpdateTest extends FlatSpec with H2Suite with Jdb
   }
 
 
-  override def createSchema = {
+  override def createSchemaAction = {
     foos.createSchema
   }
 
 
   case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
+
     type Id = Int
   }
 
 
   class NameShouldNotBeEmptyException extends RuntimeException("Name should not be empty")
+
   class NameCanNotBeModifiedException extends RuntimeException("Name can not be modified")
 
-  class FooDao extends EntityActions[Foo](jdbcProfile) {
+  class FooDao extends EntityActions(jdbcProfile) {
 
-    class FooTable(tag: Tag) extends jdbcProfile.api.Table[Foo](tag, "FOO_VALIDATION_TEST") {
+    import jdbcProfile.api._
+
+    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
+
+    type EntityTable = FooTable
+    type Entity = Foo
+
+    class FooTable(tag: Tag) extends Table[Foo](tag, "FOO_VALIDATION_TEST") {
 
       def name = column[String]("NAME")
 
@@ -67,7 +77,7 @@ class EntityActionsBeforeInsertUpdateTest extends FlatSpec with H2Suite with Jdb
       def * = (name, id.?) <>(Foo.tupled, Foo.unapply)
 
     }
-    type EntityTable = FooTable
+
     val tableQuery = TableQuery[FooTable]
 
     def $id(table: FooTable) = table.id
@@ -82,7 +92,7 @@ class EntityActionsBeforeInsertUpdateTest extends FlatSpec with H2Suite with Jdb
       }
     }
 
-    override def beforeUpdate(id: Int, model: Foo)(implicit exc: ExecutionContext):  DBIO[Foo] = {
+    override def beforeUpdate(id: Int, model: Foo)(implicit exc: ExecutionContext): DBIO[Foo] = {
       findById(id).flatMap { oldModel =>
         if (oldModel.name != model.name) {
           DBIO.failed(new NameCanNotBeModifiedException)
@@ -101,7 +111,8 @@ class EntityActionsBeforeInsertUpdateTest extends FlatSpec with H2Suite with Jdb
   val foos = new FooDao
 
 
-  implicit class EntryExtensions(val model: Foo) extends ActiveRecord[Foo] {
+  implicit class EntryExtensions(val entity: Foo) extends ActiveRecord[Foo] {
+
     val crudActions = foos
   }
 

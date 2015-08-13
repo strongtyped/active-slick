@@ -3,6 +3,7 @@ package io.strongtyped.active.slick
 import io.strongtyped.active.slick.exceptions.RowNotFoundException
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest._
+import slick.driver.JdbcDriver
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
@@ -38,5 +39,9 @@ class BeerTest extends FlatSpec with H2Suite with Schema {
     triedBeer.failure.exception shouldBe a[RowNotFoundException[_]]
   }
 
-  override def createSchema = create
- }
+
+  def createSchemaAction: jdbcProfile.api.DBIO[Unit] = {
+    jdbcProfile.api.DBIO.seq(Suppliers.createSchema, Beers.createSchema)
+  }
+
+}
