@@ -42,11 +42,11 @@ trait Schema extends JdbcProfileProvider {
 
     def $id(table: EntityTable) = table.id
 
-    val idLens = SimpleLens[Supplier, Option[Int]](_.id, (supp, id) => supp.copy(id = id))
+    val idLens = Lens[Supplier, Option[Int]](_.id, (supp, id) => supp.copy(id = id))
 
     def $version(table: EntityTable) = table.version
 
-    val versionLens = SimpleLens[Supplier, Long](_.version, (supp, version) => supp.copy(version = version))
+    val versionLens = Lens[Supplier, Long](_.version, (supp, version) => supp.copy(version = version))
 
     def createSchema = {
       import jdbcProfile.api._
@@ -85,7 +85,7 @@ trait Schema extends JdbcProfileProvider {
 
     def $id(table: EntityTable) = table.id
 
-    val idLens = SimpleLens[Beer, Option[Int]](_.id, (beer, id) => beer.copy(id = id))
+    val idLens = Lens[Beer, Option[Int]](_.id, (beer, id) => beer.copy(id = id))
 
     def createSchema = {
       import jdbcProfile.api._

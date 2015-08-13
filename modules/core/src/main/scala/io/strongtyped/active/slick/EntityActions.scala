@@ -21,7 +21,7 @@ abstract class EntityActions[M <: Identifiable](val jdbcProfile: JdbcProfile)(im
 
   def $id(table: EntityTable): Rep[Id]
 
-  def idLens: SimpleLens[Entity, Option[Id]]
+  def idLens: Lens[Entity, Option[Id]]
 
   override def count: DBIO[Int] = tableQuery.size.result
 

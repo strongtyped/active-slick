@@ -2,7 +2,7 @@ package io.strongtyped.active.slick.docexamples
 
 import io.strongtyped.active.slick._
 import slick.driver.H2Driver
-import io.strongtyped.active.slick.SimpleLens._
+import io.strongtyped.active.slick.Lens._
 import scala.language.postfixOps
 
 //@formatter:off

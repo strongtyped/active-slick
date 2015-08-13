@@ -12,7 +12,7 @@ trait OptimisticLocking[M <: Identifiable] {
 
   def $version(table: EntityTable): Rep[Long]
 
-  def versionLens: SimpleLens[self.Entity, Long]
+  def versionLens: Lens[self.Entity, Long]
 
   override protected def update(id: self.Id, versionable: self.Entity)(implicit exc: ExecutionContext): DBIO[self.Entity] = {
 

@@ -82,7 +82,7 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
     def $id(table: FooTable) = table.id
 
-    val idLens = SimpleLens[Foo, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
+    val idLens = Lens[Foo, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
 
     def createSchema = {
       import jdbcProfile.api._
