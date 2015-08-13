@@ -56,7 +56,7 @@ The following code fragment illustrates how we can use ActiveSlick **EntityActio
 include::../../modules/samples/src/main/scala/io/strongtyped/active/slick/docexamples/MappingActiveSlickIdentifiable.scala[tags=adoc]
 ----
 
-The mapping is basically the same. However, we define it inside **FooRepository** which implements **EntityActions[Foo]**.
+The mapping is basically the same. Except that Foo implements **Identifiable** However, we define it inside **FooRepository** which implements **EntityActions[Foo]**.
 
 We have now a well known column for our primary key. The next step is to define the method to extract the id from our model and to add a generated id back into the model. 
 

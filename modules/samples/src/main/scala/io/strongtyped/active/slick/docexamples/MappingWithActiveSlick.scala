@@ -1,12 +1,12 @@
 package io.strongtyped.active.slick.docexamples
 
-import _root_.io.strongtyped.active.slick._
+import io.strongtyped.active.slick._
 import slick.driver.H2Driver
-
+import io.strongtyped.active.slick.SimpleLens._
 import scala.language.postfixOps
 
 //@formatter:off
-object MappingActiveSlickIdentifiable extends JdbcProfileProvider {
+object MappingWithActiveSlick extends JdbcProfileProvider {
 
   // tag::adoc[]
   val jdbcProfile = H2Driver
@@ -31,10 +31,8 @@ object MappingActiveSlickIdentifiable extends JdbcProfileProvider {
 
     val tableQuery = TableQuery[FooTable] // # <3>
 
-    val idLens = SimpleLens[Foo, Option[Int]](_.id, (foo, id) => foo.copy(id = id)) // # <4>
-
+    val idLens = lens[Foo, Option[Int]](_.id, (foo, id) => foo.copy(id = id)) // # <4>
   }
-
   // end::adoc[]
 }
 //@formatter:on

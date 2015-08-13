@@ -20,7 +20,6 @@ object MappingWithoutActiveSlick {
 
   val foo = Foo("foo")
   val insertAction = Foos.returning(Foos.map(_.id)) += foo // #<3>
-
   // end::adoc[]
 }
 //@formatter:on
