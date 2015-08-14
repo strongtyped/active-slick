@@ -27,7 +27,7 @@ trait Schema extends JdbcProfileProvider {
 
     import jdbcProfile.api._
 
-    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
+    val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
     type Entity = Supplier
     type EntityTable = SuppliersTable
@@ -72,7 +72,7 @@ trait Schema extends JdbcProfileProvider {
 
     import jdbcProfile.api._
 
-    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
+    val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
     type Entity = Beer
     type EntityTable = BeersTable

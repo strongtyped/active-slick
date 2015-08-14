@@ -63,7 +63,7 @@ class EntityActionsBeforeInsertUpdateTest
 
     import jdbcProfile.api._
 
-    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
+    val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
     type EntityTable = FooTable
     type Entity = Foo

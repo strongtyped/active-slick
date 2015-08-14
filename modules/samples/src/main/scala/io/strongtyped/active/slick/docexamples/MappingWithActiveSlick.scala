@@ -17,24 +17,25 @@ object MappingWithActiveSlick {
 
   object CoffeeRepo extends EntityActions(H2Driver) {
 
-    import jdbcProfile.api._
+    import jdbcProfile.api._ // #<1>
 
-    class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") {
+    val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]] // #<2>
+    type Entity = Coffee // #<3>
+    type EntityTable = CoffeeTable // # <4>
+    val tableQuery = TableQuery[CoffeeTable] // # <5>
+
+    def $id(table: CoffeeTable) = table.id // # <6>
+    val idLens = lens[Coffee, Option[Int]]( // # <7>
+      coffee => coffee.id,
+      (coffee, id) => coffee.copy(id = id)
+    )
+
+    class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") { // #<8>
       def name = column[String]("NAME")
       def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
       def * = (name, id.?) <>(Coffee.tupled, Coffee.unapply)
     }
 
-    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]] // #<1>
-    type Entity = Coffee // #<2>
-    type EntityTable = CoffeeTable // # <3>
-    val tableQuery = TableQuery[CoffeeTable] // # <4>
-
-    def $id(table: CoffeeTable) = table.id // # <5>
-    val idLens = lens[Coffee, Option[Int]]( // # <6>
-      coffee => coffee.id,
-      (coffee, id) => coffee.copy(id = id)
-    )
   }
 
   implicit class EntryExtensions(val entity: Coffee) extends ActiveRecord[Coffee] {

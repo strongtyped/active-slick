@@ -15,7 +15,9 @@ abstract class EntityActions(val jdbcProfile: JdbcProfile)
 
   import jdbcProfile.api._
 
-  implicit def baseTypedType: BaseTypedType[Id]
+  def baseTypedType: BaseTypedType[Id]
+
+  protected implicit lazy val btt: BaseTypedType[Id] = baseTypedType
 
   type EntityTable <: Table[Entity]
 
