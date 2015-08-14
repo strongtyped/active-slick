@@ -1,85 +1,76 @@
-/*
- * Copyright 2014 Renato Guerra Cavalcanti (@renatocaval)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.components.Components.instance._
-import io.strongtyped.active.slick.exceptions.{RowNotFoundException, StaleObjectStateException}
-import io.strongtyped.active.slick.models.{ Beer, Supplier }
-import org.h2.jdbc.JdbcSQLException
-import org.scalatest.{ TryValues, OptionValues, Matchers, FunSuite }
+import java.sql.SQLException
+import scala.concurrent.ExecutionContext.Implicits.global
+import io.strongtyped.active.slick.exceptions.StaleObjectStateException
+import io.strongtyped.active.slick.test.H2Suite
+import org.scalatest._
+import slick.dbio.DBIO
 
-class SupplierTest extends FunSuite with Matchers with OptionValues with TryValues {
+class SupplierTest extends FlatSpec with H2Suite with Schema {
 
-  test("A Supplier should be persistable") {
+  behavior of "A Supplier"
 
-    DB.rollback { implicit sess =>
-      val initialCount = Suppliers.count
+  it should "be persistable" in {
+    val initialCount = query(Suppliers.count)
 
-      val supplier = Supplier("Acme, Inc.")
-      supplier.id should not be defined
+    val supplier = Supplier("Acme, Inc.")
+    supplier.id should not be defined
 
-      val persistedSupp = supplier.save
-      persistedSupp.id shouldBe defined
+    val savedSupplier =
+      commit {
+        supplier.save()
+      }
+    savedSupplier.id shouldBe defined
 
-      Suppliers.count shouldBe (initialCount + 1)
+    val countAfterSave = query(Suppliers.count)
+    countAfterSave shouldBe (initialCount + 1)
 
-      persistedSupp.delete
+    commit(savedSupplier.delete())
 
-      Suppliers.count shouldBe initialCount
+    val countAfterDelete = query(Suppliers.count)
+    countAfterDelete shouldBe initialCount
 
-    }
   }
 
-  test("A Supplier is versionable") {
-    DB.rollback { implicit sess =>
-      val supplier = Supplier("abc")
-      // no version yet
-      supplier.version shouldBe 0
+  it should "be versionable" in {
 
-      val persistedSupp = supplier.save
-      persistedSupp.version should not be 0
+    val supplier = Supplier("abc")
+    // no version yet
+    supplier.version shouldBe 0
 
-      // modify two versions and try to persist them
-      val suppWithNewVersion = persistedSupp.copy(name = "abc1").save
+    val persistedSupp = commit(supplier.save())
+    persistedSupp.version should not be 0
 
-      intercept[StaleObjectStateException[Supplier]] {
-        // supplier was persisted in the mean time, so version must be different by now
-        persistedSupp.copy(name = "abc2").save
+    // modify two versions and try to persist them
+    val suppWithNewVersion = commit(persistedSupp.copy(name = "abc1").save())
+
+    intercept[StaleObjectStateException[Supplier]] {
+      // supplier was persisted in the mean time, so version must be different by now
+      commit(persistedSupp.copy(name = "abc2").save())
+    }
+
+    // supplier with new version can be persisted again
+    commit(suppWithNewVersion.copy(name = "abc").save())
+  }
+
+  it should "return an error when deleting a supplier with beers linked to it" in {
+
+    val deleteResult =
+      rollback {
+        for {
+          supplier <- Supplier("Acme, Inc.").save()
+          beer <- Beer("Abc", supplier.id.get, 3.2).save()
+          deleteResult <- supplier.delete().asTry
+        } yield deleteResult
       }
 
-      // supplier with new version can be persisted again
-      suppWithNewVersion.copy(name = "abc").save
-    }
+    deleteResult.failure.exception shouldBe a[SQLException]
   }
 
-  test("A Supplier can't be deleted if it has Beers linked to it") {
-
-    DB.rollback { implicit sess =>
-      val supplier = Supplier("Acme, Inc.").save
-
-      supplier.id shouldBe defined
-
-      supplier.id.map { supId =>
-        val coffee = Beer("Abc", supId, 3.2).save
-        coffee.supplier.value shouldBe supplier
-      }
-
-      supplier.tryDelete.failure.exception shouldBe a[JdbcSQLException]
-    }
+  def createSchemaAction: jdbcProfile.api.DBIO[Unit] = {
+    jdbcProfile.api.DBIO.seq(Suppliers.createSchema, Beers.createSchema)
   }
+
 
 }

@@ -27,7 +27,7 @@ trait MappingActiveSlickIdentifiable {
 
 object MappingActiveSlickIdentifiableApp {
 
-  class Components(override val jdbcDriver: JdbcDriver) extends ActiveSlick with MappingWithActiveSlick {
+  class Components(override val jdbcDriver: JdbcDriver) extends ActiveSlick with MappingActiveSlickIdentifiable {
     import jdbcDriver.simple._
     val db = Database.forURL("jdbc:h2:mem:active-slick", driver = "org.h2.Driver")
     def createSchema(implicit sess: Session) = Foos.ddl.create
