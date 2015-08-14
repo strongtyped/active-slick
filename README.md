@@ -4,7 +4,11 @@
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/strongtyped/active-slick?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
+
 ActiveSlick is a library that offers CRUD operations for Slick 3.0 projects. The main goal is to provide some basic operations to manage the lifecycle of persisted objects (new/persisted/deleted/stale) and enable the implementation of the Active Record Pattern on Slick mapped case classes.
+
+### Documentation (WIP)
+http://www.strongtyped.io/active-slick/
 
 ### Main features
 - Basic CRUD and auxiliary methods - add/update/save, delete, findById, count and fetchAll (backed by Reactive Streams).
@@ -30,6 +34,3 @@ The version supporting Slick 2.0 is still available on Sonatype Repo. However, t
 
 Source code for version 0.2.2 can be found at:
 https://github.com/strongtyped/active-slick/tree/v0.2.2
-
-For mode details, check the documentation site:
-http://www.strongtyped.io/active-slick/
