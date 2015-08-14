@@ -1,13 +1,11 @@
 package io.strongtyped.active.slick
-
+import io.strongtyped.active.slick.Lens._
 
 import slick.ast.BaseTypedType
 
 import scala.language.existentials
 
 trait Schema extends JdbcProfileProvider {
-
-  import jdbcProfile.api._
 
   case class Supplier(name: String, version: Long = 0, id: Option[Int] = None)
 
@@ -42,11 +40,13 @@ trait Schema extends JdbcProfileProvider {
 
     def $id(table: EntityTable) = table.id
 
-    val idLens = Lens[Supplier, Option[Int]](_.id, (supp, id) => supp.copy(id = id))
+    val idLens = lens { supp: Supplier => supp.id }
+                      { (supp, id) => supp.copy(id = id) }
 
     def $version(table: EntityTable) = table.version
 
-    val versionLens = Lens[Supplier, Long](_.version, (supp, version) => supp.copy(version = version))
+    val versionLens = lens { supp: Supplier => supp.version }
+                           { (supp, version) => supp.copy(version = version) }
 
     def createSchema = {
       import jdbcProfile.api._
@@ -59,7 +59,7 @@ trait Schema extends JdbcProfileProvider {
 
   implicit class SupplierRecord(val entity: Supplier) extends ActiveRecord[Supplier] {
 
-    val crudActions: CrudActions = Suppliers
+    val repository: CrudActions = Suppliers
   }
 
   class BeersDao extends EntityActions(jdbcProfile) {
@@ -92,7 +92,8 @@ trait Schema extends JdbcProfileProvider {
 
     def $id(table: EntityTable) = table.id
 
-    val idLens = Lens[Beer, Option[Int]](_.id, (beer, id) => beer.copy(id = id))
+    val idLens = lens { beer: Beer => beer.id }
+                      { (beer, id) => beer.copy(id = id) }
 
     def createSchema = {
       import jdbcProfile.api._
@@ -104,7 +105,7 @@ trait Schema extends JdbcProfileProvider {
 
   implicit class BeerRecord(val entity: Beer) extends ActiveRecord[Beer] {
 
-    val crudActions: CrudActions = Beers
+    val repository: CrudActions = Beers
 
     def supplier() = Suppliers.findOptionById(entity.supID)
   }

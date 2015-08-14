@@ -8,16 +8,16 @@ trait ActiveRecord[E] {
 
   def entity: E
 
-  val crudActions: CrudActions
+  val repository: CrudActions
 
-  private val casted: crudActions.Entity = entity.asInstanceOf[crudActions.Entity]
+  private val casted: repository.Model = entity.asInstanceOf[repository.Model]
 
   def save()(implicit exc: ExecutionContext): DBIO[E] =
-    crudActions.save(casted).map(_.asInstanceOf[E])
+    repository.save(casted).map(_.asInstanceOf[E])
 
   def update()(implicit exc: ExecutionContext): DBIO[E] =
-    crudActions.update(casted).map(_.asInstanceOf[E])
+    repository.update(casted).map(_.asInstanceOf[E])
 
-  def delete()(implicit exc: ExecutionContext): DBIO[Int] = crudActions.delete(casted)
+  def delete()(implicit exc: ExecutionContext): DBIO[Int] = repository.delete(casted)
 
 }

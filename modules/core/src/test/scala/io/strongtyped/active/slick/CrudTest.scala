@@ -5,6 +5,7 @@ import org.scalatest.FlatSpec
 import slick.ast.BaseTypedType
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
+import io.strongtyped.active.slick.Lens._
 
 class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
@@ -83,7 +84,8 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
     def $id(table: FooTable) = table.id
 
-    val idLens = Lens[Foo, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
+    val idLens = lens { foo: Foo => foo.id }
+                      { (entry, id) => entry.copy(id = id) }
 
     def createSchema = {
       import jdbcProfile.api._
@@ -96,7 +98,7 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
   implicit class EntryExtensions(val entity: Foo) extends ActiveRecord[Foo] {
 
-    val crudActions = Foos
+    val repository = Foos
   }
 
 }
