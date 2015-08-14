@@ -3,7 +3,9 @@ import BuildSettings._
 
 scalaVersion in ThisBuild := "2.11.6"
 
-ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
+ivyScala := ivyScala.value map {
+  _.copy(overrideScalaVersion = true)
+}
 
 organization in ThisBuild := "io.strongtyped"
 
@@ -13,7 +15,7 @@ parallelExecution in Test := false
 
 
 lazy val root = Project(
-  id = "active-slick",
+  id = "active-slick-root",
   base = file("."),
   settings = projSettings ++ Seq(
     publishArtifact := false
@@ -23,19 +25,18 @@ lazy val root = Project(
 
 // Core ==========================================
 lazy val activeSlick = Project(
-  id = "active-slick-core",
+  id = "active-slick",
   base = file("modules/core"),
   settings = projSettings ++ mainDeps ++ testDeps
 )
 //================================================
 
 
-
 // Shapeless Integration  ========================
 lazy val shapelessIntegration = {
 
   // settings to include shapeless dependencies
-  val shapeless =  Seq(
+  val shapeless = Seq(
     libraryDependencies ++= shapelessDeps.value
   )
 
@@ -46,7 +47,6 @@ lazy val shapelessIntegration = {
   ) dependsOn activeSlick
 }
 //================================================
-
 
 
 // Samples =======================================
