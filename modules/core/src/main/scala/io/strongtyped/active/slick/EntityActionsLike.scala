@@ -12,8 +12,8 @@ trait EntityActionsLike extends CrudActions {
 
   import jdbcProfile.api._
 
-  type Entity <: Identifiable
-  type Id = Entity#Id
+  type Entity
+  type Id
 
   def insert(entity: Entity)(implicit exc: ExecutionContext): DBIO[Id]
 

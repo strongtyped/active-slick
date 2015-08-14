@@ -49,11 +49,7 @@ class EntityActionsBeforeInsertUpdateTest
   }
 
 
-  case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
-
-    type Id = Int
-  }
-
+  case class Foo(name: String, id: Option[Int] = None)
 
   class NameShouldNotBeEmptyException extends RuntimeException("Name should not be empty")
 
@@ -67,6 +63,7 @@ class EntityActionsBeforeInsertUpdateTest
 
     type EntityTable = FooTable
     type Entity = Foo
+    type Id = Int
 
     class FooTable(tag: Tag) extends Table[Foo](tag, "FOO_VALIDATION_TEST") {
 

@@ -11,26 +11,26 @@ import scala.concurrent.ExecutionContext.Implicits.global
 // tag::adoc[]
 object MappingWithActiveSlick {
 
-  case class Coffee(name: String, id: Option[Int] = None) extends Identifiable {
-    override type Id = Int
-  }
+  case class Coffee(name: String, id: Option[Int] = None)
 
   object CoffeeRepo extends EntityActions(H2Driver) {
 
     import jdbcProfile.api._ // #<1>
 
-    val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]] // #<2>
-    type Entity = Coffee // #<3>
+    type Entity = Coffee // #<2>
+    type Id = Int // #<3>
     type EntityTable = CoffeeTable // # <4>
-    val tableQuery = TableQuery[CoffeeTable] // # <5>
+    val tableQuery = TableQuery[CoffeeTable] // # <6>
 
-    def $id(table: CoffeeTable) = table.id // # <6>
-    val idLens = lens[Coffee, Option[Int]]( // # <7>
+    def $id(table: CoffeeTable) = table.id // # <7>
+    val idLens = lens[Coffee, Option[Int]]( // # <8>
       coffee => coffee.id,
       (coffee, id) => coffee.copy(id = id)
     )
 
-    class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") { // #<8>
+    val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]] // #<8>
+
+    class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") { // #<9>
       def name = column[String]("NAME")
       def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
       def * = (name, id.?) <>(Coffee.tupled, Coffee.unapply)

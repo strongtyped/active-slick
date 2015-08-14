@@ -9,19 +9,12 @@ trait Schema extends JdbcProfileProvider {
 
   import jdbcProfile.api._
 
-  case class Supplier(name: String, version: Long = 0, id: Option[Int] = None) extends Identifiable {
-
-    override type Id = Int
-  }
+  case class Supplier(name: String, version: Long = 0, id: Option[Int] = None)
 
   case class Beer(name: String,
                   supID: Int,
                   price: Double,
-                  id: Option[Int] = None) extends Identifiable {
-
-    type Id = Int
-  }
-
+                  id: Option[Int] = None)
 
   class SupplierDao extends EntityActions(jdbcProfile) with OptimisticLocking {
 
@@ -30,6 +23,7 @@ trait Schema extends JdbcProfileProvider {
     val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
     type Entity = Supplier
+    type Id = Int
     type EntityTable = SuppliersTable
 
     class SuppliersTable(tag: Tag) extends Table[Supplier](tag, "SUPPLIERS") {
@@ -75,6 +69,7 @@ trait Schema extends JdbcProfileProvider {
     val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
     type Entity = Beer
+    type Id = Int
     type EntityTable = BeersTable
 
     // Beer Table, DAO and Record extension

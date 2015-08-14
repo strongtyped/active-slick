@@ -58,10 +58,7 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
   }
 
 
-  case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
-
-    type Id = Int
-  }
+  case class Foo(name: String, id: Option[Int] = None)
 
   class FooDao extends EntityActions(jdbcProfile) {
 
@@ -70,6 +67,7 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
     val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
     type Entity = Foo
+    type Id = Int
 
     class FooTable(tag: Tag) extends Table[Foo](tag, "FOO_CRUD_TEST") {
 
