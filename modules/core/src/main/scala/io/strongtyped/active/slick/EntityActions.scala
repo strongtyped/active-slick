@@ -49,6 +49,9 @@ abstract class EntityActions(val jdbcProfile: JdbcProfile)
    * Before insert interceptor method. This method is called just before record insertion.
    * The default implementation returns a successful DBIO wrapping the passed entity.
    *
+   * The returned `DBIOAction` is combined with the final insert `DBIOAction`
+   * and 'marked' to run on the same transaction.
+   *
    * Override this method if you need to add extract validation or modify the entity before insert.
    *
    * See examples bellow:
@@ -82,6 +85,8 @@ abstract class EntityActions(val jdbcProfile: JdbcProfile)
    * Before update interceptor method. This method is called just before record update.
    * The default implementation returns a successful DBIO wrapping the passed entity.
    *
+   * The returned `DBIOAction` is combined with the final update `DBIOAction`
+   * and 'marked' to run on the same transaction.
    *
    * Override this method if you need to add extract validation or modify the entity before update.
    *

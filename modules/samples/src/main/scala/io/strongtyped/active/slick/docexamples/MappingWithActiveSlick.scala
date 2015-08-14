@@ -27,8 +27,9 @@ object MappingWithActiveSlick {
     implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]] // #<1>
     type Entity = Coffee // #<2>
     type EntityTable = CoffeeTable // # <3>
-    def $id(table: CoffeeTable) = table.id // # <4>
-    val tableQuery = TableQuery[CoffeeTable] // # <5>
+    val tableQuery = TableQuery[CoffeeTable] // # <4>
+
+    def $id(table: CoffeeTable) = table.id // # <5>
     val idLens = lens[Coffee, Option[Int]]( // # <6>
       coffee => coffee.id,
       (coffee, id) => coffee.copy(id = id)

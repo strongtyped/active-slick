@@ -7,9 +7,9 @@ import slick.ast.BaseTypedType
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class EntityActionsBeforeInsertUpdateTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
-  import jdbcProfile.api._
+class EntityActionsBeforeInsertUpdateTest
+  extends FlatSpec with H2Suite with JdbcProfileProvider {
 
   behavior of "An EntityDao with validation "
 
@@ -84,7 +84,10 @@ class EntityActionsBeforeInsertUpdateTest extends FlatSpec with H2Suite with Jdb
 
     val idLens = Lens[Foo, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
 
-    override def beforeInsert(model: Foo)(implicit exc: ExecutionContext): DBIO[Foo] = {
+    //@formatter:off
+    // tag::adoc[]
+    override def beforeInsert(model: Foo)
+                             (implicit exc: ExecutionContext): DBIO[Foo] = {
       if (model.name.trim.isEmpty) {
         DBIO.failed(new NameShouldNotBeEmptyException)
       } else {
@@ -92,7 +95,8 @@ class EntityActionsBeforeInsertUpdateTest extends FlatSpec with H2Suite with Jdb
       }
     }
 
-    override def beforeUpdate(id: Int, model: Foo)(implicit exc: ExecutionContext): DBIO[Foo] = {
+    override def beforeUpdate(id: Int, model: Foo)
+                             (implicit exc: ExecutionContext): DBIO[Foo] = {
       findById(id).flatMap { oldModel =>
         if (oldModel.name != model.name) {
           DBIO.failed(new NameCanNotBeModifiedException)
@@ -101,6 +105,8 @@ class EntityActionsBeforeInsertUpdateTest extends FlatSpec with H2Suite with Jdb
         }
       }
     }
+    // end::adoc[]
+    //@formatter:on
 
     def createSchema = {
       import jdbcProfile.api._

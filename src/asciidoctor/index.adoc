@@ -1,5 +1,4 @@
 = ActiveSlick
-:linkcss:
 :toc2:
 :icons: font
 :source-highlighter: pygments
@@ -61,7 +60,7 @@ If we manage to connect both **ID** we can provide some generic functionality to
 == History
 The first intention of this project was to implement Slick DAOs or Repositories using only Scala features and the Scala compiler (no code generation).
 
-In the time of Slick 2.0, this library required the usage of the Cake Pattern to wire together all the parts wihtout pre-defining a driver. 
+In the time of Slick 2.0, this library required the usage of the Cake Pattern to wire together all the parts wihtout pre-defining a driver.
 
 Since Slick 3.0 imposes a huge refactoring, we decided to turn ActiveSlick inside out and eliminate the need of the Cake Pattern.
 
@@ -77,12 +76,27 @@ include::../../modules/samples/src/main/scala/io/strongtyped/active/slick/docexa
 
 The mapping is basically the same. Except that Coffee implements **Identifiable** However, we define it inside **CoffeeRepo** which implements **EntityActions**.
 
+From line 17 to 25 we have the necessary glue code to connect the IDs.
+
+ - #1 we need to bring to scope a implicit BaseTypedType for the Id type of the `Entity`. Without that ActiveSlick can't be `Queries`.
+ - #2 The type of the `Entity`. We choose to use **Type Aliases** instead of **Type Parameters** because it make the code a little bit cleaner when composing with other triats. (see `OptimisticLocking` trait and `SupplierDao` in `Schema.scala`).
+ - #3 **Type Alias** for the Table type
+ - #4 The `TableQuery` as usual.
+ - #5 A mapping method that allow us to identity the Slick Rep (column) tha is pointing to the Entity id column.
+ - #6 A lens for the `Coffee` id so we can extract the id and copy it to the case class.
+
 We have now a well known column for our primary key. The next step is to define the method to extract the id from our model and to add a generated id back into the model. 
 
 == Transactions
-As of version 0.3.0 and the introduction of DBIO in Slick 3.0, all methods return DBIO (not Futures). In Slick 3.0 the DB sessions and the transactional sessions are not passed as implicit parameters therefore is the user that have to manage the sessions and transactions.
+As of version 0.3.0 and the introduction of `DBIO` in Slick 3.0, all methods return `DBIO` (not `Futures`). In Slick 3.0 the DB sessions and the transactional sessions are not passed as implicit parameters therefore is the user that have to manage the sessions and transactions.
 
-If ActiveSlick were returning Futures instead, then the transactions will have to be managed internally by ActiveSlick which is of course not desirable.
+If ActiveSlick were returning Futures instead, then the transactions will have to be managed internally by **ActiveSlick** which is of course not desirable.
 
+== Optimistic Locking
+TODO
+(see `OptimisticLocking` trait and `SupplierDao` in `Schema.scala`).
 
+== Before Insert and Update hooks
+TODO
+(see `EntityActionsBeforeInsertUpdateTest.scala`)
 
