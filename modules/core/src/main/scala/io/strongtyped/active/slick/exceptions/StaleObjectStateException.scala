@@ -1,21 +1,6 @@
-/*
- * Copyright 2014 Renato Guerra Cavalcanti (@renatocaval)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.strongtyped.active.slick.exceptions
 
-import io.strongtyped.active.slick.models.Versionable
+import io.strongtyped.active.slick.Identifiable
 
-case class StaleObjectStateException[T <: Versionable[T]](staleObject: T, current: T)
-  extends ActiveSlickException(s"Optimistic locking error - object in stale state: $staleObject, current in DB: $current")
+case class StaleObjectStateException[T <: Identifiable](staleObject: T)
+  extends ActiveSlickException(s"Optimistic locking error - object in stale state: $staleObject")

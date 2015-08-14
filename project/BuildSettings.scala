@@ -4,17 +4,13 @@ import com.typesafe.sbt.SbtScalariform
 import xerial.sbt.Sonatype.SonatypeKeys._
 import xerial.sbt.Sonatype.sonatypeSettings
 
-trait BuildSettings { this:Build => 
+object BuildSettings {
 
-	val Organization = "io.strongtyped"
-
-	val ScalacOptions = Seq("-unchecked", "-deprecation", "-feature", "-Xlint")
-
-	val projectSettings = Seq(
-		  organization 		:= Organization
-		, scalaVersion 		:= "2.11.2"
-		, scalacOptions 	:= ScalacOptions
-	) ++ SbtScalariform.defaultScalariformSettings ++ sonatypePublishSettings
+	val projSettings = Seq(
+		scalacOptions := Seq("-unchecked", "-deprecation", "-feature", "-Xlint")
+	) ++
+    SbtScalariform.defaultScalariformSettings ++
+    sonatypePublishSettings
 
   	def sonatypePublishSettings = sonatypeSettings ++ Seq(
   	  profileName		:= "io.strongtyped",

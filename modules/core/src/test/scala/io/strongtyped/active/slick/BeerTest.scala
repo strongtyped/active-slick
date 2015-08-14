@@ -1,46 +1,47 @@
 package io.strongtyped.active.slick
 
-import io.strongtyped.active.slick.components.Components.instance._
 import io.strongtyped.active.slick.exceptions.RowNotFoundException
-import io.strongtyped.active.slick.models.{Beer, Supplier}
-import org.scalatest.{FunSuite, Matchers, OptionValues, TryValues}
+import io.strongtyped.active.slick.test.H2Suite
+import org.scalatest._
+import slick.driver.JdbcDriver
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
 
-class BeerTest extends FunSuite with Matchers with OptionValues with TryValues {
+class BeerTest extends FlatSpec with H2Suite with Schema {
 
-  test("A Beer should be persistable") {
-    DB.rollback { implicit sess =>
-      val supplier = Supplier("Acme, Inc.").save
+  behavior of "A Beer"
 
-      supplier.id shouldBe defined
-
-      supplier.id.map { supId =>
-        val coffee = Beer("Abc", supId, 3.2).save
-        coffee.supplier.value shouldBe supplier
+  it should "be persistable" in {
+    val (supplier, beer) =
+      rollback {
+        for {
+          supplier <- Supplier("Acme, Inc.").save()
+          beer <- Beer("Abc", supplier.id.get, 3.2).save()
+          beerSupplier <- beer.supplier()
+        } yield {
+          beerSupplier.value shouldBe supplier
+          supplier.id shouldBe defined
+          (supplier, beer)
+        }
       }
-    }
   }
 
-  test("Entity ID can't be chosen by user") {
-    DB.rollback { implicit sess =>
-      val supplier = Supplier("Acme, Inc.").save
+  it should "not be persisted with an id chosen by a user" in {
+    val (supplier, triedBeer) =
+      rollback {
+        for {
+          supplier <- Supplier("Acme, Inc.").save()
+          beer <- Beer("Abc", supplier.id.get, 3.2, Some(10)).save().asTry
+        } yield (supplier, beer)
+      }
 
-      supplier.id shouldBe defined
-
-      val supId = supplier.id.get
-      val tried = Beer("Abc", supId, 3.2, Some(10)).trySave
-      tried.failure.exception shouldBe a[RowNotFoundException[_]]
-    }
+    supplier.id shouldBe defined
+    triedBeer.failure.exception shouldBe a[RowNotFoundException[_]]
   }
 
-  test("Update of not persisted Entity should fail") {
-    DB.rollback { implicit sess =>
-      val supplier = Supplier("Acme, Inc.").save
-      supplier.id shouldBe defined
-      val supId = supplier.id.get
-      val tried = Beer("Abc", supId, 3.2, Some(10)).tryUpdate
 
-      tried.failure.exception shouldBe a[RowNotFoundException[_]]
-    }
+  def createSchemaAction: jdbcProfile.api.DBIO[Unit] = {
+    jdbcProfile.api.DBIO.seq(Suppliers.createSchema, Beers.createSchema)
   }
 
 }
