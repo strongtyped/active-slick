@@ -62,7 +62,7 @@
 <p>Before insert and update hooks.</p>
 </li>
 <li>
-<p><strong>ActiveRecord</strong> trait to enable the Active Record Pattern on mapped case classes via class extensions (pimp-my-library style)</p>
+<p><strong>ActiveRecord</strong> to enable the Active Record Pattern on mapped case classes via class extensions (pimp-my-library style)</p>
 </li>
 </ul>
 </div>
@@ -167,7 +167,7 @@
 <p>This approach was way to complex and hard to document. Users had to understand how to compose the traits and which classes to implement and/or mixin in order the get the desired effect.</p>
 </div>
 <div class="paragraph">
-<p>From v.0.3.x onwards one can build a DAO/Repository and enable an ActiveRecord extension using plain old Slick mappings. Some configuration is needed, but it&#8217;s far more obvious to configure it than to compose and bake a cake.</p>
+<p>From v.0.3.x onwards, one can build a DAO/Repository and enable an ActiveRecord extension using plain old Slick mappings. Some configuration is needed, but it&#8217;s far more obvious to configure it than to compose and bake a cake.</p>
 </div>
 </div>
 </div>
@@ -235,7 +235,7 @@
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-<code>EntityActions</code> implements to basic traits: <code>CrudActions</code> and <code>EntityActionsLike</code>. All method involving a <code>Model</code> are <code>Id</code> agnostic and are defined in <code>CrudActions</code>. Methods involving an <code>Entity</code> are defined by <code>EntityActionsLike</code>
+<code>EntityActions</code> implements two basic traits: <code>CrudActions</code> and <code>EntityActionsLike</code>. All methods involving a <code>Model</code> are <code>Id</code> agnostic and are defined in <code>CrudActions</code>. Methods involving an <code>Entity</code> are defined by <code>EntityActionsLike</code>
 </td>
 </tr>
 </table>
@@ -285,8 +285,8 @@
     <span class="tok-o">}</span>
   <span class="tok-o">}</span>
 
-  <span class="tok-k">implicit</span> <span class="tok-k">class</span> <span class="tok-nc">EntryExtensions</span><span class="tok-o">(</span><span class="tok-k">val</span> <span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Coffee</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">ActiveRecord</span><span class="tok-o">[</span><span class="tok-kt">Coffee</span><span class="tok-o">]</span> <span class="tok-o">{</span>
-    <span class="tok-k">val</span> <span class="tok-n">repository</span> <span class="tok-k">=</span> <span class="tok-nc">CoffeeRepo</span>
+  <span class="tok-k">implicit</span> <span class="tok-k">class</span> <span class="tok-nc">EntryExtensions</span><span class="tok-o">(</span><span class="tok-k">val</span> <span class="tok-n">model</span><span class="tok-k">:</span> <span class="tok-kt">Coffee</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">ActiveRecord</span><span class="tok-o">(</span><span class="tok-nc">CoffeeRepo</span><span class="tok-o">)</span> <span class="tok-o">{</span>
+<span class="tok-c1">//    val repository = CoffeeRepo</span>
   <span class="tok-o">}</span>
 
   <span class="tok-k">val</span> <span class="tok-n">saveAction</span> <span class="tok-k">=</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-s">&quot;Colombia&quot;</span><span class="tok-o">).</span><span class="tok-n">save</span><span class="tok-o">()</span>
@@ -314,15 +314,15 @@
 </tr>
 <tr>
 <td><i class="conum" data-value="3"></i><b>3</b></td>
-<td>Type Alias for the <code>Entity</code> type.  We choose to use <strong>Type Aliases</strong> instead of <strong>Type Parameters</strong> because it make the code a little bit cleaner when composing with other traits. (see <code>OptimisticLocking</code> trait and <code>SupplierDao</code> in <code>Schema.scala</code>).</td>
+<td>Type Member for the <code>Entity</code> type.  We choose to use <strong>Type Member</strong> instead of <strong>Type Parameters</strong> because it make the code a little bit cleaner when composing with other traits. (see <code>OptimisticLocking</code> trait and <code>SupplierDao</code> in <code>Schema.scala</code>).</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="4"></i><b>4</b></td>
-<td>Type Alias for the Entity&#8217;s <code>Id</code></td>
+<td>Type Member for the Entity&#8217;s <code>Id</code></td>
 </tr>
 <tr>
 <td><i class="conum" data-value="5"></i><b>5</b></td>
-<td>Type Alias pointing to the Entity&#8217;s Table. This is required by <code>EntityActions</code> as the predefined methods must know the type of the table.</td>
+<td>Type Member pointing to the Entity&#8217;s Table. This is required by <code>EntityActions</code> as the predefined methods must know the type of the table.</td>
 </tr>
 <tr>
 <td><i class="conum" data-value="6"></i><b>6</b></td>
@@ -348,7 +348,7 @@
 <h2 id="_transactions">Transactions</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>As of version 0.3.0 and the introduction of <code>DBIO</code> in Slick 3.0, all methods return <code>DBIO</code> (not <code>Futures</code>). In Slick 3.0 the DB sessions and the transactional sessions are not passed as implicit parameters therefore is the user that have to manage the sessions and transactions.</p>
+<p>As of version 0.3.0 and the introduction of <code>DBIO</code> in Slick 3.0, all methods return <code>DBIO</code> (not <code>Futures</code>). In Slick 3.0 the DB sessions and the transactional sessions are not passed as implicit parameters therefore it is the user that have to manage the sessions and transactions.</p>
 </div>
 <div class="paragraph">
 <p>If ActiveSlick were returning Futures instead, then the transactions will have to be managed internally by <strong>ActiveSlick</strong> which is of course not desirable.</p>
@@ -407,7 +407,7 @@
 </td>
 <td class="content">
 <div class="paragraph">
-<p>Note that we can mixin the trait <code>OptimisticLocking</code> without specifying the type of the <code>Entity</code> nor the <code>Id</code> type. This is due to the usage of Type Alias.</p>
+<p>Note that we can mixin the trait <code>OptimisticLocking</code> without specifying the type of the <code>Entity</code> nor the <code>Id</code> type. This is due to the usage of Type Members.</p>
 </div>
 <div class="paragraph">
 <p>If we were using Type Parameters, we&#8217;ll be forced to repeat the types each time as in:
@@ -468,7 +468,7 @@
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-08-15 02:43:21 CEST
+Last updated 2015-08-16 00:59:10 CEST
 </div>
 </div>
 </body>
