@@ -17,7 +17,7 @@ toc::[]
 - Generic Id type. 
 - Optimistic locking my means of incremental version.
 - Before insert and update hooks.
-- **ActiveRecord** trait to enable the Active Record Pattern on mapped case classes via class extensions (pimp-my-library style)
+- **ActiveRecord** to enable the Active Record Pattern on mapped case classes via class extensions (pimp-my-library style)
 
 == Project artifact
 
@@ -73,7 +73,7 @@ As a result, all special traits/classes like `TableId`, `TableWithIdQuery`, `Ent
 
 This approach was way to complex and hard to document. Users had to understand how to compose the traits and which classes to implement and/or mixin in order the get the desired effect. 
 
-From v.0.3.x onwards one can build a DAO/Repository and enable an ActiveRecord extension using plain old Slick mappings. Some configuration is needed, but it's far more obvious to configure it than to compose and bake a cake.
+From v.0.3.x onwards, one can build a DAO/Repository and enable an ActiveRecord extension using plain old Slick mappings. Some configuration is needed, but it's far more obvious to configure it than to compose and bake a cake.
 
 == EntityActions
 
@@ -88,7 +88,7 @@ include::../../modules/core/src/main/scala/io/strongtyped/active/slick/CrudActio
 include::../../modules/core/src/main/scala/io/strongtyped/active/slick/EntityActionsLike.scala[tags=adoc]
 ----
 
-TIP: `EntityActions` implements to basic traits: `CrudActions` and `EntityActionsLike`. All method involving a `Model` are `Id` agnostic and are defined in `CrudActions`. Methods involving an `Entity` are defined by `EntityActionsLike`
+TIP: `EntityActions` implements two basic traits: `CrudActions` and `EntityActionsLike`. All methods involving a `Model` are `Id` agnostic and are defined in `CrudActions`. Methods involving an `Entity` are defined by `EntityActionsLike`
 
 === Mapping using ActiveSlick
 
@@ -117,7 +117,7 @@ The previous code fragment shows all necessary building blocks we need:
 We have now a well known column for our primary key. The next step is to define the method to extract the id from our model and to add a generated id back into the model. 
 
 == Transactions
-As of version 0.3.0 and the introduction of `DBIO` in Slick 3.0, all methods return `DBIO` (not `Futures`). In Slick 3.0 the DB sessions and the transactional sessions are not passed as implicit parameters therefore is the user that have to manage the sessions and transactions.
+As of version 0.3.0 and the introduction of `DBIO` in Slick 3.0, all methods return `DBIO` (not `Futures`). In Slick 3.0 the DB sessions and the transactional sessions are not passed as implicit parameters therefore it is the user that have to manage the sessions and transactions.
 
 If ActiveSlick were returning Futures instead, then the transactions will have to be managed internally by **ActiveSlick** which is of course not desirable.
 
