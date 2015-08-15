@@ -45,7 +45,7 @@ class EntityActionsBeforeInsertUpdateTest
 
 
   override def createSchemaAction = {
-    foos.createSchema
+    Foos.createSchema
   }
 
 
@@ -112,12 +112,9 @@ class EntityActionsBeforeInsertUpdateTest
     }
   }
 
-  val foos = new FooDao
+  val Foos = new FooDao
 
 
-  implicit class EntryExtensions(val entity: Foo) extends ActiveRecord[Foo] {
-
-    val repository = foos
-  }
+  implicit class EntryExtensions(val model: Foo) extends ActiveRecord(Foos)
 
 }

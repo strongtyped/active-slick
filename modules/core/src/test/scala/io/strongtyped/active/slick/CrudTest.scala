@@ -84,8 +84,7 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
     def $id(table: FooTable) = table.id
 
-    val idLens = lens { foo: Foo => foo.id }
-                      { (entry, id) => entry.copy(id = id) }
+    val idLens = lens { foo: Foo => foo.id } { (entry, id) => entry.copy(id = id) }
 
     def createSchema = {
       import jdbcProfile.api._
@@ -96,9 +95,6 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
   val Foos = new FooDao
 
 
-  implicit class EntryExtensions(val entity: Foo) extends ActiveRecord[Foo] {
-
-    val repository = Foos
-  }
+  implicit class EntryExtensions(val model: Foo) extends ActiveRecord(Foos)
 
 }

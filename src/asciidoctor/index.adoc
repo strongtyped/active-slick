@@ -107,9 +107,9 @@ The previous code fragment shows all necessary building blocks we need:
 
 <1> The first thing to note is the `import jdbcProfile.api._`. As said before Slick requires jdbc driver. If this line is not included many of the necessary Slick traits, classes and extension methods won't be available.
 <2> Define a `BaseTypedType` for the `Entity`'s Id by looking up on the implicit scope. This is probably the most  intriging one. This is necessary to build queries involving the `Id`. Note that you don't need to make it implicit yourself. This is already done by the internals of `EntityActions` implementation.
-<3> Type Alias for the `Entity` type.  We choose to use **Type Aliases** instead of **Type Parameters** because it make the code a little bit cleaner when composing with other traits. (see `OptimisticLocking` trait and `SupplierDao` in `Schema.scala`).
-<4> Type Alias for the Entity's `Id`
-<5> Type Alias pointing to the Entity's Table. This is required by `EntityActions` as the predefined methods must know the type of the table.
+<3> Type Member for the `Entity` type.  We choose to use **Type Member** instead of **Type Parameters** because it make the code a little bit cleaner when composing with other traits. (see `OptimisticLocking` trait and `SupplierDao` in `Schema.scala`).
+<4> Type Member for the Entity's `Id`
+<5> Type Member pointing to the Entity's Table. This is required by `EntityActions` as the predefined methods must know the type of the table.
 <6> The ubiquitous Slick `TableQuery`. This is required by `EntityActions` in order to implement the basic methods. 
 <7> A method returning the `Id` column (ie: `Rep[Id]`). This is how we indicate which table column must be used for all operations involving the primary key.
 <8> Finally a `Lens` to get and set the `Id` on the `Entity`. 
@@ -139,7 +139,7 @@ The `OptimisticLocking` requires two new methods to implement in order to glue t
 
 [TIP]
 ====
-Note that we can mixin the trait `OptimisticLocking` without specifying the type of the `Entity` nor the `Id` type. This is due to the usage of Type Alias.  
+Note that we can mixin the trait `OptimisticLocking` without specifying the type of the `Entity` nor the `Id` type. This is due to the usage of Type Members.
 
 If we were using Type Parameters, we'll be forced to repeat the types each time as in: 
 `EntityActions[Coffee, Int](H2Driver) with OptimisticLocking[Coffee, Int]`
