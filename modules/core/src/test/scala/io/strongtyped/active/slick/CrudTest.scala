@@ -5,6 +5,7 @@ import org.scalatest.FlatSpec
 import slick.ast.BaseTypedType
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
+import io.strongtyped.active.slick.Lens._
 
 class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
@@ -58,18 +59,16 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
   }
 
 
-  case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
-
-    type Id = Int
-  }
+  case class Foo(name: String, id: Option[Int] = None)
 
   class FooDao extends EntityActions(jdbcProfile) {
 
     import jdbcProfile.api._
 
-    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
+    val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
     type Entity = Foo
+    type Id = Int
 
     class FooTable(tag: Tag) extends Table[Foo](tag, "FOO_CRUD_TEST") {
 
@@ -85,7 +84,8 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
     def $id(table: FooTable) = table.id
 
-    val idLens = Lens[Foo, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
+    val idLens = lens { foo: Foo => foo.id }
+                      { (entry, id) => entry.copy(id = id) }
 
     def createSchema = {
       import jdbcProfile.api._
@@ -98,7 +98,7 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
   implicit class EntryExtensions(val entity: Foo) extends ActiveRecord[Foo] {
 
-    val crudActions = Foos
+    val repository = Foos
   }
 
 }

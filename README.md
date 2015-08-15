@@ -14,21 +14,22 @@ http://www.strongtyped.io/active-slick/
 - Basic CRUD and auxiliary methods - add/update/save, delete, findById, count and fetchAll (backed by Reactive Streams).
 - Generic Id type. 
 - Optimistic locking my means of incremental version.
+- Before insert and update hooks.
 - **ActiveRecord** trait to enable the Active Record Pattern on mapped case classes via class extensions (pimp-my-library style)
 
 ### Project artifact
 
 The artifacts are published to Sonatype Repository. Simply add the following to your build.sbt.
 
-As of version 0.3.0 we don't support Slick 2.0 anymore. The differences between Slick 2.0 and Slick 3.0 are so huge that it makes impossible to support two versions. 
+As of version 0.3.x we don't support Slick 2.0 anymore. The differences between Slick 2.0 and Slick 3.0 are so huge that it makes impossible to support two versions. 
 
-  libraryDependencies += "io.strongtyped" %% "active-slick" % "0.3.0"
+  libraryDependencies += "io.strongtyped" %% "active-slick" % "0.3.1"
   
-Source code for version 0.3.0 can be found at:
-https://github.com/strongtyped/active-slick/tree/v0.3.0
+Source code for version 0.3.1 can be found at:
+https://github.com/strongtyped/active-slick/tree/v0.3.1
 
 
-The version supporting Slick 2.0 is still available on Sonatype Repo. However, this documentation only covers the current version (i.e.: 0.3.0).
+The version supporting Slick 2.0 is still available on Sonatype Repo. However, this documentation only covers the current version (i.e.: 0.3.1).
 
   libraryDependencies += "io.strongtyped" %% "active-slick" % "0.2.2"
 

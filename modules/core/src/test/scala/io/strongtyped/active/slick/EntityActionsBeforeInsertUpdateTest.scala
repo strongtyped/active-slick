@@ -3,7 +3,7 @@ package io.strongtyped.active.slick
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest.FlatSpec
 import slick.ast.BaseTypedType
-
+import io.strongtyped.active.slick.Lens._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -49,11 +49,7 @@ class EntityActionsBeforeInsertUpdateTest
   }
 
 
-  case class Foo(name: String, id: Option[Int] = None) extends Identifiable {
-
-    type Id = Int
-  }
-
+  case class Foo(name: String, id: Option[Int] = None)
 
   class NameShouldNotBeEmptyException extends RuntimeException("Name should not be empty")
 
@@ -63,10 +59,11 @@ class EntityActionsBeforeInsertUpdateTest
 
     import jdbcProfile.api._
 
-    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
+    val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]]
 
     type EntityTable = FooTable
     type Entity = Foo
+    type Id = Int
 
     class FooTable(tag: Tag) extends Table[Foo](tag, "FOO_VALIDATION_TEST") {
 
@@ -82,7 +79,8 @@ class EntityActionsBeforeInsertUpdateTest
 
     def $id(table: FooTable) = table.id
 
-    val idLens = Lens[Foo, Option[Int]](_.id, (entry, id) => entry.copy(id = id))
+    val idLens = lens { foo: Foo => foo.id }
+                      { (entry, id) => entry.copy(id = id) }
 
     //@formatter:off
     // tag::adoc[]
@@ -119,7 +117,7 @@ class EntityActionsBeforeInsertUpdateTest
 
   implicit class EntryExtensions(val entity: Foo) extends ActiveRecord[Foo] {
 
-    val crudActions = foos
+    val repository = foos
   }
 
 }

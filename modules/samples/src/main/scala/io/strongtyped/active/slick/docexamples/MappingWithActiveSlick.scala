@@ -1,5 +1,7 @@
 package io.strongtyped.active.slick.docexamples
 
+//@formatter:off
+// tag::adoc[]
 import io.strongtyped.active.slick._
 import slick.ast.BaseTypedType
 import slick.driver.H2Driver
@@ -7,38 +9,39 @@ import io.strongtyped.active.slick.Lens._
 import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
 
-//@formatter:off
-// tag::adoc[]
 object MappingWithActiveSlick {
 
-  case class Coffee(name: String, id: Option[Int] = None) extends Identifiable {
-    override type Id = Int
-  }
+  case class Coffee(name: String, id: Option[Int] = None)
 
   object CoffeeRepo extends EntityActions(H2Driver) {
 
-    import jdbcProfile.api._
+    import jdbcProfile.api._ // #<1>
+    val baseTypedType = implicitly[BaseTypedType[Id]] // #<2>
 
-    class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") {
+    type Entity = Coffee // #<3>
+    type Id = Int // #<4>
+    type EntityTable = CoffeeTable // # <5>
+
+    val tableQuery = TableQuery[CoffeeTable] // # <6>
+
+    def $id(table: CoffeeTable): Rep[Id] = table.id // # <7>
+    
+    val idLens = lens { coffee: Coffee => coffee.id  } // # <8>
+                      { (coffee, id) => coffee.copy(id = id) } 
+
+    class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") { // #<9>
       def name = column[String]("NAME")
-      def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+      def id = column[Id]("ID", O.PrimaryKey, O.AutoInc)
       def * = (name, id.?) <>(Coffee.tupled, Coffee.unapply)
     }
 
-    implicit val baseTypedType: BaseTypedType[Id] = implicitly[BaseTypedType[Id]] // #<1>
-    type Entity = Coffee // #<2>
-    type EntityTable = CoffeeTable // # <3>
-    val tableQuery = TableQuery[CoffeeTable] // # <4>
-
-    def $id(table: CoffeeTable) = table.id // # <5>
-    val idLens = lens[Coffee, Option[Int]]( // # <6>
-      coffee => coffee.id,
-      (coffee, id) => coffee.copy(id = id)
-    )
+    def findByName(name:String): DBIO[Seq[Coffee]] = {
+      tableQuery.filter(_.name === name).result
+    }
   }
 
   implicit class EntryExtensions(val entity: Coffee) extends ActiveRecord[Coffee] {
-    val crudActions = CoffeeRepo
+    val repository = CoffeeRepo
   }
 
   val saveAction = Coffee("Colombia").save()

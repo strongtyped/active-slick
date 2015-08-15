@@ -1,34 +1,39 @@
 = ActiveSlick
-:toc2:
+:toc: macro
+:linkcss:
 :icons: font
 :source-highlighter: pygments
 :pygments-style: monokai
 :pygments-linenums-mode: inline
+:author: Renato Cavalcanti - Strong[Typed]
 
 
 ActiveSlick is a library that offers CRUD operations for Slick 3.0 projects. The main goal is to provide some basic operations to manage the lifecycle of persisted objects (new/persisted/deleted/stale) and enable the implementation of the Active Record Pattern on Slick mapped case classes.
+
+toc::[]
 
 == Main features
 - Basic CRUD and auxiliary methods - add/update/save, delete, findById, count and fetchAll (backed by Reactive Streams).
 - Generic Id type. 
 - Optimistic locking my means of incremental version.
+- Before insert and update hooks.
 - **ActiveRecord** trait to enable the Active Record Pattern on mapped case classes via class extensions (pimp-my-library style)
 
 == Project artifact
 
 The artifacts are published to Sonatype Repository. Simply add the following to your build.sbt.
 
-As of version 0.3.0 we don't support Slick 2.0 anymore. The differences between Slick 2.0 and Slick 3.0 are so huge that it makes impossible to support two versions. 
+As of version 0.3.x we don't support Slick 2.0 anymore. The differences between Slick 2.0 and Slick 3.0 are so huge that it makes impossible to support two versions. 
 
 [source,scala]
 ----  
-libraryDependencies += "io.strongtyped" %% "active-slick" % "0.3.0"
+libraryDependencies += "io.strongtyped" %% "active-slick" % "0.3.1"
 ----
 Source code for version 0.3.0 can be found at:
-https://github.com/strongtyped/active-slick/tree/v0.3.0
+https://github.com/strongtyped/active-slick/tree/v0.3.1
 
 
-The version supporting Slick 2.0 is still available on Sonatype Repo. However, this documentation only covers the current version (i.e.: 0.3.0).
+The version supporting Slick 2.0 is still available on Sonatype Repo. However, this documentation only covers the current version (i.e.: 0.3.1).
 [source,scala]
 ----  
 libraryDependencies += "io.strongtyped" %% "active-slick" % "0.2.2"
@@ -47,43 +52,67 @@ As a consequence, managing of Entities IDs must be done by hand, over and over a
 The following code fragment demonstrates how this is typically done in a Slick application.  
 
 
-[source,scala,linenums]
+[source,scala]
 ----  
 include::../../modules/samples/src/main/scala/io/strongtyped/active/slick/docexamples/MappingWithoutActiveSlick.scala[tags=adoc]
 ----
 
-Both **Coffee** and **CoffeeTable** have an **Id** representing the primary key. **Coffee** has a field of type **Option[Int]** (#1) and **CoffeeTable** has a method returning a **Rep[Int]** (#2). However, in order to inserta new Coffee we need some boilerplate to get back the generated ID (#3).
+<1> Both **Coffee** and **CoffeeTable** have an **Id** representing the primary key. **Coffee** has a field of type **Option[Int]** 
+<2> **CoffeeTable** has a method returning a **Rep[Int]**.
+<3> However, in order to inserta new Coffee we need some boilerplate to get back the generated ID.
 
-If we manage to connect both **ID** we can provide some generic functionality to manage Entities. Inserting a new Entity is only one of the possible use cases. With a well known ID, we can distinguish if an Entity has been already persisted or not, we can easilly implement byId methods (deleteById, findById) and we can add extensions methods like: save, udpate, delete
+If we manage to connect both **ID** we can provide some generic functionality to manage Entities. Inserting a new `Entity` is only one of the possible use cases. With a well known ID, we can distinguish if an `Entity` has been already persisted or not, we can easilly implement byId methods (`deleteById`, `findById`) and we can add extensions methods like: `save`, `udpate`, `delete`.
 
 
 == History
 The first intention of this project was to implement Slick DAOs or Repositories using only Scala features and the Scala compiler (no code generation).
 
-In the time of Slick 2.0, this library required the usage of the Cake Pattern to wire together all the parts wihtout pre-defining a driver.
+In the time of Slick 2.0, this library required the usage of the Cake Pattern to wire together all the parts wihtout pre-defining a driver. Since Slick 3.0 imposes a huge refactoring, we decided to turn ActiveSlick inside out and eliminate the need of the Cake Pattern.
 
-Since Slick 3.0 imposes a huge refactoring, we decided to turn ActiveSlick inside out and eliminate the need of the Cake Pattern.
+As a result, all special traits/classes like `TableId`, `TableWithIdQuery`, `EntityTableQuery`, etc, are gone. These classes could only compile if a driver was in scope. However, only the final user of the library can decide which driver to use. To overcome that situation we had to define everything inside components and wire them all together in a cake. 
+
+This approach was way to complex and hard to document. Users had to understand how to compose the traits and which classes to implement and/or mixin in order the get the desired effect. 
+
+From v.0.3.x onwards one can build a DAO/Repository and enable an ActiveRecord extension using plain old Slick mappings. Some configuration is needed, but it's far more obvious to configure it than to compose and bake a cake.
+
+== EntityActions
+
+`EntityActions` is the main class we can use to build a DAO/Repository. It offers default implmentation for the following methods.
 
 
-== Mapping using ActiveSlick
 
-The following code fragment illustrates how we can use ActiveSlick **EntityActions** to bind the model Id field and the table id column.  
+[source,scala]
+----  
+include::../../modules/core/src/main/scala/io/strongtyped/active/slick/CrudActions.scala[tags=adoc]
 
-[source,scala,linenums]
+include::../../modules/core/src/main/scala/io/strongtyped/active/slick/EntityActionsLike.scala[tags=adoc]
+----
+
+TIP: `EntityActions` implements to basic traits: `CrudActions` and `EntityActionsLike`. All method involving a `Model` are `Id` agnostic and are defined in `CrudActions`. Methods involving an `Entity` are defined by `EntityActionsLike`
+
+=== Mapping using ActiveSlick
+
+The following code fragment illustrates how we can use ActiveSlick `EntityActions` to bind the `Entity` `Id` field and the `Table Id column`.  
+
+[source,scala]
 ----  
 include::../../modules/samples/src/main/scala/io/strongtyped/active/slick/docexamples/MappingWithActiveSlick.scala[tags=adoc]
 ----
 
-The mapping is basically the same. Except that Coffee implements **Identifiable** However, we define it inside **CoffeeRepo** which implements **EntityActions**.
+The mapping is exactly the same. However, we define it inside **CoffeeRepo** which implements **EntityActions**. 
 
-From line 17 to 25 we have the necessary glue code to connect the IDs.
 
- - #1 we need to bring to scope a implicit BaseTypedType for the Id type of the `Entity`. Without that ActiveSlick can't be `Queries`.
- - #2 The type of the `Entity`. We choose to use **Type Aliases** instead of **Type Parameters** because it make the code a little bit cleaner when composing with other triats. (see `OptimisticLocking` trait and `SupplierDao` in `Schema.scala`).
- - #3 **Type Alias** for the Table type
- - #4 The `TableQuery` as usual.
- - #5 A mapping method that allow us to identity the Slick Rep (column) tha is pointing to the Entity id column.
- - #6 A lens for the `Coffee` id so we can extract the id and copy it to the case class.
+=== Building blocks
+The previous code fragment shows all necessary building blocks we need in order to define 
+
+<1> The first thing to note is the `import jdbcProfile.api._`. As said before Slick requires jdbc driver. If this line is not included many of the necessary Slick traits, classes and extension methods won't be available.
+<2> Define a `BaseTypedType` for the `Entity`'s Id by looking up on the implicit scope. This is probably the most  intriging one. This is necessary to build queries involving the `Id`. Note that you don't need to make it implicit yourself. This is already done by the internals of `EntityActions` implementation.
+<3> Type Alias for the `Entity` type.  We choose to use **Type Aliases** instead of **Type Parameters** because it make the code a little bit cleaner when composing with other traits. (see `OptimisticLocking` trait and `SupplierDao` in `Schema.scala`).
+<4> Type Alias for the Entity's `Id`
+<5> Type Alias pointing to the Entity's Table. This is required by `EntityActions` as the predefined methods must know the type of the table.
+<6> The ubiquitous Slick `TableQuery`. This is required by `EntityActions` in order to implement the basic methods. 
+<7> A method returning the `Id` column (ie: `Rep[Id]`). This is how we indicate which table column must be used for all operations involving the primary key.
+<8> Finally a `Lens` to get and set the `Id` on the `Entity`. 
 
 We have now a well known column for our primary key. The next step is to define the method to extract the id from our model and to add a generated id back into the model. 
 
@@ -93,10 +122,50 @@ As of version 0.3.0 and the introduction of `DBIO` in Slick 3.0, all methods ret
 If ActiveSlick were returning Futures instead, then the transactions will have to be managed internally by **ActiveSlick** which is of course not desirable.
 
 == Optimistic Locking
-TODO
-(see `OptimisticLocking` trait and `SupplierDao` in `Schema.scala`).
+
+Optimistic locking is supported by means for a version column of type `Long`.
+
+[source,scala]
+----  
+include::../../modules/samples/src/main/scala/io/strongtyped/active/slick/docexamples/OptimisticLockingExample.scala[tags=adoc]
+    ...
+  }
+----
+The `OptimisticLocking` requires two new methods to implement in order to glue the `version` field to the `version` column. 
+
+<1> A method returning the `version` column (ie: `Rep[Long]`). This is how we indicate which table column must be used store the version information.
+<2> A `Lens` to get and set the `version` on the `Entity`. 
+
+
+[TIP]
+====
+Note that we can mixin the trait `OptimisticLocking` without specifying the type of the `Entity` nor the `Id` type. This is due to the usage of Type Alias.  
+
+If we were using Type Parameters, we'll be forced to repeat the types each time as in: 
+`EntityActions[Coffee, Int](H2Driver) with OptimisticLocking[Coffee, Int]`
+====
 
 == Before Insert and Update hooks
-TODO
-(see `EntityActionsBeforeInsertUpdateTest.scala`)
 
+`EntityActions` provide two hooks to modify Entity data before insert and update. One can overwrite these methods to add extra checks or modify the `Entity` just before insert and updates. 
+
+A possible usage could be to automatically update `lastUpdated` field for audit purposes.
+(see `EntityActionsBeforeInsertUpdateTest.scala` for a concrete example)
+
+In both cases, the returned DBIO is combined will be combined with the corresponding DBIO (from insert or update methods) and executed in the same transaction.
+
+[source,scala]
+----
+def beforeInsert(entity: Entity)(implicit exc: ExecutionContext): DBIO[Entity] = {
+    // default implementation does nothing
+    DBIO.successful(entity)
+}
+
+def beforeUpdate(id: Id, entity: Entity)(implicit exc: ExecutionContext): DBIO[Entity] = {
+    // default implementation does nothing
+    DBIO.successful(entity)
+}
+----
+
+
+toc::[]
