@@ -103,7 +103,7 @@ The mapping is exactly the same. However, we define it inside **CoffeeRepo** whi
 
 
 === Building blocks
-The previous code fragment shows all necessary building blocks we need in order to define 
+The previous code fragment shows all necessary building blocks we need:
 
 <1> The first thing to note is the `import jdbcProfile.api._`. As said before Slick requires jdbc driver. If this line is not included many of the necessary Slick traits, classes and extension methods won't be available.
 <2> Define a `BaseTypedType` for the `Entity`'s Id by looking up on the implicit scope. This is probably the most  intriging one. This is necessary to build queries involving the `Id`. Note that you don't need to make it implicit yourself. This is already done by the internals of `EntityActions` implementation.
