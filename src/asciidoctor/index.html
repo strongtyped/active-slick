@@ -194,7 +194,7 @@
   <span class="tok-k">def</span> <span class="tok-n">update</span><span class="tok-o">(</span><span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Model</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Model</span><span class="tok-o">]</span>
 
   <span class="tok-cm">/** Delete a `Model`.</span>
-<span class="tok-cm">    * @returns DBIO[Int] with the number of affected rows</span>
+<span class="tok-cm">    * @return DBIO[Int] with the number of affected rows</span>
 <span class="tok-cm">    */</span>
   <span class="tok-k">def</span> <span class="tok-n">delete</span><span class="tok-o">(</span><span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Model</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]</span>
 
@@ -205,24 +205,25 @@
   <span class="tok-k">def</span> <span class="tok-n">fetchAll</span><span class="tok-o">(</span><span class="tok-n">fetchSize</span><span class="tok-k">:</span> <span class="tok-kt">Int</span> <span class="tok-o">=</span> <span class="tok-mi">100</span><span class="tok-o">)</span>
               <span class="tok-o">(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">StreamingDBIO</span><span class="tok-o">[</span><span class="tok-kt">Seq</span><span class="tok-o">[</span><span class="tok-kt">Model</span><span class="tok-o">]</span>, <span class="tok-kt">Model</span><span class="tok-o">]</span>
 
+
   <span class="tok-cm">/** Insert a new `Entity`</span>
 <span class="tok-cm">    * @return DBIO[Id] for the generated `Id`</span>
 <span class="tok-cm">    */</span>
   <span class="tok-k">def</span> <span class="tok-n">insert</span><span class="tok-o">(</span><span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Entity</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Id</span><span class="tok-o">]</span>
 
   <span class="tok-cm">/** Delete a `Entity` by `Id`</span>
-<span class="tok-cm">    * @returns DBIO[Int] with the number of affected rows</span>
+<span class="tok-cm">    * @return DBIO[Int] with the number of affected rows</span>
 <span class="tok-cm">    */</span>
   <span class="tok-k">def</span> <span class="tok-n">deleteById</span><span class="tok-o">(</span><span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Id</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]</span>
 
   <span class="tok-cm">/** Finds `Entity` referenced by `Id`.</span>
 <span class="tok-cm">    * May fail if no `Entity` is found for passed `Id`</span>
-<span class="tok-cm">    * @returns DBIO[Entity] for the `Entity`</span>
+<span class="tok-cm">    * @return DBIO[Entity] for the `Entity`</span>
 <span class="tok-cm">    */</span>
   <span class="tok-k">def</span> <span class="tok-n">findById</span><span class="tok-o">(</span><span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Id</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Entity</span><span class="tok-o">]</span>
 
- <span class="tok-cm">/** Finds `Entity` referenced by `Id` optionally.</span>
-<span class="tok-cm">    * @returns DBIO[Option[Entity]] for the `Entity`</span>
+  <span class="tok-cm">/** Finds `Entity` referenced by `Id` optionally.</span>
+<span class="tok-cm">    * @return DBIO[Option[Entity]] for the `Entity`</span>
 <span class="tok-cm">    */</span>
   <span class="tok-k">def</span> <span class="tok-n">findOptionById</span><span class="tok-o">(</span><span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Id</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Option</span><span class="tok-o">[</span><span class="tok-kt">Entity</span><span class="tok-o">]]</span></code></pre>
 </div>
@@ -467,7 +468,7 @@
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-08-15 01:59:13 CEST
+Last updated 2015-08-15 02:00:11 CEST
 </div>
 </div>
 </body>
