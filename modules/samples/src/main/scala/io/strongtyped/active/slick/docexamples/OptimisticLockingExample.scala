@@ -50,9 +50,8 @@ object OptimisticLockingExample {
     }
   }
 
-  implicit class EntryExtensions(val entity: Coffee) extends ActiveRecord[Coffee] {
+  implicit class EntryExtensions(val model: Coffee) extends ActiveRecord(CoffeeRepo) {
 
-    val repository = CoffeeRepo
   }
 
   val saveAction = Coffee("Colombia").save()
