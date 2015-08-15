@@ -5,11 +5,11 @@ import slick.driver.JdbcProfile
 import scala.concurrent.ExecutionContext
 
 /**
-  * Define basic CRUD actions. 
-  * 
-  * This trait make no assumption about the presence of an Entity and a corresponding ID. 
-  * Therefore it can also be used for persistence of Value Objects.
-  */
+ * Define basic CRUD actions.
+ *
+ * This trait make no assumption about the presence of an Entity and a corresponding ID.
+ * Therefore it can also be used for persistence of Value Objects.
+ */
 trait CrudActions {
 
   val jdbcProfile: JdbcProfile
@@ -17,7 +17,7 @@ trait CrudActions {
   import jdbcProfile.api._
 
   type Model
-// tag::adoc[]
+  // tag::adoc[]
   /** Returns total table count */
   def count: DBIO[Int]
 
@@ -33,7 +33,7 @@ trait CrudActions {
   def update(entity: Model)(implicit exc: ExecutionContext): DBIO[Model]
 
   /** Delete a `Model`. 
-    * @returns DBIO[Int] with the number of affected rows 
+    * @return DBIO[Int] with the number of affected rows
     */
   def delete(entity: Model)(implicit exc: ExecutionContext): DBIO[Int]
 
@@ -43,5 +43,6 @@ trait CrudActions {
     */
   def fetchAll(fetchSize: Int = 100)
               (implicit exc: ExecutionContext): StreamingDBIO[Seq[Model], Model]
-// end::adoc[]
+
+  // end::adoc[]
 }
