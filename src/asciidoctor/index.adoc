@@ -16,6 +16,7 @@ toc::[]
 - Basic CRUD and auxiliary methods - add/update/save, delete, findById, count and fetchAll (backed by Reactive Streams).
 - Generic Id type. 
 - Optimistic locking my means of incremental version.
+- Before insert and update hooks.
 - **ActiveRecord** trait to enable the Active Record Pattern on mapped case classes via class extensions (pimp-my-library style)
 
 == Project artifact
