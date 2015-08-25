@@ -3,5 +3,6 @@ package io.strongtyped.active.slick
 import slick.driver.JdbcProfile
 
 trait JdbcProfileProvider {
-  val jdbcProfile:JdbcProfile
+  type JP <: JdbcProfile
+  val jdbcProfile: JP
 }

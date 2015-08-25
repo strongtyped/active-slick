@@ -15,7 +15,7 @@ trait Schema extends JdbcProfileProvider {
                   price: Double,
                   id: Option[Int] = None)
 
-  class SupplierDao extends EntityActions(jdbcProfile) with OptimisticLocking {
+  class SupplierDao extends EntityActions with OptimisticLocking with H2ProfileProvider {
 
     import jdbcProfile.api._
 
@@ -58,7 +58,7 @@ trait Schema extends JdbcProfileProvider {
 
   implicit class SupplierRecord(val model: Supplier) extends ActiveRecord(Suppliers)
 
-  class BeersDao extends EntityActions(jdbcProfile) {
+  class BeersDao extends EntityActions with H2ProfileProvider {
 
     import jdbcProfile.api._
 

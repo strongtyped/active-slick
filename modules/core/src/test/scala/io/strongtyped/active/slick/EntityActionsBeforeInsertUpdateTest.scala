@@ -55,7 +55,7 @@ class EntityActionsBeforeInsertUpdateTest
 
   class NameCanNotBeModifiedException extends RuntimeException("Name can not be modified")
 
-  class FooDao extends EntityActions(jdbcProfile) {
+  class FooDao extends EntityActions with H2ProfileProvider {
 
     import jdbcProfile.api._
 
@@ -79,8 +79,7 @@ class EntityActionsBeforeInsertUpdateTest
 
     def $id(table: FooTable) = table.id
 
-    val idLens = lens { foo: Foo => foo.id }
-                      { (entry, id) => entry.copy(id = id) }
+    val idLens = lens { foo: Foo => foo.id } { (entry, id) => entry.copy(id = id) }
 
     //@formatter:off
     // tag::adoc[]

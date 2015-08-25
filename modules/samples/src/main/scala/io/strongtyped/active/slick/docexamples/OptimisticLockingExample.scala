@@ -14,7 +14,7 @@ object OptimisticLockingExample {
   // tag::adoc[]
   case class Coffee(name: String, version: Long = 0, id: Option[Int] = None)
 
-  object CoffeeRepo extends EntityActions(H2Driver) with OptimisticLocking {
+  object CoffeeRepo extends EntityActions with OptimisticLocking with H2ProfileProvider {
 
     import jdbcProfile.api._
 

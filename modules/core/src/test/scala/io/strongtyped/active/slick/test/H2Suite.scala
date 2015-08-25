@@ -1,6 +1,6 @@
 package io.strongtyped.active.slick.test
 
-import io.strongtyped.active.slick.JdbcProfileProvider
+import io.strongtyped.active.slick.{H2ProfileProvider, JdbcProfileProvider}
 import org.scalatest.Suite
 import slick.driver.{H2Driver, JdbcDriver}
 
@@ -8,10 +8,8 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-trait H2Suite extends DbSuite with JdbcProfileProvider {
+trait H2Suite extends DbSuite with H2ProfileProvider {
   self: Suite =>
-
-  val jdbcProfile: JdbcDriver = H2Driver
 
   import jdbcProfile.api._
 

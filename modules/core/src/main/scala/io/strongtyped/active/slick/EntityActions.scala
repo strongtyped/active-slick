@@ -1,17 +1,16 @@
 package io.strongtyped.active.slick
 
+import io.strongtyped.active.slick.DBIOExtensions._
 import io.strongtyped.active.slick.exceptions.{NoRowsAffectedException, RowNotFoundException}
 import slick.ast.BaseTypedType
 import slick.dbio.{FailureAction, SuccessAction}
-import slick.driver.JdbcProfile
-import io.strongtyped.active.slick.DBIOExtensions._
 
 import scala.concurrent.ExecutionContext
 import scala.language.{existentials, higherKinds, implicitConversions}
 import scala.util.{Failure, Success}
 
-abstract class EntityActions(val jdbcProfile: JdbcProfile)
-  extends EntityActionsLike with JdbcProfileProvider {
+abstract class EntityActions extends EntityActionsLike {
+  this: JdbcProfileProvider =>
 
   import jdbcProfile.api._
 
@@ -154,9 +153,9 @@ abstract class EntityActions(val jdbcProfile: JdbcProfile)
     val triedUpdate = filterById(id).update(entity).mustAffectOneSingleRow.asTry
 
     triedUpdate.flatMap {
-      case Success(_)                       => DBIO.successful(entity)
+      case Success(_) => DBIO.successful(entity)
       case Failure(NoRowsAffectedException) => DBIO.failed(new RowNotFoundException(entity))
-      case Failure(ex)                      => DBIO.failed(ex)
+      case Failure(ex) => DBIO.failed(ex)
     }
 
   }
@@ -175,7 +174,7 @@ abstract class EntityActions(val jdbcProfile: JdbcProfile)
   private def tryExtractId(entity: Entity): DBIO[Id] = {
     idLens.get(entity) match {
       case Some(id) => SuccessAction(id)
-      case None     => FailureAction(new RowNotFoundException(entity))
+      case None => FailureAction(new RowNotFoundException(entity))
     }
   }
 

@@ -13,7 +13,9 @@ object MappingWithActiveSlick {
 
   case class Coffee(name: String, id: Option[Int] = None)
 
-  object CoffeeRepo extends EntityActions(H2Driver) {
+
+
+  object CoffeeRepo extends EntityActions with H2ProfileProvider {
 
     import jdbcProfile.api._ // #<1>
     val baseTypedType = implicitly[BaseTypedType[Id]] // #<2>
@@ -38,7 +40,8 @@ object MappingWithActiveSlick {
     def findByName(name:String): DBIO[Seq[Coffee]] = {
       tableQuery.filter(_.name === name).result
     }
-  }
+
+}
 
   implicit class EntryExtensions(val model: Coffee) extends ActiveRecord(CoffeeRepo) {
 //    val repository = CoffeeRepo

@@ -61,7 +61,7 @@ class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
 
   case class Foo(name: String, id: Option[Int] = None)
 
-  class FooDao extends EntityActions(jdbcProfile) {
+  class FooDao extends EntityActions with H2ProfileProvider {
 
     import jdbcProfile.api._
 
