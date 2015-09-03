@@ -2,8 +2,8 @@ import sbt.Keys._
 import sbt._
 
 object Dependencies {
-
-  val slick         =   "com.typesafe.slick"      %%  "slick"         % "3.0.0"
+  val slickVersion  =   "3.0.0"
+  val slick         =   "com.typesafe.slick"      %%  "slick"         % slickVersion
   
   val shapelessDeps = Def setting (
        CrossVersion partialVersion scalaVersion.value match {
