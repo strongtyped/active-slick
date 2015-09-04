@@ -18,7 +18,7 @@ object Dependencies {
      )
 
 
-  val scalaTest     =   "org.scalatest"           %%  "scalatest"     % "2.2.1"    % "test"
+  val scalaTest     =   "org.scalatest"           %%  "scalatest"     % "2.2.4"    % "test"
   val h2database    =   "com.h2database"          %   "h2"            % "1.4.181"  % "test"
 
   val mainDeps =  Seq(
