@@ -38,7 +38,7 @@ class TestActiveSlickWithCodegen extends FlatSpec with Matchers with ScalaFuture
 
   def createDb = {
     val db = Database.forURL(
-      url=s"jdbc:h2:mem:${this.getClass.getSimpleName};INIT=runscript from 'modules/samples/src/main/resources/codegen_schema.sql'",
+      url=s"jdbc:h2:mem:${this.getClass.getSimpleName};AUTOCOMMIT=TRUE;INIT=runscript from 'modules/samples/src/main/resources/codegen_schema.sql'",
       driver="org.h2.Driver"
     )
 
