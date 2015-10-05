@@ -2,7 +2,7 @@ package io.strongtyped.active.slick.docexamples
 
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest._
-import org.scalatest.time.{Millis, Span}
+import org.scalatest.time.{Seconds, Millis, Span}
 import slick.driver.H2Driver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 import ActiveSlickWithCodegen.ComputersRepo
@@ -14,7 +14,7 @@ import scala.language.postfixOps
 
 class ActiveSlickWithCodegenTest extends FlatSpec with Matchers with ScalaFutures {
 
-  timeout(5 seconds)
+  override implicit def patienceConfig = PatienceConfig(timeout = scaled(Span(3, Seconds)))
 
   "ActiveSlickWithCodegen" should "provide crud and active record semantics for generated tables" in {
 
@@ -35,7 +35,7 @@ class ActiveSlickWithCodegenTest extends FlatSpec with Matchers with ScalaFuture
 
       // Query the Computer we saved, update it, and delete it.
       db.run(ComputersRepo.findById(1L)).futureValue should be(savedComputer)
-      
+
       val updatedComputer = db.run(savedComputer.copy(name = "MBP 15").update()).futureValue
       updatedComputer.id should be(savedComputer.id)
       updatedComputer.name should be("MBP 15")
