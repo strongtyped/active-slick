@@ -14,7 +14,7 @@ import scala.language.postfixOps
 
 class ActiveSlickWithCodegenTest extends FlatSpec with Matchers with ScalaFutures {
 
-  override implicit def patienceConfig = PatienceConfig(timeout = scaled(Span(3, Seconds)))
+  override implicit def patienceConfig = PatienceConfig(timeout = scaled(Span(5, Seconds)))
 
   "ActiveSlickWithCodegen" should "provide crud and active record semantics for generated tables" in {
 
