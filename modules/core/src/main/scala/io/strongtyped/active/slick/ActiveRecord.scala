@@ -4,20 +4,16 @@ import slick.dbio.DBIO
 import scala.concurrent.ExecutionContext
 
 
-trait ActiveRecord[E] {
+abstract class ActiveRecord[R <: CrudActions](val repository: R) {
 
-  def entity: E
+  def model: repository.Model
 
-  val repository: CrudActions
+  def save()(implicit exc: ExecutionContext): DBIO[repository.Model] =
+    repository.save(model)
 
-  private val casted: repository.Model = entity.asInstanceOf[repository.Model]
+  def update()(implicit exc: ExecutionContext): DBIO[repository.Model] =
+    repository.update(model)
 
-  def save()(implicit exc: ExecutionContext): DBIO[E] =
-    repository.save(casted).map(_.asInstanceOf[E])
-
-  def update()(implicit exc: ExecutionContext): DBIO[E] =
-    repository.update(casted).map(_.asInstanceOf[E])
-
-  def delete()(implicit exc: ExecutionContext): DBIO[Int] = repository.delete(casted)
+  def delete()(implicit exc: ExecutionContext): DBIO[Int] = repository.delete(model)
 
 }

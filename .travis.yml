@@ -1,4 +1,5 @@
 language: scala
+sudo: false
 script: sbt -jvm-opts jvmopts.travis +test
 jdk:
   - oraclejdk8

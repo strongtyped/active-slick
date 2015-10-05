@@ -68,7 +68,7 @@ class SupplierTest extends FlatSpec with H2Suite with Schema {
     deleteResult.failure.exception shouldBe a[SQLException]
   }
 
-  def createSchemaAction: jdbcProfile.api.DBIO[Unit] = {
+  override def createSchemaAction: jdbcProfile.api.DBIO[Unit] = {
     jdbcProfile.api.DBIO.seq(Suppliers.createSchema, Beers.createSchema)
   }
 

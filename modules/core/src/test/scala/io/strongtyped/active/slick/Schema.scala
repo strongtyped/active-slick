@@ -1,4 +1,5 @@
 package io.strongtyped.active.slick
+
 import io.strongtyped.active.slick.Lens._
 
 import slick.ast.BaseTypedType
@@ -14,7 +15,7 @@ trait Schema extends JdbcProfileProvider {
                   price: Double,
                   id: Option[Int] = None)
 
-  class SupplierDao extends EntityActions(jdbcProfile) with OptimisticLocking {
+  class SupplierDao extends EntityActions with OptimisticLocking with H2ProfileProvider {
 
     import jdbcProfile.api._
 
@@ -40,13 +41,11 @@ trait Schema extends JdbcProfileProvider {
 
     def $id(table: EntityTable) = table.id
 
-    val idLens = lens { supp: Supplier => supp.id }
-                      { (supp, id) => supp.copy(id = id) }
+    val idLens = lens { supp: Supplier => supp.id } { (supp, id) => supp.copy(id = id) }
 
     def $version(table: EntityTable) = table.version
 
-    val versionLens = lens { supp: Supplier => supp.version }
-                           { (supp, version) => supp.copy(version = version) }
+    val versionLens = lens { supp: Supplier => supp.version } { (supp, version) => supp.copy(version = version) }
 
     def createSchema = {
       import jdbcProfile.api._
@@ -57,12 +56,9 @@ trait Schema extends JdbcProfileProvider {
 
   val Suppliers = new SupplierDao
 
-  implicit class SupplierRecord(val entity: Supplier) extends ActiveRecord[Supplier] {
+  implicit class SupplierRecord(val model: Supplier) extends ActiveRecord(Suppliers)
 
-    val repository: CrudActions = Suppliers
-  }
-
-  class BeersDao extends EntityActions(jdbcProfile) {
+  class BeersDao extends EntityActions with H2ProfileProvider {
 
     import jdbcProfile.api._
 
@@ -92,8 +88,7 @@ trait Schema extends JdbcProfileProvider {
 
     def $id(table: EntityTable) = table.id
 
-    val idLens = lens { beer: Beer => beer.id }
-                      { (beer, id) => beer.copy(id = id) }
+    val idLens = lens { beer: Beer => beer.id } { (beer, id) => beer.copy(id = id) }
 
     def createSchema = {
       import jdbcProfile.api._
@@ -103,11 +98,10 @@ trait Schema extends JdbcProfileProvider {
 
   val Beers = new BeersDao
 
-  implicit class BeerRecord(val entity: Beer) extends ActiveRecord[Beer] {
 
-    val repository: CrudActions = Beers
+  implicit class BeerRecord(val model: Beer) extends ActiveRecord(Beers) {
 
-    def supplier() = Suppliers.findOptionById(entity.supID)
+    def supplier() = Suppliers.findOptionById(model.supID)
   }
 
 }
