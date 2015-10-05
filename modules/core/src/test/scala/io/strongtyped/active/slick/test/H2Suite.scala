@@ -13,7 +13,7 @@ trait H2Suite extends DbSuite with H2ProfileProvider {
 
   import jdbcProfile.api._
 
-  def createSchemaAction: DBIO[Unit]
+  def createSchemaAction: DBIO[Unit] = DBIO.successful(())
 
   def timeout = 5 seconds
 

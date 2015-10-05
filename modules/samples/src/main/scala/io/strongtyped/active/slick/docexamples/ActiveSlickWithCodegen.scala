@@ -10,16 +10,19 @@ import slick.ast.BaseTypedType
  * See codegen_schema.sql for the schema that feeds into the codegen.
  */
 object ActiveSlickWithCodegen {
-  object ComputersRepo extends EntityActions with JdbcProfileProvider {
+
+  abstract class ComputersRepo(tables: Tables) extends EntityActions with JdbcProfileProvider {
     //
     // Implement JdbcProfileProvider with JDBCProfile from generated Tables.scala
     //
-    override type JP = Tables.profile.type // Sucks that this is necessary. Did we have to define this type in JdbcProfileProvider? Why not just use JdbcProfile?
+    override type JP = Tables.profile.type
+    // Sucks that this is necessary. Did we have to define this type in JdbcProfileProvider? Why not just use JdbcProfile?
     override val jdbcProfile = Tables.profile
 
     //
     // Implement EntityActions
     //
+
     import jdbcProfile.api._
 
     type Entity = Tables.ComputersRow
@@ -30,8 +33,7 @@ object ActiveSlickWithCodegen {
     val tableQuery = Tables.Computers
     val idLens: Lens[Tables.ComputersRow, Option[Long]] = {
       // For the getter, use 0L as a sentinel value because generated ID is usually non-optional
-      Lens.lens { row: Tables.ComputersRow => if (row.id == 0L) None else Some(row.id) }
-                { (row, maybeId) => maybeId map { id => row.copy(id = id) } getOrElse row }
+      Lens.lens { row: Tables.ComputersRow => if (row.id == 0L) None else Some(row.id) } { (row, maybeId) => maybeId map { id => row.copy(id = id) } getOrElse row }
     }
 
     override def $id(table: EntityTable): Rep[Long] = {
@@ -39,5 +41,9 @@ object ActiveSlickWithCodegen {
     }
 
     implicit class EntryExtensions(val model: Tables.ComputersRow) extends ActiveRecord(ComputersRepo)
+
   }
+
+  object ComputersRepo extends ComputersRepo(Tables)
+
 }
