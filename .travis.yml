@@ -10,11 +10,9 @@ notifications:
     on_success: change
     on_failure: always
     on_start: false
-
 after_success:
 - ! '[[ $TRAVIS_BRANCH == "develop" ]] && { sbt "+publish" ; };'
-
 env:
   global:
-  - secure: TOmG15JaafrFbjM4/CK89tJjIgDYT5olk90VUiiQ+NDDb7j5Kp8jAbxk9WM64cqAqvMuGgiyjNnzAk2xrUR2U2iwJZ6TbTMuoL5Bi1m8momboYmreP5pf0uMa2v0gQFVApUWGD1xvB8lhDitECb3c4SxOnzY9osmUMMaeT/EB74=
-  - secure: XcmSfcErntC10DYv1e52b4zlRm6ydiZF3WxvKe5/Wtj/ApDuhlkvpOKRuQ+Zq30i2mruKElfptqE2ulVGS/6L5WAU7dJTIcVhBpkGWYfU8dCsujrAsCvH0c+dkM1VYTLqU+I1NiXxju6fk1dup3Cw+wAxHNmiGigfCERDarEIX0=
+  - secure: S8+7IDZBN/H/XpyOcP60JV9fHR+pyBI/LFip50ta7nZiUjpe5aUWvA/mpO7ofjzE+lrKGYOYaaeEVM06eUzXfq2NdfxCV6LUubcRg4uRcamCw0cGIizO75mOKzHqL0lZC/ztfANMrtNZEWOpNn03VgUCWJtHEr8LPP7CDEOhshg=
+  - secure: OWX7CI1ZMXkcI53BzgsH6KlXZsXWTkHmyNuZGGJQFqLyMh3zUTMmMGcfGUF4xn9+TKgd7qfSGFwnjdPUn0q+uEzehxyUwPhOixCg4idjfG1/4jsUJLYgc+NZVcHnBzqN1WEoMRWrZAjIuCHIZODX/0Z4Lx4CvNBCynMMv9S98uA=
