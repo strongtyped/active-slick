@@ -2,12 +2,19 @@ language: scala
 sudo: false
 script: sbt -jvm-opts jvmopts.travis +test
 jdk:
-  - oraclejdk8
-  
+- oraclejdk8
 notifications:
   webhooks:
     urls:
-      - https://webhooks.gitter.im/e/7e03eb850971919f740b        
-    on_success: change  # options: [always|never|change] default: always
-    on_failure: always  # options: [always|never|change] default: always
-    on_start: false     # default: false
+    - https://webhooks.gitter.im/e/7e03eb850971919f740b
+    on_success: change
+    on_failure: always
+    on_start: false
+
+after_success:
+- ! '[[ $TRAVIS_BRANCH == "develop" ]] && { sbt "+publish" ; };'
+
+env:
+  global:
+  - secure: TOmG15JaafrFbjM4/CK89tJjIgDYT5olk90VUiiQ+NDDb7j5Kp8jAbxk9WM64cqAqvMuGgiyjNnzAk2xrUR2U2iwJZ6TbTMuoL5Bi1m8momboYmreP5pf0uMa2v0gQFVApUWGD1xvB8lhDitECb3c4SxOnzY9osmUMMaeT/EB74=
+  - secure: XcmSfcErntC10DYv1e52b4zlRm6ydiZF3WxvKe5/Wtj/ApDuhlkvpOKRuQ+Zq30i2mruKElfptqE2ulVGS/6L5WAU7dJTIcVhBpkGWYfU8dCsujrAsCvH0c+dkM1VYTLqU+I1NiXxju6fk1dup3Cw+wAxHNmiGigfCERDarEIX0=

@@ -13,7 +13,6 @@ object BuildSettings {
     sonatypePublishSettings
 
   	def sonatypePublishSettings = sonatypeSettings ++ Seq(
-  	  profileName		:= "io.strongtyped",
 	    pomExtra 			:= <url>https://github.com/strongtyped/active-slick</url>
       <licenses>
         <license>
