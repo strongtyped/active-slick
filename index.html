@@ -22,7 +22,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>ActiveSlick is a library that offers CRUD operations for Slick 3.0 projects. The main goal is to provide some basic operations to manage the lifecycle of persisted objects (new/persisted/deleted/stale) and enable the implementation of the Active Record Pattern on Slick mapped case classes.</p>
+<p>ActiveSlick is a library that offers CRUD operations for Slick 3.x projects. The main goal is to provide some basic operations to manage the lifecycle of persisted objects (new/persisted/deleted/stale) and enable the implementation of the Active Record Pattern on Slick mapped case classes.</p>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle" class="title">Table of Contents</div>
@@ -75,19 +75,19 @@
 <p>The artifacts are published to Sonatype Repository. Simply add the following to your build.sbt.</p>
 </div>
 <div class="paragraph">
-<p>As of version 0.3.x we don&#8217;t support Slick 2.0 anymore. The differences between Slick 2.0 and Slick 3.0 are so huge that it makes impossible to support two versions.</p>
+<p>As of version 0.3.x we don&#8217;t support Slick 2.0 anymore. The differences between Slick 2.x and Slick 3.x are so huge that it makes impossible to support two versions.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="scala"><span class="tok-n">libraryDependencies</span> <span class="tok-o">+=</span> <span class="tok-s">&quot;io.strongtyped&quot;</span> <span class="tok-o">%%</span> <span class="tok-s">&quot;active-slick&quot;</span> <span class="tok-o">%</span> <span class="tok-s">&quot;0.3.2&quot;</span></code></pre>
+<pre class="pygments highlight"><code data-lang="scala"><span class="tok-n">libraryDependencies</span> <span class="tok-o">+=</span> <span class="tok-s">&quot;io.strongtyped&quot;</span> <span class="tok-o">%%</span> <span class="tok-s">&quot;active-slick&quot;</span> <span class="tok-o">%</span> <span class="tok-s">&quot;0.3.3&quot;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Source code for version 0.3.2 can be found at:
-<a href="https://github.com/strongtyped/active-slick/tree/v0.3.2" class="bare">https://github.com/strongtyped/active-slick/tree/v0.3.2</a></p>
+<p>Source code for version 0.3.3 can be found at:
+<a href="https://github.com/strongtyped/active-slick/tree/v0.3.3" class="bare">https://github.com/strongtyped/active-slick/tree/v0.3.3</a></p>
 </div>
 <div class="paragraph">
-<p>The version supporting Slick 2.0 is still available on Sonatype Repo. However, this documentation only covers the current version (i.e.: 0.3.2).</p>
+<p>The version supporting Slick 2.0 is still available on Sonatype Repo. However, this documentation only covers the current version (i.e.: 0.3.3).</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -288,9 +288,7 @@
 
 <span class="tok-o">}</span>
 
-  <span class="tok-k">implicit</span> <span class="tok-k">class</span> <span class="tok-nc">EntryExtensions</span><span class="tok-o">(</span><span class="tok-k">val</span> <span class="tok-n">model</span><span class="tok-k">:</span> <span class="tok-kt">Coffee</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">ActiveRecord</span><span class="tok-o">(</span><span class="tok-nc">CoffeeRepo</span><span class="tok-o">)</span> <span class="tok-o">{</span>
-<span class="tok-c1">//    val repository = CoffeeRepo</span>
-  <span class="tok-o">}</span>
+  <span class="tok-k">implicit</span> <span class="tok-k">class</span> <span class="tok-nc">EntryExtensions</span><span class="tok-o">(</span><span class="tok-k">val</span> <span class="tok-n">model</span><span class="tok-k">:</span> <span class="tok-kt">Coffee</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">ActiveRecord</span><span class="tok-o">(</span><span class="tok-nc">CoffeeRepo</span><span class="tok-o">)</span>
 
   <span class="tok-k">val</span> <span class="tok-n">saveAction</span> <span class="tok-k">=</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-s">&quot;Colombia&quot;</span><span class="tok-o">).</span><span class="tok-n">save</span><span class="tok-o">()</span>
 <span class="tok-o">}</span></code></pre>
@@ -471,7 +469,7 @@
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-10-06 00:49:21 CEST
+Last updated 2015-10-13 21:55:28 CEST
 </div>
 </div>
 </body>
