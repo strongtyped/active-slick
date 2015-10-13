@@ -15,7 +15,11 @@ trait Schema extends JdbcProfileProvider {
                   price: Double,
                   id: Option[Int] = None)
 
-  class SupplierDao extends EntityActions with OptimisticLocking with H2ProfileProvider {
+  class SupplierDao
+    extends EntityActions
+    with OptimisticLocking
+    with SchemaManagement
+    with H2ProfileProvider {
 
     import jdbcProfile.api._
 
@@ -47,10 +51,6 @@ trait Schema extends JdbcProfileProvider {
 
     val versionLens = lens { supp: Supplier => supp.version } { (supp, version) => supp.copy(version = version) }
 
-    def createSchema = {
-      import jdbcProfile.api._
-      tableQuery.schema.create
-    }
   }
 
 
@@ -58,7 +58,7 @@ trait Schema extends JdbcProfileProvider {
 
   implicit class SupplierRecord(val model: Supplier) extends ActiveRecord(Suppliers)
 
-  class BeersDao extends EntityActions with H2ProfileProvider {
+  class BeersDao extends EntityActions with SchemaManagement with H2ProfileProvider {
 
     import jdbcProfile.api._
 
@@ -90,10 +90,6 @@ trait Schema extends JdbcProfileProvider {
 
     val idLens = lens { beer: Beer => beer.id } { (beer, id) => beer.copy(id = id) }
 
-    def createSchema = {
-      import jdbcProfile.api._
-      tableQuery.schema.create
-    }
   }
 
   val Beers = new BeersDao
