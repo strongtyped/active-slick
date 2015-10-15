@@ -1,8 +1,5 @@
 package io.strongtyped.active.slick
 
-import slick.dbio.Effect.Schema
-import slick.profile.FixedSqlAction
-
 trait SchemaManagement {
   self: EntityActions =>
 
