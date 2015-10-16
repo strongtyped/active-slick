@@ -39,3 +39,7 @@ The version supporting Slick 2.0 is still available on Sonatype Repo. However, t
 
 Source code for version 0.2.2 can be found at:
 https://github.com/strongtyped/active-slick/tree/v0.2.2
+
+### Contribution policy
+
+Contributions via GitHub pull requests are gladly accepted from their original author. Along with any pull requests, please state that the contribution is your original work and that you license the work to the project under the project's open source license. Whether or not you state this explicitly, by submitting any copyrighted material via pull request, email, or other means you agree to license the material under the project's open source license and warrant that you have the legal authority to do so.
