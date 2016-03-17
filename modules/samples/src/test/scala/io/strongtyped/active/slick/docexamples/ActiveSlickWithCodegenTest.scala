@@ -31,7 +31,7 @@ class ActiveSlickWithCodegenTest extends FlatSpec with H2Suite with OptionValues
     updatedComputer.id should be(savedComputer.id)
     updatedComputer.name should be("MBP 15")
 
-    commit(updatedComputer.delete()) shouldBe 0
+    commit(updatedComputer.delete()) shouldBe 1
     query(ComputersRepo.findOptionById(updatedComputer.id)) shouldBe None
 
   }
