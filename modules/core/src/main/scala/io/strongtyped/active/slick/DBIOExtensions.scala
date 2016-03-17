@@ -11,7 +11,7 @@ object DBIOExtensions {
 
     def mustAffectOneSingleRow(implicit exc: ExecutionContext): DBIO[Int] = {
       dbAction.flatMap {
-        case 1          => dbAction // expecting one result
+        case 1          => DBIO.successful(1) // expecting one result
         case 0          => DBIO.failed(NoRowsAffectedException)
         case n if n > 1 => DBIO.failed(new TooManyRowsAffectedException(affectedRowCount = n, expectedRowCount = 1))
       }
@@ -20,7 +20,7 @@ object DBIOExtensions {
     def mustAffectAtLeastOneRow(implicit exc: ExecutionContext): DBIO[Int] = {
 
       dbAction.flatMap {
-        case n if n >= 1 => dbAction // expecting one or more results
+        case n if n >= 1 => DBIO.successful(n) // expecting one or more results
         case 0           => DBIO.failed(NoRowsAffectedException)
       }
     }
