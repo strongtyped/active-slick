@@ -24,14 +24,14 @@ The artifacts are published to Sonatype Repository. Simply add the following to 
 As of version 0.3.x we don't support Slick 2.0 anymore. The differences between Slick 2.x and Slick 3.x are so huge that it makes impossible to support two versions. 
 
 ```scala
-  libraryDependencies += "io.strongtyped" %% "active-slick" % "0.3.3"
+  libraryDependencies += "io.strongtyped" %% "active-slick" % "0.3.4"
 ```
   
-Source code for version 0.3.3 can be found at:
-https://github.com/strongtyped/active-slick/tree/v0.3.3
+Source code for version 0.3.4 can be found at:
+https://github.com/strongtyped/active-slick/tree/v0.3.4
 
 
-The version supporting Slick 2.0 is still available on Sonatype Repo. However, this documentation only covers the current version (i.e.: 0.3.1).
+The version supporting Slick 2.0 is still available on Sonatype Repo. However, this documentation only covers the current series (i.e.: 0.3.x).
 
 ```scala
   libraryDependencies += "io.strongtyped" %% "active-slick" % "0.2.2"
