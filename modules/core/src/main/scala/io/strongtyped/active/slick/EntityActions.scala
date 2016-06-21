@@ -4,6 +4,7 @@ import io.strongtyped.active.slick.DBIOExtensions._
 import io.strongtyped.active.slick.exceptions.{NoRowsAffectedException, RowNotFoundException}
 import slick.ast.BaseTypedType
 import slick.dbio.{FailureAction, SuccessAction}
+import slick.profile.RelationalProfile
 
 import scala.concurrent.ExecutionContext
 import scala.language.{existentials, higherKinds, implicitConversions}
@@ -18,7 +19,7 @@ abstract class EntityActions extends EntityActionsLike {
 
   protected implicit lazy val btt: BaseTypedType[Id] = baseTypedType
 
-  type EntityTable <: Table[Entity]
+  type EntityTable <: RelationalProfile#Table[Entity]
 
   def tableQuery: TableQuery[EntityTable]
 
