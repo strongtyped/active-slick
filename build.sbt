@@ -9,7 +9,7 @@ ivyScala := ivyScala.value map {
 
 organization in ThisBuild := "io.strongtyped"
 
-crossScalaVersions := Seq("2.10.6", "2.11.8")
+crossScalaVersions := Seq("2.11.8", "2.12.0-M5")
 
 parallelExecution in Test := false
 
@@ -37,7 +37,7 @@ lazy val shapelessIntegration = {
 
   // settings to include shapeless dependencies
   val shapeless = Seq(
-    libraryDependencies ++= shapelessDeps.value
+    libraryDependencies ++= shapelessDeps
   )
 
   Project(

@@ -17,7 +17,7 @@ object ActiveSlickWithCodegen {
     //
     override type JP = Tables.profile.type
     // Sucks that this is necessary. Did we have to define this type in JdbcProfileProvider? Why not just use JdbcProfile?
-    override val jdbcProfile = Tables.profile
+    override val jdbcProfile: JP = Tables.profile
 
     //
     // Implement EntityActions
