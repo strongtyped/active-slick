@@ -1,6 +1,6 @@
 package io.strongtyped.active.slick
 
-import slick.driver.JdbcProfile
+import slick.jdbc.JdbcProfile
 
 import scala.concurrent.ExecutionContext
 

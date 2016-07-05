@@ -2,7 +2,7 @@ package io.strongtyped.active.slick.test
 
 import io.strongtyped.active.slick.JdbcProfileProvider
 import org.scalatest._
-import slick.backend.DatabasePublisher
+import slick.basic.DatabasePublisher
 
 import scala.concurrent.duration.{FiniteDuration, _}
 import scala.concurrent.{Await, ExecutionContext}
