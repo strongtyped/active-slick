@@ -2,7 +2,7 @@ import sbt.Keys._
 import sbt._
 
 object Dependencies {
-  val slickVersion = "3.1.0"
+  val slickVersion = "3.2.0-M1"
   val slick = "com.typesafe.slick" %% "slick" % slickVersion
 
   val shapelessDeps = Def setting (

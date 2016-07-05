@@ -1,7 +1,7 @@
 import Dependencies._
 import BuildSettings._
 
-scalaVersion in ThisBuild := "2.11.6"
+scalaVersion in ThisBuild := "2.11.8"
 
 ivyScala := ivyScala.value map {
   _.copy(overrideScalaVersion = true)
@@ -9,7 +9,7 @@ ivyScala := ivyScala.value map {
 
 organization in ThisBuild := "io.strongtyped"
 
-crossScalaVersions := Seq("2.10.5", "2.11.6")
+crossScalaVersions := Seq("2.10.6", "2.11.8")
 
 parallelExecution in Test := false
 
@@ -74,7 +74,7 @@ lazy val slickCodeGenTask = (sourceManaged, dependencyClasspath in Compile, runn
   val pkg = "io.strongtyped.active.slick.docexamples.codegen"
   val url = "jdbc:h2:mem:test;INIT=runscript from 'modules/samples/src/main/resources/codegen_schema.sql'" // connection info for a pre-populated throw-away, in-memory db for this demo, which is freshly initialized on every run
 val jdbcDriver = "org.h2.Driver"
-  val slickDriver = "slick.driver.H2Driver"
+  val slickDriver = "slick.jdbc.H2Profile"
   toError(r.run("slick.codegen.SourceCodeGenerator", cp.files, Array(slickDriver, jdbcDriver, url, srcManaged.getPath, pkg), s.log))
   val outputDir = srcManaged / pkg.replace(".", "/")
   Seq(outputDir / "Tables.scala")
