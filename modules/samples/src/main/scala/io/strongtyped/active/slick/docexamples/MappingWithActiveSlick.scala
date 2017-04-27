@@ -4,7 +4,6 @@ package io.strongtyped.active.slick.docexamples
 // tag::adoc[]
 import io.strongtyped.active.slick._
 import slick.ast.BaseTypedType
-import slick.driver.H2Driver
 import io.strongtyped.active.slick.Lens._
 import scala.language.postfixOps
 import scala.concurrent.ExecutionContext.Implicits.global
