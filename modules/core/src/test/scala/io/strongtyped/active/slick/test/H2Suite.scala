@@ -1,8 +1,7 @@
 package io.strongtyped.active.slick.test
 
-import io.strongtyped.active.slick.{H2ProfileProvider, JdbcProfileProvider}
+import io.strongtyped.active.slick.H2ProfileProvider
 import org.scalatest.Suite
-import slick.driver.{H2Driver, JdbcDriver}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._

@@ -6,7 +6,7 @@ import scala.language.postfixOps
 object MappingWithoutActiveSlick {
 
   // tag::adoc[]
-  import slick.driver.H2Driver.api._
+  import slick.jdbc.H2Profile.api._
 
   case class Coffee(name: String, id: Option[Int] = None) // #<1>
 

@@ -1,6 +1,6 @@
 package io.strongtyped.active.slick
 
-import slick.driver.{DerbyDriver, SQLiteDriver, MySQLDriver, HsqldbDriver, PostgresDriver, H2Driver, JdbcProfile}
+import slick.jdbc.{DerbyProfile, SQLiteProfile, MySQLProfile, HsqldbProfile, PostgresProfile, H2Profile, JdbcProfile}
 
 
 trait JdbcProfileProvider {
@@ -11,34 +11,34 @@ trait JdbcProfileProvider {
 object JdbcProfileProvider {
 
   trait H2ProfileProvider extends JdbcProfileProvider {
-    type JP = H2Driver
-    val jdbcProfile: H2Driver = H2Driver
+    override type JP = H2Profile
+    override val jdbcProfile: H2Profile = H2Profile
   }
 
   trait PostgresProfileProvider extends JdbcProfileProvider {
-    type JP = PostgresDriver
-    val jdbcProfile = PostgresDriver
+    override type JP = PostgresProfile
+    override val jdbcProfile: PostgresProfile = PostgresProfile
   }
 
 
   trait DerbyProfileProvider extends JdbcProfileProvider {
-    type JP = DerbyDriver
-    val jdbcProfile = DerbyDriver
+    override type JP = DerbyProfile
+    override val jdbcProfile: DerbyProfile = DerbyProfile
   }
 
   trait HsqlProfileProvider extends JdbcProfileProvider {
-    type JP = HsqldbDriver
-    val jdbcProfile = HsqldbDriver
+    override type JP = HsqldbProfile
+    override val jdbcProfile: HsqldbProfile = HsqldbProfile
   }
 
   trait MySQLProfileProvider extends JdbcProfileProvider {
-    type JP = MySQLDriver
-    val jdbcProfile = MySQLDriver
+    override type JP = MySQLProfile
+    override val jdbcProfile: MySQLProfile = MySQLProfile
   }
 
   trait SQLLiteProfileProvider extends JdbcProfileProvider {
-    type JP = SQLiteDriver
-    val jdbcProfile = SQLiteDriver
+    override type JP = SQLiteProfile
+    override val jdbcProfile: SQLiteProfile = SQLiteProfile
   }
 
 }

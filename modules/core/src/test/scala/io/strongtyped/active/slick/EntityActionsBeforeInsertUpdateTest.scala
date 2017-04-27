@@ -5,8 +5,6 @@ import org.scalatest.FlatSpec
 import slick.ast.BaseTypedType
 import io.strongtyped.active.slick.Lens._
 import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
-
 
 class EntityActionsBeforeInsertUpdateTest
   extends FlatSpec with H2Suite with JdbcProfileProvider {
@@ -14,6 +12,8 @@ class EntityActionsBeforeInsertUpdateTest
   behavior of "An EntityDao with validation "
 
   it should "return an error if beforeInsert is not successful" in {
+
+    import scala.concurrent.ExecutionContext.Implicits.global
 
     val result =
       rollback {
@@ -26,6 +26,8 @@ class EntityActionsBeforeInsertUpdateTest
   }
 
   it should "return an error if beforeUpdate is not successful" in {
+
+    import scala.concurrent.ExecutionContext.Implicits.global
 
     val result =
       rollback {
