@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.2">
+<meta name="generator" content="Asciidoctor 1.5.5">
 <meta name="author" content="Renato Cavalcanti - Strong[Typed]">
 <title>ActiveSlick</title>
 <link rel="stylesheet" href="./foundation-blue.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
 <link rel="stylesheet" href="./pygments-monokai.css">
 </head>
 <body class="article">
@@ -79,19 +79,19 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="scala"><span class="tok-n">libraryDependencies</span> <span class="tok-o">+=</span> <span class="tok-s">&quot;io.strongtyped&quot;</span> <span class="tok-o">%%</span> <span class="tok-s">&quot;active-slick&quot;</span> <span class="tok-o">%</span> <span class="tok-s">&quot;0.3.4&quot;</span></code></pre>
+<pre class="pygments highlight"><code data-lang="scala">libraryDependencies += "io.strongtyped" %% "active-slick" % "0.3.5"</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Source code for version 0.3.4 can be found at:
-<a href="https://github.com/strongtyped/active-slick/tree/v0.3.4" class="bare">https://github.com/strongtyped/active-slick/tree/v0.3.4</a></p>
+<p>Source code for version 0.3.5 can be found at:
+<a href="https://github.com/strongtyped/active-slick/tree/v0.3.5" class="bare">https://github.com/strongtyped/active-slick/tree/v0.3.5</a></p>
 </div>
 <div class="paragraph">
 <p>The version supporting Slick 2.0 is still available on Sonatype Repo. However, this documentation only covers the current series (i.e.: 0.3.x).</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="scala"><span class="tok-n">libraryDependencies</span> <span class="tok-o">+=</span> <span class="tok-s">&quot;io.strongtyped&quot;</span> <span class="tok-o">%%</span> <span class="tok-s">&quot;active-slick&quot;</span> <span class="tok-o">%</span> <span class="tok-s">&quot;0.2.2&quot;</span></code></pre>
+<pre class="pygments highlight"><code data-lang="scala">libraryDependencies += "io.strongtyped" %% "active-slick" % "0.2.2"</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -114,20 +114,20 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="scala">  <span class="tok-k">import</span> <span class="tok-nn">slick.driver.H2Driver.api._</span>
+<pre class="pygments highlight"><code data-lang="scala">  import slick.jdbc.H2Profile.api._
 
-  <span class="tok-k">case</span> <span class="tok-k">class</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-k">:</span> <span class="tok-kt">String</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Option</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]</span> <span class="tok-k">=</span> <span class="tok-nc">None</span><span class="tok-o">)</span> <span class="tok-c1">// </span><i class="conum" data-value="1"></i><b>(1)</b>
+  case class Coffee(name: String, id: Option[Int] = None) // <i class="conum" data-value="1"></i><b>(1)</b>
 
-  <span class="tok-k">class</span> <span class="tok-nc">CoffeeTable</span><span class="tok-o">(</span><span class="tok-n">tag</span><span class="tok-k">:</span> <span class="tok-kt">Tag</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">Table</span><span class="tok-o">[</span><span class="tok-kt">Coffee</span><span class="tok-o">](</span><span class="tok-n">tag</span><span class="tok-o">,</span> <span class="tok-s">&quot;COFFEE&quot;</span><span class="tok-o">)</span> <span class="tok-o">{</span>
-    <span class="tok-k">def</span> <span class="tok-n">name</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">String</span><span class="tok-o">](</span><span class="tok-s">&quot;NAME&quot;</span><span class="tok-o">)</span>
-    <span class="tok-k">def</span> <span class="tok-n">id</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">](</span><span class="tok-s">&quot;ID&quot;</span><span class="tok-o">,</span> <span class="tok-n">O</span><span class="tok-o">.</span><span class="tok-nc">PrimaryKey</span><span class="tok-o">,</span> <span class="tok-n">O</span><span class="tok-o">.</span><span class="tok-nc">AutoInc</span><span class="tok-o">)</span> <span class="tok-c1">// </span><i class="conum" data-value="2"></i><b>(2)</b>
-    <span class="tok-k">def</span> <span class="tok-o">*</span> <span class="tok-k">=</span> <span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-o">.?)</span> <span class="tok-o">&lt;&gt;(</span><span class="tok-nc">Coffee</span><span class="tok-o">.</span><span class="tok-n">tupled</span><span class="tok-o">,</span> <span class="tok-nc">Coffee</span><span class="tok-o">.</span><span class="tok-n">unapply</span><span class="tok-o">)</span>
-  <span class="tok-o">}</span>
+  class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") {
+    def name = column[String]("NAME")
+    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc) // <i class="conum" data-value="2"></i><b>(2)</b>
+    def * = (name, id.?) &lt;&gt;(Coffee.tupled, Coffee.unapply)
+  }
 
-  <span class="tok-k">val</span> <span class="tok-nc">Coffees</span> <span class="tok-k">=</span> <span class="tok-nc">TableQuery</span><span class="tok-o">[</span><span class="tok-kt">CoffeeTable</span><span class="tok-o">]</span>
+  val Coffees = TableQuery[CoffeeTable]
 
-  <span class="tok-k">val</span> <span class="tok-n">coffee</span> <span class="tok-k">=</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-s">&quot;Colombia&quot;</span><span class="tok-o">)</span>
-  <span class="tok-k">val</span> <span class="tok-n">insertAction</span> <span class="tok-k">=</span> <span class="tok-nc">Coffees</span><span class="tok-o">.</span><span class="tok-n">returning</span><span class="tok-o">(</span><span class="tok-nc">Coffees</span><span class="tok-o">.</span><span class="tok-n">map</span><span class="tok-o">(</span><span class="tok-k">_</span><span class="tok-o">.</span><span class="tok-n">id</span><span class="tok-o">))</span> <span class="tok-o">+=</span> <span class="tok-n">coffee</span> <span class="tok-c1">// </span> <i class="conum" data-value="3"></i><b>(3)</b></code></pre>
+  val coffee = Coffee("Colombia")
+  val insertAction = Coffees.returning(Coffees.map(_.id)) += coffee // <i class="conum" data-value="3"></i><b>(3)</b></code></pre>
 </div>
 </div>
 <div class="colist arabic">
@@ -179,53 +179,53 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="scala">  <span class="tok-cm">/** Returns total table count */</span>
-  <span class="tok-k">def</span> <span class="tok-n">count</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]</span>
+<pre class="pygments highlight"><code data-lang="scala">  /** Returns total table count */
+  def count: DBIO[Int]
 
-  <span class="tok-cm">/** Insert or Update a Model</span>
-<span class="tok-cm">    * Insert `Model` if not yet persisted, otherwise update it.</span>
-<span class="tok-cm">    * @return DBIO[Model] for a `Model` as persisted in the table.</span>
-<span class="tok-cm">    */</span>
-  <span class="tok-k">def</span> <span class="tok-n">save</span><span class="tok-o">(</span><span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Model</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Model</span><span class="tok-o">]</span>
+  /** Insert or Update a Model
+    * Insert `Model` if not yet persisted, otherwise update it.
+    * @return DBIO[Model] for a `Model` as persisted in the table.
+    */
+  def save(entity: Model)(implicit exc: ExecutionContext): DBIO[Model]
 
-  <span class="tok-cm">/** Update a `Model`.</span>
-<span class="tok-cm">    * @return DBIO[Model] for a `Model` as persisted in the table.</span>
-<span class="tok-cm">    */</span>
-  <span class="tok-k">def</span> <span class="tok-n">update</span><span class="tok-o">(</span><span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Model</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Model</span><span class="tok-o">]</span>
+  /** Update a `Model`.
+    * @return DBIO[Model] for a `Model` as persisted in the table.
+    */
+  def update(entity: Model)(implicit exc: ExecutionContext): DBIO[Model]
 
-  <span class="tok-cm">/** Delete a `Model`.</span>
-<span class="tok-cm">    * @return DBIO[Int] with the number of affected rows</span>
-<span class="tok-cm">    */</span>
-  <span class="tok-k">def</span> <span class="tok-n">delete</span><span class="tok-o">(</span><span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Model</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]</span>
+  /** Delete a `Model`.
+    * @return DBIO[Int] with the number of affected rows
+    */
+  def delete(entity: Model)(implicit exc: ExecutionContext): DBIO[Int]
 
-  <span class="tok-cm">/** Fetch all elements from a table.</span>
-<span class="tok-cm">    * @param fetchSize - the number of row to fetch, defaults to 100</span>
-<span class="tok-cm">    * @return StreamingDBIO[Seq[Model], Model]</span>
-<span class="tok-cm">    */</span>
-  <span class="tok-k">def</span> <span class="tok-n">fetchAll</span><span class="tok-o">(</span><span class="tok-n">fetchSize</span><span class="tok-k">:</span> <span class="tok-kt">Int</span> <span class="tok-o">=</span> <span class="tok-mi">100</span><span class="tok-o">)</span>
-              <span class="tok-o">(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">StreamingDBIO</span><span class="tok-o">[</span><span class="tok-kt">Seq</span><span class="tok-o">[</span><span class="tok-kt">Model</span><span class="tok-o">]</span>, <span class="tok-kt">Model</span><span class="tok-o">]</span>
+  /** Fetch all elements from a table.
+    * @param fetchSize - the number of row to fetch, defaults to 100
+    * @return StreamingDBIO[Seq[Model], Model]
+    */
+  def fetchAll(fetchSize: Int = 100)
+              (implicit exc: ExecutionContext): StreamingDBIO[Seq[Model], Model]
 
 
-  <span class="tok-cm">/** Insert a new `Entity`</span>
-<span class="tok-cm">    * @return DBIO[Id] for the generated `Id`</span>
-<span class="tok-cm">    */</span>
-  <span class="tok-k">def</span> <span class="tok-n">insert</span><span class="tok-o">(</span><span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Entity</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Id</span><span class="tok-o">]</span>
+  /** Insert a new `Entity`
+    * @return DBIO[Id] for the generated `Id`
+    */
+  def insert(entity: Entity)(implicit exc: ExecutionContext): DBIO[Id]
 
-  <span class="tok-cm">/** Delete a `Entity` by `Id`</span>
-<span class="tok-cm">    * @return DBIO[Int] with the number of affected rows</span>
-<span class="tok-cm">    */</span>
-  <span class="tok-k">def</span> <span class="tok-n">deleteById</span><span class="tok-o">(</span><span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Id</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]</span>
+  /** Delete a `Entity` by `Id`
+    * @return DBIO[Int] with the number of affected rows
+    */
+  def deleteById(id: Id)(implicit exc: ExecutionContext): DBIO[Int]
 
-  <span class="tok-cm">/** Finds `Entity` referenced by `Id`.</span>
-<span class="tok-cm">    * May fail if no `Entity` is found for passed `Id`</span>
-<span class="tok-cm">    * @return DBIO[Entity] for the `Entity`</span>
-<span class="tok-cm">    */</span>
-  <span class="tok-k">def</span> <span class="tok-n">findById</span><span class="tok-o">(</span><span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Id</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Entity</span><span class="tok-o">]</span>
+  /** Finds `Entity` referenced by `Id`.
+    * May fail if no `Entity` is found for passed `Id`
+    * @return DBIO[Entity] for the `Entity`
+    */
+  def findById(id: Id): DBIO[Entity]
 
-  <span class="tok-cm">/** Finds `Entity` referenced by `Id` optionally.</span>
-<span class="tok-cm">    * @return DBIO[Option[Entity]] for the `Entity`</span>
-<span class="tok-cm">    */</span>
-  <span class="tok-k">def</span> <span class="tok-n">findOptionById</span><span class="tok-o">(</span><span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Id</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Option</span><span class="tok-o">[</span><span class="tok-kt">Entity</span><span class="tok-o">]]</span></code></pre>
+  /** Finds `Entity` referenced by `Id` optionally.
+    * @return DBIO[Option[Entity]] for the `Entity`
+    */
+  def findOptionById(id: Id): DBIO[Option[Entity]]</code></pre>
 </div>
 </div>
 <div class="admonitionblock tip">
@@ -247,51 +247,50 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="scala"><span class="tok-k">import</span> <span class="tok-nn">io.strongtyped.active.slick._</span>
-<span class="tok-k">import</span> <span class="tok-nn">slick.ast.BaseTypedType</span>
-<span class="tok-k">import</span> <span class="tok-nn">slick.driver.H2Driver</span>
-<span class="tok-k">import</span> <span class="tok-nn">io.strongtyped.active.slick.Lens._</span>
-<span class="tok-k">import</span> <span class="tok-nn">scala.language.postfixOps</span>
-<span class="tok-k">import</span> <span class="tok-nn">scala.concurrent.ExecutionContext.Implicits.global</span>
+<pre class="pygments highlight"><code data-lang="scala">import io.strongtyped.active.slick._
+import slick.ast.BaseTypedType
+import io.strongtyped.active.slick.Lens._
+import scala.language.postfixOps
+import scala.concurrent.ExecutionContext.Implicits.global
 
-<span class="tok-k">object</span> <span class="tok-nc">MappingWithActiveSlick</span> <span class="tok-o">{</span>
+object MappingWithActiveSlick {
 
-  <span class="tok-k">case</span> <span class="tok-k">class</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-k">:</span> <span class="tok-kt">String</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Option</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]</span> <span class="tok-k">=</span> <span class="tok-nc">None</span><span class="tok-o">)</span>
-
+  case class Coffee(name: String, id: Option[Int] = None)
 
 
-  <span class="tok-k">object</span> <span class="tok-nc">CoffeeRepo</span> <span class="tok-k">extends</span> <span class="tok-nc">EntityActions</span> <span class="tok-k">with</span> <span class="tok-n">H2ProfileProvider</span> <span class="tok-o">{</span>
 
-    <span class="tok-k">import</span> <span class="tok-nn">jdbcProfile.api._</span> <span class="tok-c1">// </span><i class="conum" data-value="1"></i><b>(1)</b>
-    <span class="tok-k">val</span> <span class="tok-n">baseTypedType</span> <span class="tok-k">=</span> <span class="tok-n">implicitly</span><span class="tok-o">[</span><span class="tok-kt">BaseTypedType</span><span class="tok-o">[</span><span class="tok-kt">Id</span><span class="tok-o">]]</span> <span class="tok-c1">// </span><i class="conum" data-value="2"></i><b>(2)</b>
+  object CoffeeRepo extends EntityActions with H2ProfileProvider {
 
-    <span class="tok-k">type</span> <span class="tok-kt">Entity</span> <span class="tok-o">=</span> <span class="tok-nc">Coffee</span> <span class="tok-c1">// </span><i class="conum" data-value="3"></i><b>(3)</b>
-    <span class="tok-k">type</span> <span class="tok-kt">Id</span> <span class="tok-o">=</span> <span class="tok-nc">Int</span> <span class="tok-c1">// </span><i class="conum" data-value="4"></i><b>(4)</b>
-    <span class="tok-k">type</span> <span class="tok-kt">EntityTable</span> <span class="tok-o">=</span> <span class="tok-nc">CoffeeTable</span> <span class="tok-c1">// </span><i class="conum" data-value="5"></i><b>(5)</b>
+    import jdbcProfile.api._ // <i class="conum" data-value="1"></i><b>(1)</b>
+    val baseTypedType = implicitly[BaseTypedType[Id]] // <i class="conum" data-value="2"></i><b>(2)</b>
 
-    <span class="tok-k">val</span> <span class="tok-n">tableQuery</span> <span class="tok-k">=</span> <span class="tok-nc">TableQuery</span><span class="tok-o">[</span><span class="tok-kt">CoffeeTable</span><span class="tok-o">]</span> <span class="tok-c1">// </span><i class="conum" data-value="6"></i><b>(6)</b>
+    type Entity = Coffee // <i class="conum" data-value="3"></i><b>(3)</b>
+    type Id = Int // <i class="conum" data-value="4"></i><b>(4)</b>
+    type EntityTable = CoffeeTable // <i class="conum" data-value="5"></i><b>(5)</b>
 
-    <span class="tok-k">def</span> <span class="tok-nc">$id</span><span class="tok-o">(</span><span class="tok-n">table</span><span class="tok-k">:</span> <span class="tok-kt">CoffeeTable</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">Rep</span><span class="tok-o">[</span><span class="tok-kt">Id</span><span class="tok-o">]</span> <span class="tok-k">=</span> <span class="tok-n">table</span><span class="tok-o">.</span><span class="tok-n">id</span> <span class="tok-c1">// </span><i class="conum" data-value="7"></i><b>(7)</b>
+    val tableQuery = TableQuery[CoffeeTable] // <i class="conum" data-value="6"></i><b>(6)</b>
 
-    <span class="tok-k">val</span> <span class="tok-n">idLens</span> <span class="tok-k">=</span> <span class="tok-n">lens</span> <span class="tok-o">{</span> <span class="tok-n">coffee</span><span class="tok-k">:</span> <span class="tok-kt">Coffee</span> <span class="tok-o">=&gt;</span> <span class="tok-n">coffee</span><span class="tok-o">.</span><span class="tok-n">id</span>  <span class="tok-o">}</span> <span class="tok-c1">// </span><i class="conum" data-value="8"></i><b>(8)</b>
-                      <span class="tok-o">{</span> <span class="tok-o">(</span><span class="tok-n">coffee</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-o">)</span> <span class="tok-k">=&gt;</span> <span class="tok-n">coffee</span><span class="tok-o">.</span><span class="tok-n">copy</span><span class="tok-o">(</span><span class="tok-n">id</span> <span class="tok-k">=</span> <span class="tok-n">id</span><span class="tok-o">)</span> <span class="tok-o">}</span>
+    def $id(table: CoffeeTable): Rep[Id] = table.id // <i class="conum" data-value="7"></i><b>(7)</b>
 
-    <span class="tok-k">class</span> <span class="tok-nc">CoffeeTable</span><span class="tok-o">(</span><span class="tok-n">tag</span><span class="tok-k">:</span> <span class="tok-kt">Tag</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">Table</span><span class="tok-o">[</span><span class="tok-kt">Coffee</span><span class="tok-o">](</span><span class="tok-n">tag</span><span class="tok-o">,</span> <span class="tok-s">&quot;COFFEE&quot;</span><span class="tok-o">)</span> <span class="tok-o">{</span> <span class="tok-c1">// </span><i class="conum" data-value="9"></i><b>(9)</b>
-      <span class="tok-k">def</span> <span class="tok-n">name</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">String</span><span class="tok-o">](</span><span class="tok-s">&quot;NAME&quot;</span><span class="tok-o">)</span>
-      <span class="tok-k">def</span> <span class="tok-n">id</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">Id</span><span class="tok-o">](</span><span class="tok-s">&quot;ID&quot;</span><span class="tok-o">,</span> <span class="tok-n">O</span><span class="tok-o">.</span><span class="tok-nc">PrimaryKey</span><span class="tok-o">,</span> <span class="tok-n">O</span><span class="tok-o">.</span><span class="tok-nc">AutoInc</span><span class="tok-o">)</span>
-      <span class="tok-k">def</span> <span class="tok-o">*</span> <span class="tok-k">=</span> <span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-o">.?)</span> <span class="tok-o">&lt;&gt;(</span><span class="tok-nc">Coffee</span><span class="tok-o">.</span><span class="tok-n">tupled</span><span class="tok-o">,</span> <span class="tok-nc">Coffee</span><span class="tok-o">.</span><span class="tok-n">unapply</span><span class="tok-o">)</span>
-    <span class="tok-o">}</span>
+    val idLens = lens { coffee: Coffee =&gt; coffee.id  } // <i class="conum" data-value="8"></i><b>(8)</b>
+                      { (coffee, id) =&gt; coffee.copy(id = id) }
 
-    <span class="tok-k">def</span> <span class="tok-n">findByName</span><span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-k">:</span><span class="tok-kt">String</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Seq</span><span class="tok-o">[</span><span class="tok-kt">Coffee</span><span class="tok-o">]]</span> <span class="tok-k">=</span> <span class="tok-o">{</span>
-      <span class="tok-n">tableQuery</span><span class="tok-o">.</span><span class="tok-n">filter</span><span class="tok-o">(</span><span class="tok-k">_</span><span class="tok-o">.</span><span class="tok-n">name</span> <span class="tok-o">===</span> <span class="tok-n">name</span><span class="tok-o">).</span><span class="tok-n">result</span>
-    <span class="tok-o">}</span>
+    class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") { // <i class="conum" data-value="9"></i><b>(9)</b>
+      def name = column[String]("NAME")
+      def id = column[Id]("ID", O.PrimaryKey, O.AutoInc)
+      def * = (name, id.?) &lt;&gt;(Coffee.tupled, Coffee.unapply)
+    }
 
-<span class="tok-o">}</span>
+    def findByName(name:String): DBIO[Seq[Coffee]] = {
+      tableQuery.filter(_.name === name).result
+    }
 
-  <span class="tok-k">implicit</span> <span class="tok-k">class</span> <span class="tok-nc">EntryExtensions</span><span class="tok-o">(</span><span class="tok-k">val</span> <span class="tok-n">model</span><span class="tok-k">:</span> <span class="tok-kt">Coffee</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">ActiveRecord</span><span class="tok-o">(</span><span class="tok-nc">CoffeeRepo</span><span class="tok-o">)</span>
+}
 
-  <span class="tok-k">val</span> <span class="tok-n">saveAction</span> <span class="tok-k">=</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-s">&quot;Colombia&quot;</span><span class="tok-o">).</span><span class="tok-n">save</span><span class="tok-o">()</span>
-<span class="tok-o">}</span></code></pre>
+  implicit class EntryExtensions(val model: Coffee) extends ActiveRecord(CoffeeRepo)
+
+  val saveAction = Coffee("Colombia").save()
+}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -364,25 +363,25 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="scala">  <span class="tok-k">case</span> <span class="tok-k">class</span> <span class="tok-nc">Coffee</span><span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-k">:</span> <span class="tok-kt">String</span><span class="tok-o">,</span> <span class="tok-n">version</span><span class="tok-k">:</span> <span class="tok-kt">Long</span> <span class="tok-o">=</span> <span class="tok-mi">0</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Option</span><span class="tok-o">[</span><span class="tok-kt">Int</span><span class="tok-o">]</span> <span class="tok-k">=</span> <span class="tok-nc">None</span><span class="tok-o">)</span>
+<pre class="pygments highlight"><code data-lang="scala">  case class Coffee(name: String, version: Long = 0, id: Option[Int] = None)
 
-  <span class="tok-k">object</span> <span class="tok-nc">CoffeeRepo</span> <span class="tok-k">extends</span> <span class="tok-nc">EntityActions</span> <span class="tok-k">with</span> <span class="tok-nc">OptimisticLocking</span> <span class="tok-k">with</span> <span class="tok-n">H2ProfileProvider</span> <span class="tok-o">{</span>
+  object CoffeeRepo extends EntityActions with OptimisticLocking with H2ProfileProvider {
 
-    <span class="tok-k">import</span> <span class="tok-nn">jdbcProfile.api._</span>
+    import jdbcProfile.api._
 
-    <span class="tok-k">def</span> <span class="tok-nc">$version</span><span class="tok-o">(</span><span class="tok-n">table</span><span class="tok-k">:</span> <span class="tok-kt">CoffeeTable</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">Rep</span><span class="tok-o">[</span><span class="tok-kt">Long</span><span class="tok-o">]</span> <span class="tok-k">=</span> <span class="tok-n">table</span><span class="tok-o">.</span><span class="tok-n">version</span> <span class="tok-c1">// </span><i class="conum" data-value="1"></i><b>(1)</b>
-    <span class="tok-k">def</span> <span class="tok-n">versionLens</span> <span class="tok-k">=</span> <span class="tok-n">lens</span> <span class="tok-o">{</span> <span class="tok-n">coffee</span><span class="tok-k">:</span><span class="tok-kt">Coffee</span> <span class="tok-o">=&gt;</span> <span class="tok-n">coffee</span><span class="tok-o">.</span><span class="tok-n">version</span> <span class="tok-o">}</span>  <span class="tok-c1">// </span><i class="conum" data-value="2"></i><b>(2)</b>
-                           <span class="tok-o">{</span> <span class="tok-o">(</span><span class="tok-n">coffee</span><span class="tok-o">,</span> <span class="tok-n">vers</span><span class="tok-o">)</span> <span class="tok-k">=&gt;</span> <span class="tok-n">coffee</span><span class="tok-o">.</span><span class="tok-n">copy</span><span class="tok-o">(</span><span class="tok-n">version</span> <span class="tok-k">=</span> <span class="tok-n">vers</span><span class="tok-o">)</span> <span class="tok-o">}</span>
+    def $version(table: CoffeeTable): Rep[Long] = table.version // <i class="conum" data-value="1"></i><b>(1)</b>
+    def versionLens = lens { coffee:Coffee =&gt; coffee.version }  // <i class="conum" data-value="2"></i><b>(2)</b>
+                           { (coffee, vers) =&gt; coffee.copy(version = vers) }
 
 
-    <span class="tok-k">class</span> <span class="tok-nc">CoffeeTable</span><span class="tok-o">(</span><span class="tok-n">tag</span><span class="tok-k">:</span> <span class="tok-kt">Tag</span><span class="tok-o">)</span> <span class="tok-k">extends</span> <span class="tok-nc">Table</span><span class="tok-o">[</span><span class="tok-kt">Coffee</span><span class="tok-o">](</span><span class="tok-n">tag</span><span class="tok-o">,</span> <span class="tok-s">&quot;COFFEE&quot;</span><span class="tok-o">)</span> <span class="tok-o">{</span>
-      <span class="tok-k">def</span> <span class="tok-n">name</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">String</span><span class="tok-o">](</span><span class="tok-s">&quot;NAME&quot;</span><span class="tok-o">)</span>
-      <span class="tok-k">def</span> <span class="tok-n">id</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">Id</span><span class="tok-o">](</span><span class="tok-s">&quot;ID&quot;</span><span class="tok-o">,</span> <span class="tok-n">O</span><span class="tok-o">.</span><span class="tok-nc">PrimaryKey</span><span class="tok-o">,</span> <span class="tok-n">O</span><span class="tok-o">.</span><span class="tok-nc">AutoInc</span><span class="tok-o">)</span>
-      <span class="tok-k">def</span> <span class="tok-n">version</span> <span class="tok-k">=</span> <span class="tok-n">column</span><span class="tok-o">[</span><span class="tok-kt">Long</span><span class="tok-o">](</span><span class="tok-s">&quot;VERSION&quot;</span><span class="tok-o">)</span>
-      <span class="tok-k">def</span> <span class="tok-o">*</span> <span class="tok-k">=</span> <span class="tok-o">(</span><span class="tok-n">name</span><span class="tok-o">,</span> <span class="tok-n">version</span><span class="tok-o">,</span> <span class="tok-n">id</span><span class="tok-o">.?)</span> <span class="tok-o">&lt;&gt;(</span><span class="tok-nc">Coffee</span><span class="tok-o">.</span><span class="tok-n">tupled</span><span class="tok-o">,</span> <span class="tok-nc">Coffee</span><span class="tok-o">.</span><span class="tok-n">unapply</span><span class="tok-o">)</span>
-    <span class="tok-o">}</span>
-    <span class="tok-o">...</span>
-  <span class="tok-o">}</span></code></pre>
+    class CoffeeTable(tag: Tag) extends Table[Coffee](tag, "COFFEE") {
+      def name = column[String]("NAME")
+      def id = column[Id]("ID", O.PrimaryKey, O.AutoInc)
+      def version = column[Long]("VERSION")
+      def * = (name, version, id.?) &lt;&gt;(Coffee.tupled, Coffee.unapply)
+    }
+    ...
+  }</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -435,15 +434,15 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="scala"><span class="tok-k">def</span> <span class="tok-n">beforeInsert</span><span class="tok-o">(</span><span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Entity</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Entity</span><span class="tok-o">]</span> <span class="tok-k">=</span> <span class="tok-o">{</span>
-    <span class="tok-c1">// default implementation does nothing</span>
-    <span class="tok-nc">DBIO</span><span class="tok-o">.</span><span class="tok-n">successful</span><span class="tok-o">(</span><span class="tok-n">entity</span><span class="tok-o">)</span>
-<span class="tok-o">}</span>
+<pre class="pygments highlight"><code data-lang="scala">def beforeInsert(entity: Entity)(implicit exc: ExecutionContext): DBIO[Entity] = {
+    // default implementation does nothing
+    DBIO.successful(entity)
+}
 
-<span class="tok-k">def</span> <span class="tok-n">beforeUpdate</span><span class="tok-o">(</span><span class="tok-n">id</span><span class="tok-k">:</span> <span class="tok-kt">Id</span><span class="tok-o">,</span> <span class="tok-n">entity</span><span class="tok-k">:</span> <span class="tok-kt">Entity</span><span class="tok-o">)(</span><span class="tok-k">implicit</span> <span class="tok-n">exc</span><span class="tok-k">:</span> <span class="tok-kt">ExecutionContext</span><span class="tok-o">)</span><span class="tok-k">:</span> <span class="tok-kt">DBIO</span><span class="tok-o">[</span><span class="tok-kt">Entity</span><span class="tok-o">]</span> <span class="tok-k">=</span> <span class="tok-o">{</span>
-    <span class="tok-c1">// default implementation does nothing</span>
-    <span class="tok-nc">DBIO</span><span class="tok-o">.</span><span class="tok-n">successful</span><span class="tok-o">(</span><span class="tok-n">entity</span><span class="tok-o">)</span>
-<span class="tok-o">}</span></code></pre>
+def beforeUpdate(id: Id, entity: Entity)(implicit exc: ExecutionContext): DBIO[Entity] = {
+    // default implementation does nothing
+    DBIO.successful(entity)
+}</code></pre>
 </div>
 </div>
 <div id="toc" class="toc">
@@ -469,7 +468,7 @@
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-03-17 12:14:58 CET
+Last updated 2017-04-27 23:45:48 CEST
 </div>
 </div>
 </body>
