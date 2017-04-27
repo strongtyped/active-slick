@@ -1,7 +1,7 @@
 import Dependencies._
 import BuildSettings._
 
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.11.11"
 
 ivyScala := ivyScala.value map {
   _.copy(overrideScalaVersion = true)
@@ -9,7 +9,7 @@ ivyScala := ivyScala.value map {
 
 organization in ThisBuild := "io.strongtyped"
 
-crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.0-M5")
+crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.2")
 
 parallelExecution in Test := false
 
