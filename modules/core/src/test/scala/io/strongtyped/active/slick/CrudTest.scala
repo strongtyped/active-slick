@@ -1,13 +1,13 @@
 package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.test.H2Suite
-import org.scalatest.FlatSpec
 import slick.ast.BaseTypedType
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 import io.strongtyped.active.slick.Lens._
+import org.scalatest.flatspec.AnyFlatSpec
 
-class CrudTest extends FlatSpec with H2Suite with JdbcProfileProvider {
+class CrudTest extends AnyFlatSpec with H2Suite with JdbcProfileProvider {
 
   behavior of "An EntityDao (CRUD)"
 

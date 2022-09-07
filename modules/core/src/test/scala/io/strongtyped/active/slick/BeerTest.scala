@@ -3,10 +3,11 @@ package io.strongtyped.active.slick
 import io.strongtyped.active.slick.exceptions.RowNotFoundException
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
-class BeerTest extends FlatSpec with H2Suite with Schema {
+class BeerTest extends AnyFlatSpec with H2Suite with Schema {
 
   behavior of "A Beer"
 

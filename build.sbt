@@ -9,7 +9,7 @@ ivyScala := ivyScala.value map {
 
 organization in ThisBuild := "io.strongtyped"
 
-crossScalaVersions in ThisBuild := Seq("2.11.11", "2.12.2")
+crossScalaVersions in ThisBuild := Seq("2.11.12", "2.12.16", "2.13.8")
 
 parallelExecution in Test := false
 

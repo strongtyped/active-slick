@@ -4,12 +4,13 @@ import io.strongtyped.active.slick.docexamples.ActiveSlickWithCodegen.ComputersR
 import io.strongtyped.active.slick.docexamples.ActiveSlickWithCodegen.ComputersRepo.EntryExtensions
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 import ComputersRepo.EntryExtensions
 import io.strongtyped.active.slick.docexamples.codegen.Tables.ComputersRow
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
-class ActiveSlickWithCodegenTest extends FlatSpec with H2Suite with OptionValues {
+class ActiveSlickWithCodegenTest extends AnyFlatSpec with H2Suite with OptionValues {
 
   "ActiveSlickWithCodegen" should "provide crud and active record semantics for generated tables" in {
 

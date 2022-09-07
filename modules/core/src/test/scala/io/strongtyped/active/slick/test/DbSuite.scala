@@ -2,6 +2,7 @@ package io.strongtyped.active.slick.test
 
 import io.strongtyped.active.slick.JdbcProfileProvider
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
 import slick.basic.DatabasePublisher
 
 import scala.concurrent.duration.{FiniteDuration, _}

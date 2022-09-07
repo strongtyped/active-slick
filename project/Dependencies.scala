@@ -2,10 +2,10 @@ import sbt.Keys._
 import sbt._
 
 object Dependencies {
-  val slickVersion = "3.2.0"
+  val slickVersion = "3.3.3"
   val slick = "com.typesafe.slick" %% "slick" % slickVersion
 
-  val shapelessDeps = Seq("com.chuusai" %% "shapeless" % "2.3.2")
+  val shapelessDeps = Seq("com.chuusai" %% "shapeless" % "2.3.3")
   /*Def setting (
     CrossVersion partialVersion scalaVersion.value match {
       case Some((2, scalaMajor)) if scalaMajor >= 11 =>
@@ -19,7 +19,7 @@ object Dependencies {
   )*/
 
 
-  val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+  val scalaTest = "org.scalatest" %% "scalatest" % "3.2.13" % "test"
   val h2database = "com.h2database" % "h2" % "1.4.181" % "test"
 
   val mainDeps = Seq(

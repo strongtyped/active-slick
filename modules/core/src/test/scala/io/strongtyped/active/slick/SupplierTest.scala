@@ -5,9 +5,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import io.strongtyped.active.slick.exceptions.StaleObjectStateException
 import io.strongtyped.active.slick.test.H2Suite
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 import slick.dbio.DBIO
 
-class SupplierTest extends FlatSpec with H2Suite with Schema {
+class SupplierTest extends AnyFlatSpec with H2Suite with Schema {
 
   behavior of "A Supplier"
 

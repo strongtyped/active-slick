@@ -1,13 +1,13 @@
 package io.strongtyped.active.slick
 
 import io.strongtyped.active.slick.test.H2Suite
-import org.scalatest.FlatSpec
 import slick.ast.BaseTypedType
 import io.strongtyped.active.slick.Lens._
 import scala.concurrent.ExecutionContext
+import org.scalatest.flatspec.AnyFlatSpec
 
 class EntityActionsBeforeInsertUpdateTest
-  extends FlatSpec with H2Suite with JdbcProfileProvider {
+  extends AnyFlatSpec with H2Suite with JdbcProfileProvider {
 
   behavior of "An EntityDao with validation "
 
