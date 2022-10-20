@@ -1,3 +1,5 @@
+This project is not maintained anymore and therefore it's archived. Feel free to contact the owner (@octonato), if you would like to have unarchive it and have it transfer to you.
+
 # ActiveSlick
 
 [![Build Status](https://travis-ci.org/strongtyped/active-slick.svg?branch=develop)](https://travis-ci.org/strongtyped/active-slick)
